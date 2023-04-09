@@ -3,7 +3,8 @@ const SCREEN_HEIGHT = window.innerHeight;
 const GAME_LOOP_TICK_MS = 30;
 const MINIMAP_BASE_POSITION_X = 5;
 const MINIMAP_BASE_POSITION_Y = 5;
-const MINIMAP_SCALE = 0.5;
+const MINIMAP_SCALE = 0.75;
+const FIELD_OF_VIEW = 60 * Math.PI / 180;
 const MINIMAP_PLAYER_SIZE = 10;
 const CELL_SIZE = 64;
 
@@ -13,14 +14,14 @@ const map = [
   [1, 0, 1, 1, 0, 1, 1],
   [1, 0, 0, 0, 0, 0, 1],
   [1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1],
 ];
 
 const player = {
-  x: CELL_SIZE * 1.5,
-  y: CELL_SIZE * 2,
-  angle: 0,
+  x: CELL_SIZE * 1.25,
+  y: CELL_SIZE * 3,
+  angle: 0,//9.61,
   angularSpeed: 0,
   speed: 0,
 };
@@ -29,6 +30,10 @@ const colours = {
   CELL: 'grey',
   MINIMAP_PLAYER: 'white',
   RAYS: '#ffa600',
+  FLOOR: "#d52b1e", // "#ff6361"
+  CEILING: "#ffffff", // "#012975",
+  WALL: "#013aa6", // "#58508d"
+  WALL_DARK: "#012975", // "#003f5c"
 };
 
 const toRadians = (deg) => (deg * Math.PI) / 180;
@@ -98,12 +103,116 @@ const movePlayer = () => {
   player.y += Math.sin(player.angle) * player.speed;
 };
 
-const getRays = () => {
-  return [];
+const isOutOfMapBounds = ({ cellX, cellY }) => {
+  return cellX < 0 || cellX >= map[0].length || cellY < 0 || cellY >= map.length;
 };
 
-const renderScene = ({ rays }) => {
+const calculatePlayerDistanceTo = ({ x, y }) => {
+  return Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
+};
 
+const calculateVerticalCollision = ({ angle }) => {
+  // Check for vertical collisions.
+  const isAngleFacingRight = Math.abs(Math.floor((angle - Math.PI / 2) / Math.PI) % 2) !== 0;
+
+  // const firstX = Math.floor(player.x / CELL_SIZE) * CELL_SIZE;
+  const firstX = isAngleFacingRight
+    ? Math.floor(player.x / CELL_SIZE) * CELL_SIZE + CELL_SIZE
+    : Math.floor(player.x / CELL_SIZE) * CELL_SIZE;
+  const firstY = player.y + (firstX - player.x) * Math.tan(angle);
+
+  const xStepSize = isAngleFacingRight ? CELL_SIZE : -CELL_SIZE;
+  const yStepSize = xStepSize * Math.tan(angle);
+
+  let wallCollision;
+  let nextX = firstX;
+  let nextY = firstY;
+
+  while (!wallCollision) {
+    const cellX = isAngleFacingRight ? Math.floor(nextX / CELL_SIZE) : Math.floor(nextX / CELL_SIZE) - 1;
+    const cellY = Math.floor(nextY / CELL_SIZE);
+
+    if (isOutOfMapBounds({ cellX, cellY })) {
+      break;
+    }
+
+    wallCollision = map[cellY][cellX];
+
+    if (!wallCollision) {
+      nextX += xStepSize;
+      nextY += yStepSize;
+    }
+  }
+
+  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), vertical: true };
+};
+
+const calculateHorizontalCollision = ({ angle }) => {
+  // Check for vertical collisions.
+  const isAngleFacingUp = (Math.abs(Math.floor(angle / Math.PI)) % 2) !== 0;
+
+  const firstY = isAngleFacingUp ? 
+    Math.floor(player.y / CELL_SIZE) * CELL_SIZE :
+    Math.floor(player.y / CELL_SIZE) * CELL_SIZE + CELL_SIZE;
+
+  const firstX = player.x + (firstY - player.y) / Math.tan(angle);
+
+  const yStepSize = isAngleFacingUp ? -CELL_SIZE : CELL_SIZE;
+  const xStepSize = yStepSize / Math.tan(angle);
+
+  let wallCollision;
+  let nextX = firstX;
+  let nextY = firstY;
+
+  while (!wallCollision) {
+    const cellX = Math.floor(nextX / CELL_SIZE);
+    const cellY = isAngleFacingUp ? Math.floor(nextY / CELL_SIZE) - 1 : Math.floor(nextY / CELL_SIZE);
+
+    if (isOutOfMapBounds({ cellX, cellY })) {
+      break;
+    }
+
+    wallCollision = map[cellY][cellX];
+
+    if (!wallCollision) {
+      nextY += yStepSize;
+      nextX += xStepSize;
+    }
+  }
+
+  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), horizontal: true };
+}
+
+const castRay = ({ angle }) => {
+  const verticalCollision = calculateVerticalCollision({ angle });
+  const horizontalCollision = calculateHorizontalCollision({ angle });
+  return horizontalCollision.distance >= verticalCollision.distance ? verticalCollision : horizontalCollision;
+};
+
+const getRays = () => {
+  // The angle at which to begin the ray casting array.
+  const initialAngle = player.angle - FIELD_OF_VIEW / 2;
+  const numberOfRays = SCREEN_WIDTH;
+  const angleBetweenRays = FIELD_OF_VIEW / numberOfRays;
+  return Array.from({ length: numberOfRays }, (_, i) => castRay({ angle: initialAngle + i * angleBetweenRays }));
+};
+
+const renderScene = ({ canvasContext, rays }) => {
+  rays.forEach((ray, i) => {
+    const distance = ray.distance;
+    const wallHeight = ((CELL_SIZE * 5) / distance) * 277;
+    canvasContext.fillStyle = ray.vertical ? colours.WALL_DARK : colours.WALL;
+    canvasContext.fillRect(i, SCREEN_HEIGHT / 2 - wallHeight / 2, 1, wallHeight);
+    canvasContext.fillStyle = colours.FLOOR;
+    canvasContext.fillRect(
+      i,
+      SCREEN_HEIGHT / 2 + wallHeight / 2,
+      1,
+      SCREEN_HEIGHT / 2 - wallHeight / 2
+    );
+    canvasContext.fillStyle = colours.CEILING;
+    canvasContext.fillRect(i, 0, 1, SCREEN_HEIGHT / 2 - wallHeight / 2);
+  });
 };
 
 const renderMiniMap = ({ canvasContext, rays }) => {
@@ -187,7 +296,7 @@ const gameLoop = ({ canvasContext }) => {
   movePlayer();
   
   const rays = getRays();
-  renderScene({ rays });
+  renderScene({ canvasContext, rays });
   renderMiniMap({ canvasContext, rays });
 };
 
