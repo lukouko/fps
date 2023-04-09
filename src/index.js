@@ -12,6 +12,8 @@ const initialise = () => {
   if (!context) {
     throw new Error('No context found');
   }
+
+  console.log('Loaded');
   
 };
 

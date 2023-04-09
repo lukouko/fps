@@ -2,13 +2,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-
-// style files regexes
-const cssRegex = /\.css$/;
-const cssModuleRegex = /\.module\.css$/;
 
 const babelLoaderPlugins = [
   require.resolve('@babel/plugin-transform-modules-commonjs'),
@@ -28,7 +23,7 @@ function config() {
     devtool: isProd ? false : 'cheap-module-source-map',
 
     entry: {
-      'fps': ['./src/index.js', './src/index.css'],
+      'fps': ['./src/index.js'],
     },
     output: {
       path: path.resolve(__dirname, './dist'),
@@ -104,12 +99,6 @@ function config() {
             },
 
             {
-              test: cssRegex,
-              exclude: cssModuleRegex,
-              use: ['style-loader', 'css-loader', 'import-glob-loader'],
-            },
-
-            {
               loader: require.resolve('file-loader'),
               exclude: [/\.(js|mjs|ts|tsx)$/, /\.html$/, /\.json$/],
               options: {
@@ -139,11 +128,6 @@ function config() {
             },
           },
         }),
-
-      new MiniCssExtractPlugin({
-        filename: '[name].[contenthash:8].css',
-        chunkFilename: '[name].[contenthash:8].chunk.css',
-      }),
     ].filter(Boolean),
 
     performance: false,
