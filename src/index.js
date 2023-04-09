@@ -3,7 +3,8 @@ const SCREEN_HEIGHT = window.innerHeight;
 const GAME_LOOP_TICK_MS = 30;
 const MINIMAP_BASE_POSITION_X = 5;
 const MINIMAP_BASE_POSITION_Y = 5;
-const MINIMAP_SCALE = 0.75;
+const MINIMAP_SCALE = 0.5;
+const MINIMAP_PLAYER_SIZE = 10;
 const CELL_SIZE = 64;
 
 const map = [
@@ -20,8 +21,17 @@ const player = {
   x: CELL_SIZE * 1.5,
   y: CELL_SIZE * 2,
   angle: 0,
+  angularSpeed: 0,
   speed: 0,
 };
+
+const colours = {
+  CELL: 'grey',
+  MINIMAP_PLAYER: 'white',
+  RAYS: '#ffa600',
+};
+
+const toRadians = (deg) => (deg * Math.PI) / 180;
 
 const initialise = () => {
   const canvas = document.createElement('canvas');
@@ -37,7 +47,41 @@ const initialise = () => {
 
   document.body.appendChild(canvas);
 
-  console.log('Loaded');
+  document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowUp':
+        player.speed = 2;
+      break;
+
+      case 'ArrowDown':
+        player.speed = -2;
+      break;
+
+      case 'ArrowLeft':
+        player.angularSpeed = toRadians(-2);
+      break;
+
+      case 'ArrowRight':
+        player.angularSpeed = toRadians(2);
+      break;
+
+      default: break;
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      player.speed = 0;
+    }
+
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      player.angularSpeed = 0;
+    }
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    player.angle += toRadians(e.movementX);
+  });
 
   setInterval(() => gameLoop({ canvasContext }), GAME_LOOP_TICK_MS);
   
@@ -49,7 +93,9 @@ const clearScreen = ({ canvasContext }) => {
 };
 
 const movePlayer = () => {
-
+  player.angle += player.angularSpeed;
+  player.x += Math.cos(player.angle) * player.speed;
+  player.y += Math.sin(player.angle) * player.speed;
 };
 
 const getRays = () => {
@@ -62,14 +108,17 @@ const renderScene = ({ rays }) => {
 
 const renderMiniMap = ({ canvasContext, rays }) => {
   const miniMapCellSize = MINIMAP_SCALE * CELL_SIZE;
+  const miniMapPlayerPositionX = MINIMAP_BASE_POSITION_X + player.x;
+  const miniMapPlayerPositionY = MINIMAP_BASE_POSITION_Y + player.y;
 
-  // Loop through map data, first by row. We can treat row index in the 2d array as a basis for Y coordinates.
+  // Render the minimap by looping through map data.
+  // We first loop over the rows. We can treat row index in the 2d array as a basis for Y coordinates.
   map.forEach((row, y) => {
     // Loop through each cell in the current row. We can treat cell index in the row array as a basis for X coordinates.
     row.forEach((cell, x) => {
       // TODO: Determine how to render cell based on value. For now, we are just using on or off. On being grey.
       if (cell === 1) {
-        canvasContext.fillStyle = 'grey';
+        canvasContext.fillStyle = colours.CELL;
         canvasContext.fillRect(
           MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
           MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
@@ -80,6 +129,57 @@ const renderMiniMap = ({ canvasContext, rays }) => {
     });
   });
 
+  // Render the player in the minimap.
+  canvasContext.fillStyle = colours.MINIMAP_PLAYER;
+  canvasContext.fillRect(
+    miniMapPlayerPositionX * MINIMAP_SCALE - (MINIMAP_PLAYER_SIZE / 2),
+    miniMapPlayerPositionY * MINIMAP_SCALE - (MINIMAP_PLAYER_SIZE / 2),
+    MINIMAP_PLAYER_SIZE,
+    MINIMAP_PLAYER_SIZE,
+  );
+
+  // Render the passed rays array.
+  canvasContext.strokeStyle = colours.RAYS;
+  rays.forEach((ray) => {
+    canvasContext.beginPath();
+
+    // The starting point of the ray is the player location.
+    canvasContext.moveTo(
+      miniMapPlayerPositionX * MINIMAP_SCALE,
+      miniMapPlayerPositionY * MINIMAP_SCALE,
+    );
+
+    // Draw the raycast ray.
+    canvasContext.lineTo( 
+      (miniMapPlayerPositionX + Math.cos(ray.angle) * ray.distance) * MINIMAP_SCALE,
+      (miniMapPlayerPositionY + Math.sin(ray.angle) * ray.distance) * MINIMAP_SCALE,
+    );
+
+    // Stop drawing the ray and render it.
+    canvasContext.closePath();
+    canvasContext.stroke();
+  });
+
+  // Render player direction ray.
+  const playerDirectionRayLength = MINIMAP_PLAYER_SIZE * 2;
+  canvasContext.strokeStyle = colours.MINIMAP_PLAYER;
+  canvasContext.beginPath();
+
+  // The starting point of the line is the player location.
+  canvasContext.moveTo(
+    miniMapPlayerPositionX * MINIMAP_SCALE,
+    miniMapPlayerPositionY * MINIMAP_SCALE,
+  );
+
+  // Draw the player direction ray.
+  canvasContext.lineTo( 
+    (miniMapPlayerPositionX + Math.cos(player.angle) * playerDirectionRayLength) * MINIMAP_SCALE,
+    (miniMapPlayerPositionY + Math.sin(player.angle) * playerDirectionRayLength) * MINIMAP_SCALE,
+  );
+
+  // Stop drawing player direction ray and render it.
+  canvasContext.closePath();
+  canvasContext.stroke();
 };
 
 const gameLoop = ({ canvasContext }) => {
