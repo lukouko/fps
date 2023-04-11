@@ -1,8 +1,10 @@
 // @ts-nocheck
-import bugGreen from './bug-green.png';
-import bugPurple from './bug-purple.png';
+import bricks1 from './medieval_blocks_03_diff_64_64.png';
+import wood128 from './brown_planks_128_128.jpg';
+import bricks2_128 from './brick_wall_128_128.jpg';
 
 export {
-  bugGreen,
-  bugPurple,
+  bricks1,
+  wood128,
+  bricks2_128,
 };

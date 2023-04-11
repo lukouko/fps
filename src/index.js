@@ -1,21 +1,39 @@
+import * as assets from 'fps/assets';
+
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
-const GAME_LOOP_TICK_MS = 30;
+const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
+const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
+const GAME_LOOP_TICK_MS = 20;
 const MINIMAP_BASE_POSITION_X = 5;
 const MINIMAP_BASE_POSITION_Y = 5;
-const MINIMAP_SCALE = 0.75;
+const MINIMAP_SCALE = 0.45;
 const FIELD_OF_VIEW = 60 * Math.PI / 180;
 const MINIMAP_PLAYER_SIZE = 10;
 const CELL_SIZE = 64;
+const PLAYER_WALK_SPEED = 4;
+const PLAYER_ANGULAR_SPEED_DEGREES = 4;
+const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
 
 const map = [
-  [1, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 0, 1, 1],
-  [1, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1],
+  [2, 2, 2, 2, 2, 2, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 2, 2, 0, 2, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 2, 0, 2, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 2, 2, 0, 2, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 2, 0, 2, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 0, 0, 0, 0, 0, 2],
+  [2, 2, 2, 2, 2, 2, 2],
 ];
 
 const player = {
@@ -31,14 +49,18 @@ const colours = {
   MINIMAP_PLAYER: 'white',
   RAYS: '#ffa600',
   FLOOR: "#d52b1e", // "#ff6361"
-  CEILING: "#ffffff", // "#012975",
+  CEILING: '#3C3C3C', // "#012975",
   WALL: "#013aa6", // "#58508d"
   WALL_DARK: "#012975", // "#003f5c"
 };
 
+const textures = {};
+let framesPerSecond = 0;
+let gameLoopCycles = 0;
+
 const toRadians = (deg) => (deg * Math.PI) / 180;
 
-const initialise = () => {
+const initialise = async () => {
   const canvas = document.createElement('canvas');
   canvas.width = SCREEN_WIDTH;
   canvas.height = SCREEN_HEIGHT;
@@ -50,24 +72,36 @@ const initialise = () => {
     throw new Error('No canvasContext found');
   }
 
+  await new Promise((resolve) => {
+    textures.bricks1 = new Image();
+    textures.bricks1.onload = resolve;
+    textures.bricks1.src = assets.bricks1;
+  });
+  
+  await new Promise((resolve) => {
+    textures.wood1 = new Image();
+    textures.wood1.onload = resolve;
+    textures.wood1.src = assets.bricks2_128;
+  });
+
   document.body.appendChild(canvas);
 
   document.addEventListener('keydown', (e) => {
     switch (e.key) {
       case 'ArrowUp':
-        player.speed = 2;
+        player.speed = PLAYER_WALK_SPEED;
       break;
 
       case 'ArrowDown':
-        player.speed = -2;
+        player.speed = -PLAYER_WALK_SPEED;
       break;
 
       case 'ArrowLeft':
-        player.angularSpeed = toRadians(-2);
+        player.angularSpeed = toRadians(-PLAYER_ANGULAR_SPEED_DEGREES);
       break;
 
       case 'ArrowRight':
-        player.angularSpeed = toRadians(2);
+        player.angularSpeed = toRadians(PLAYER_ANGULAR_SPEED_DEGREES);
       break;
 
       default: break;
@@ -84,12 +118,12 @@ const initialise = () => {
     }
   });
 
-  document.addEventListener('mousemove', (e) => {
+  /*document.addEventListener('mousemove', (e) => {
     player.angle += toRadians(e.movementX);
-  });
+  });*/
 
   setInterval(() => gameLoop({ canvasContext }), GAME_LOOP_TICK_MS);
-  
+  setInterval(trackFps, 1000);
 };
 
 const clearScreen = ({ canvasContext }) => {
@@ -99,8 +133,19 @@ const clearScreen = ({ canvasContext }) => {
 
 const movePlayer = () => {
   player.angle += player.angularSpeed;
-  player.x += Math.cos(player.angle) * player.speed;
-  player.y += Math.sin(player.angle) * player.speed;
+  const xMovement = Math.cos(player.angle) * player.speed;
+  const yMovement = Math.sin(player.angle) * player.speed;
+
+  // Clipping checking.
+  const hypotheticalXCell = Math.floor((player.x + xMovement) / CELL_SIZE);
+  const hypotheticalYCell = Math.floor((player.y + yMovement) / CELL_SIZE);
+
+  if (isOutOfMapBounds({ cellX: hypotheticalXCell, cellY: hypotheticalYCell }) || map[hypotheticalYCell][hypotheticalXCell] !== 0) {
+    return;
+  }
+
+  player.x += xMovement;
+  player.y += yMovement;
 };
 
 const isOutOfMapBounds = ({ cellX, cellY }) => {
@@ -144,7 +189,7 @@ const calculateVerticalCollision = ({ angle }) => {
     }
   }
 
-  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), vertical: true };
+  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), wallCollision, vertical: true, x: nextX, y: nextY };
 };
 
 const calculateHorizontalCollision = ({ angle }) => {
@@ -180,13 +225,16 @@ const calculateHorizontalCollision = ({ angle }) => {
     }
   }
 
-  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), horizontal: true };
+  return { angle, distance: calculatePlayerDistanceTo({ x: nextX, y: nextY }), wallCollision, horizontal: true, x: nextX, y: nextY  };
 }
 
 const castRay = ({ angle }) => {
   const verticalCollision = calculateVerticalCollision({ angle });
   const horizontalCollision = calculateHorizontalCollision({ angle });
-  return horizontalCollision.distance >= verticalCollision.distance ? verticalCollision : horizontalCollision;
+
+
+  const collision = horizontalCollision.distance >= verticalCollision.distance ? verticalCollision : horizontalCollision;
+  return collision;
 };
 
 const getRays = () => {
@@ -198,20 +246,59 @@ const getRays = () => {
 };
 
 const renderScene = ({ canvasContext, rays }) => {
-  rays.forEach((ray, i) => {
-    const distance = ray.distance;
-    const wallHeight = ((CELL_SIZE * 5) / distance) * 277;
-    canvasContext.fillStyle = ray.vertical ? colours.WALL_DARK : colours.WALL;
-    canvasContext.fillRect(i, SCREEN_HEIGHT / 2 - wallHeight / 2, 1, wallHeight);
-    canvasContext.fillStyle = colours.FLOOR;
-    canvasContext.fillRect(
-      i,
-      SCREEN_HEIGHT / 2 + wallHeight / 2,
-      1,
-      SCREEN_HEIGHT / 2 - wallHeight / 2
+  // Draw floor.
+  const floorGradient = canvasContext.createLinearGradient(0, HALF_SCREEN_HEIGHT, 0, SCREEN_HEIGHT);
+  floorGradient.addColorStop(0, '#000000');
+  floorGradient.addColorStop(1, '#9C9C9C');
+  canvasContext.fillStyle = floorGradient;//`#747474`;
+  canvasContext.fillRect(0, Math.floor(HALF_SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT - Math.floor(HALF_SCREEN_HEIGHT));
+
+  // Draw ceiling.
+  canvasContext.fillStyle = colours.CEILING;
+  canvasContext.fillRect(0, 0, SCREEN_WIDTH, Math.floor(HALF_SCREEN_HEIGHT));
+
+  rays.forEach((ray, rayIndex) => {
+    // Using this calculation for distance instead of the raw ray distance fixes
+    // the fish eye effect cause by calculating the rays from a single central point
+    // on the player.
+    const distance = ray.distance * Math.cos(ray.angle - player.angle);
+   // const floorDist = SCREEN_HEIGHT / 2 / Math.tan(FIELD_OF_VIEW / 2);
+    const wallHeight = Math.floor(((CELL_SIZE * 5) / distance) * 270);
+    const textureOffset = Math.floor(ray.vertical ? ray.y : ray.x);
+
+    // Draw walls.
+    canvasContext.drawImage(
+      textures.wood1, 
+      textureOffset - Math.floor(textureOffset / CELL_SIZE) * CELL_SIZE,                // Source image x offset
+      0,                // Source image Y offset
+      1,                // Source image width
+      textures.wood1.height,               // Source image height
+      rayIndex,     // Target image X offset
+      Math.floor(SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
+      1,                // Target image width
+      wallHeight,       // Target image height
     );
-    canvasContext.fillStyle = colours.CEILING;
-    canvasContext.fillRect(i, 0, 1, SCREEN_HEIGHT / 2 - wallHeight / 2);
+
+    // Make walls that are further away a bit darker.
+    const darkness = Math.min(distance / 300, 1);
+    canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.8})`;
+    canvasContext.fillRect(
+      rayIndex,
+      Math.floor(SCREEN_HEIGHT / 2) - Math.floor(wallHeight / 2),
+      1,
+      wallHeight,
+    );
+
+    /* make side walls a bit darker */
+    /*if (ray.vertical) {
+      canvasContext.fillStyle = `rgba(0, 0, 0, ${0.2})`;
+      canvasContext.fillRect(
+        rayIndex,
+        Math.floor(SCREEN_HEIGHT / 2) - wallHeight / 2,
+        1,
+        wallHeight
+      );
+    }*/
   });
 };
 
@@ -226,8 +313,16 @@ const renderMiniMap = ({ canvasContext, rays }) => {
     // Loop through each cell in the current row. We can treat cell index in the row array as a basis for X coordinates.
     row.forEach((cell, x) => {
       // TODO: Determine how to render cell based on value. For now, we are just using on or off. On being grey.
-      if (cell === 1) {
+      if (cell !== 0) {
         canvasContext.fillStyle = colours.CELL;
+        canvasContext.fillRect(
+          MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
+          MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
+          miniMapCellSize, 
+          miniMapCellSize,
+        );
+      } else {
+        canvasContext.fillStyle = 'black';
         canvasContext.fillRect(
           MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
           MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
@@ -292,12 +387,23 @@ const renderMiniMap = ({ canvasContext, rays }) => {
 };
 
 const gameLoop = ({ canvasContext }) => {
+  ++gameLoopCycles;
+
   clearScreen({ canvasContext });
   movePlayer();
   
   const rays = getRays();
   renderScene({ canvasContext, rays });
   renderMiniMap({ canvasContext, rays });
+
+  canvasContext.fillStyle = 'white';
+  canvasContext.font = '16px Monospace';
+  canvasContext.fillText(framesPerSecond, 25, 25);
 };
+
+const trackFps = () => {
+  framesPerSecond = gameLoopCycles;
+  gameLoopCycles = 0;
+}
 
 initialise();
