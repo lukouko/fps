@@ -1,29 +1,15 @@
-import * as assets from 'fps/assets';
-
-const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
-const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
-const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
-const GAME_LOOP_TICK_MS = 20;
-const MINIMAP_BASE_POSITION_X = 5;
-const MINIMAP_BASE_POSITION_Y = 5;
-const MINIMAP_SCALE = 0.45;
-const FIELD_OF_VIEW = 60 * Math.PI / 180;
-const MINIMAP_PLAYER_SIZE = 10;
-const CELL_SIZE = 64;
-const PLAYER_WALK_SPEED = 4;
-const PLAYER_ANGULAR_SPEED_DEGREES = 4;
-const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
+import { loadTextures, getTextureImageById } from "./textures";
+import * as constants from './constants';
 
 const map = [
   [2, 2, 2, 2, 2, 2, 2],
   [2, 0, 0, 0, 0, 0, 2],
   [2, 0, 2, 2, 0, 2, 2],
   [2, 0, 0, 0, 0, 0, 2],
-  [2, 0, 2, 0, 2, 0, 2],
+  [2, 0, 1, 0, 1, 0, 2],
   [2, 0, 0, 0, 0, 0, 2],
   [2, 0, 0, 0, 0, 0, 2],
-  [2, 0, 2, 2, 0, 2, 2],
+  [2, 0, 3, 3, 0, 2, 2],
   [2, 0, 0, 0, 0, 0, 2],
   [2, 0, 2, 0, 2, 0, 2],
   [2, 0, 0, 0, 0, 0, 2],
@@ -37,8 +23,8 @@ const map = [
 ];
 
 const player = {
-  x: CELL_SIZE * 1.25,
-  y: CELL_SIZE * 3,
+  x: constants.CELL_SIZE * 1.25,
+  y: constants.CELL_SIZE * 3,
   angle: 0,//9.61,
   angularSpeed: 0,
   speed: 0,
@@ -62,8 +48,8 @@ const toRadians = (deg) => (deg * Math.PI) / 180;
 
 const initialise = async () => {
   const canvas = document.createElement('canvas');
-  canvas.width = SCREEN_WIDTH;
-  canvas.height = SCREEN_HEIGHT;
+  canvas.width = constants.SCREEN_WIDTH;
+  canvas.height = constants.SCREEN_HEIGHT;
 
   // Get the 2D rendering context of the canvas
   const canvasContext = canvas.getContext('2d');
@@ -72,36 +58,26 @@ const initialise = async () => {
     throw new Error('No canvasContext found');
   }
 
-  await new Promise((resolve) => {
-    textures.bricks1 = new Image();
-    textures.bricks1.onload = resolve;
-    textures.bricks1.src = assets.bricks1;
-  });
-  
-  await new Promise((resolve) => {
-    textures.wood1 = new Image();
-    textures.wood1.onload = resolve;
-    textures.wood1.src = assets.bricks2_128;
-  });
-
   document.body.appendChild(canvas);
+
+  await loadTextures();
 
   document.addEventListener('keydown', (e) => {
     switch (e.key) {
       case 'ArrowUp':
-        player.speed = PLAYER_WALK_SPEED;
+        player.speed = constants.PLAYER_WALK_SPEED;
       break;
 
       case 'ArrowDown':
-        player.speed = -PLAYER_WALK_SPEED;
+        player.speed = -constants.PLAYER_WALK_SPEED;
       break;
 
       case 'ArrowLeft':
-        player.angularSpeed = toRadians(-PLAYER_ANGULAR_SPEED_DEGREES);
+        player.angularSpeed = toRadians(-constants.PLAYER_ANGULAR_SPEED_DEGREES);
       break;
 
       case 'ArrowRight':
-        player.angularSpeed = toRadians(PLAYER_ANGULAR_SPEED_DEGREES);
+        player.angularSpeed = toRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES);
       break;
 
       default: break;
@@ -122,13 +98,13 @@ const initialise = async () => {
     player.angle += toRadians(e.movementX);
   });*/
 
-  setInterval(() => gameLoop({ canvasContext }), GAME_LOOP_TICK_MS);
+  setInterval(() => gameLoop({ canvasContext }), constants.GAME_LOOP_TICK_MS);
   setInterval(trackFps, 1000);
 };
 
 const clearScreen = ({ canvasContext }) => {
   canvasContext.fillStyle = 'black';
-  canvasContext.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  canvasContext.fillRect(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
 };
 
 const movePlayer = () => {
@@ -137,8 +113,8 @@ const movePlayer = () => {
   const yMovement = Math.sin(player.angle) * player.speed;
 
   // Clipping checking.
-  const hypotheticalXCell = Math.floor((player.x + xMovement) / CELL_SIZE);
-  const hypotheticalYCell = Math.floor((player.y + yMovement) / CELL_SIZE);
+  const hypotheticalXCell = Math.floor((player.x + xMovement) / constants.CELL_SIZE);
+  const hypotheticalYCell = Math.floor((player.y + yMovement) / constants.CELL_SIZE);
 
   if (isOutOfMapBounds({ cellX: hypotheticalXCell, cellY: hypotheticalYCell }) || map[hypotheticalYCell][hypotheticalXCell] !== 0) {
     return;
@@ -162,11 +138,11 @@ const calculateVerticalCollision = ({ angle }) => {
 
   // const firstX = Math.floor(player.x / CELL_SIZE) * CELL_SIZE;
   const firstX = isAngleFacingRight
-    ? Math.floor(player.x / CELL_SIZE) * CELL_SIZE + CELL_SIZE
-    : Math.floor(player.x / CELL_SIZE) * CELL_SIZE;
+    ? Math.floor(player.x / constants.CELL_SIZE) * constants.CELL_SIZE + constants.CELL_SIZE
+    : Math.floor(player.x / constants.CELL_SIZE) * constants.CELL_SIZE;
   const firstY = player.y + (firstX - player.x) * Math.tan(angle);
 
-  const xStepSize = isAngleFacingRight ? CELL_SIZE : -CELL_SIZE;
+  const xStepSize = isAngleFacingRight ? constants.CELL_SIZE : -constants.CELL_SIZE;
   const yStepSize = xStepSize * Math.tan(angle);
 
   let wallCollision;
@@ -174,8 +150,8 @@ const calculateVerticalCollision = ({ angle }) => {
   let nextY = firstY;
 
   while (!wallCollision) {
-    const cellX = isAngleFacingRight ? Math.floor(nextX / CELL_SIZE) : Math.floor(nextX / CELL_SIZE) - 1;
-    const cellY = Math.floor(nextY / CELL_SIZE);
+    const cellX = isAngleFacingRight ? Math.floor(nextX / constants.CELL_SIZE) : Math.floor(nextX / constants.CELL_SIZE) - 1;
+    const cellY = Math.floor(nextY / constants.CELL_SIZE);
 
     if (isOutOfMapBounds({ cellX, cellY })) {
       break;
@@ -197,12 +173,12 @@ const calculateHorizontalCollision = ({ angle }) => {
   const isAngleFacingUp = (Math.abs(Math.floor(angle / Math.PI)) % 2) !== 0;
 
   const firstY = isAngleFacingUp ? 
-    Math.floor(player.y / CELL_SIZE) * CELL_SIZE :
-    Math.floor(player.y / CELL_SIZE) * CELL_SIZE + CELL_SIZE;
+    Math.floor(player.y / constants.CELL_SIZE) * constants.CELL_SIZE :
+    Math.floor(player.y / constants.CELL_SIZE) * constants.CELL_SIZE + constants.CELL_SIZE;
 
   const firstX = player.x + (firstY - player.y) / Math.tan(angle);
 
-  const yStepSize = isAngleFacingUp ? -CELL_SIZE : CELL_SIZE;
+  const yStepSize = isAngleFacingUp ? -constants.CELL_SIZE : constants.CELL_SIZE;
   const xStepSize = yStepSize / Math.tan(angle);
 
   let wallCollision;
@@ -210,8 +186,8 @@ const calculateHorizontalCollision = ({ angle }) => {
   let nextY = firstY;
 
   while (!wallCollision) {
-    const cellX = Math.floor(nextX / CELL_SIZE);
-    const cellY = isAngleFacingUp ? Math.floor(nextY / CELL_SIZE) - 1 : Math.floor(nextY / CELL_SIZE);
+    const cellX = Math.floor(nextX / constants.CELL_SIZE);
+    const cellY = isAngleFacingUp ? Math.floor(nextY / constants.CELL_SIZE) - 1 : Math.floor(nextY / constants.CELL_SIZE);
 
     if (isOutOfMapBounds({ cellX, cellY })) {
       break;
@@ -239,23 +215,23 @@ const castRay = ({ angle }) => {
 
 const getRays = () => {
   // The angle at which to begin the ray casting array.
-  const initialAngle = player.angle - FIELD_OF_VIEW / 2;
-  const numberOfRays = SCREEN_WIDTH;
-  const angleBetweenRays = FIELD_OF_VIEW / numberOfRays;
+  const initialAngle = player.angle - constants.FIELD_OF_VIEW / 2;
+  const numberOfRays = constants.SCREEN_WIDTH;
+  const angleBetweenRays = constants.FIELD_OF_VIEW / numberOfRays;
   return Array.from({ length: numberOfRays }, (_, i) => castRay({ angle: initialAngle + i * angleBetweenRays }));
 };
 
 const renderScene = ({ canvasContext, rays }) => {
   // Draw floor.
-  const floorGradient = canvasContext.createLinearGradient(0, HALF_SCREEN_HEIGHT, 0, SCREEN_HEIGHT);
+  const floorGradient = canvasContext.createLinearGradient(0, constants.HALF_SCREEN_HEIGHT, 0, constants.SCREEN_HEIGHT);
   floorGradient.addColorStop(0, '#000000');
   floorGradient.addColorStop(1, '#9C9C9C');
   canvasContext.fillStyle = floorGradient;//`#747474`;
-  canvasContext.fillRect(0, Math.floor(HALF_SCREEN_HEIGHT), SCREEN_WIDTH, SCREEN_HEIGHT - Math.floor(HALF_SCREEN_HEIGHT));
+  canvasContext.fillRect(0, Math.floor(constants.HALF_SCREEN_HEIGHT), constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT - Math.floor(constants.HALF_SCREEN_HEIGHT));
 
   // Draw ceiling.
   canvasContext.fillStyle = colours.CEILING;
-  canvasContext.fillRect(0, 0, SCREEN_WIDTH, Math.floor(HALF_SCREEN_HEIGHT));
+  canvasContext.fillRect(0, 0, constants.SCREEN_WIDTH, Math.floor(constants.HALF_SCREEN_HEIGHT));
 
   rays.forEach((ray, rayIndex) => {
     // Using this calculation for distance instead of the raw ray distance fixes
@@ -263,18 +239,19 @@ const renderScene = ({ canvasContext, rays }) => {
     // on the player.
     const distance = ray.distance * Math.cos(ray.angle - player.angle);
    // const floorDist = SCREEN_HEIGHT / 2 / Math.tan(FIELD_OF_VIEW / 2);
-    const wallHeight = Math.floor(((CELL_SIZE * 5) / distance) * 270);
+    const wallHeight = Math.floor(((constants.CELL_SIZE * 5) / distance) * 270);
     const textureOffset = Math.floor(ray.vertical ? ray.y : ray.x);
 
     // Draw walls.
+    const wallTexture = getTextureImageById({ id: `wall${ray.wallCollision}`});
     canvasContext.drawImage(
-      textures.wood1, 
-      textureOffset - Math.floor(textureOffset / CELL_SIZE) * CELL_SIZE,                // Source image x offset
+      wallTexture, 
+      (textureOffset - Math.floor(textureOffset / constants.CELL_SIZE) * constants.CELL_SIZE) % wallTexture.width,                // Source image x offset
       0,                // Source image Y offset
       1,                // Source image width
-      textures.wood1.height,               // Source image height
+      wallTexture.height,               // Source image height
       rayIndex,     // Target image X offset
-      Math.floor(SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
+      Math.floor(constants.SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
       1,                // Target image width
       wallHeight,       // Target image height
     );
@@ -284,7 +261,7 @@ const renderScene = ({ canvasContext, rays }) => {
     canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.8})`;
     canvasContext.fillRect(
       rayIndex,
-      Math.floor(SCREEN_HEIGHT / 2) - Math.floor(wallHeight / 2),
+      Math.floor(constants.SCREEN_HEIGHT / 2) - Math.floor(wallHeight / 2),
       1,
       wallHeight,
     );
@@ -303,9 +280,9 @@ const renderScene = ({ canvasContext, rays }) => {
 };
 
 const renderMiniMap = ({ canvasContext, rays }) => {
-  const miniMapCellSize = MINIMAP_SCALE * CELL_SIZE;
-  const miniMapPlayerPositionX = MINIMAP_BASE_POSITION_X + player.x;
-  const miniMapPlayerPositionY = MINIMAP_BASE_POSITION_Y + player.y;
+  const miniMapCellSize = constants.MINIMAP_SCALE * constants.CELL_SIZE;
+  const miniMapPlayerPositionX = constants.MINIMAP_BASE_POSITION_X + player.x;
+  const miniMapPlayerPositionY = constants.MINIMAP_BASE_POSITION_Y + player.y;
 
   // Render the minimap by looping through map data.
   // We first loop over the rows. We can treat row index in the 2d array as a basis for Y coordinates.
@@ -316,16 +293,16 @@ const renderMiniMap = ({ canvasContext, rays }) => {
       if (cell !== 0) {
         canvasContext.fillStyle = colours.CELL;
         canvasContext.fillRect(
-          MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
-          MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
+          constants.MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
+          constants.MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
           miniMapCellSize, 
           miniMapCellSize,
         );
       } else {
         canvasContext.fillStyle = 'black';
         canvasContext.fillRect(
-          MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
-          MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
+          constants.MINIMAP_BASE_POSITION_X + x * miniMapCellSize,
+          constants.MINIMAP_BASE_POSITION_Y + y * miniMapCellSize,
           miniMapCellSize, 
           miniMapCellSize,
         );
@@ -336,10 +313,10 @@ const renderMiniMap = ({ canvasContext, rays }) => {
   // Render the player in the minimap.
   canvasContext.fillStyle = colours.MINIMAP_PLAYER;
   canvasContext.fillRect(
-    miniMapPlayerPositionX * MINIMAP_SCALE - (MINIMAP_PLAYER_SIZE / 2),
-    miniMapPlayerPositionY * MINIMAP_SCALE - (MINIMAP_PLAYER_SIZE / 2),
-    MINIMAP_PLAYER_SIZE,
-    MINIMAP_PLAYER_SIZE,
+    miniMapPlayerPositionX * constants.MINIMAP_SCALE - (constants.MINIMAP_PLAYER_SIZE / 2),
+    miniMapPlayerPositionY * constants.MINIMAP_SCALE - (constants.MINIMAP_PLAYER_SIZE / 2),
+    constants.MINIMAP_PLAYER_SIZE,
+    constants.MINIMAP_PLAYER_SIZE,
   );
 
   // Render the passed rays array.
@@ -349,14 +326,14 @@ const renderMiniMap = ({ canvasContext, rays }) => {
 
     // The starting point of the ray is the player location.
     canvasContext.moveTo(
-      miniMapPlayerPositionX * MINIMAP_SCALE,
-      miniMapPlayerPositionY * MINIMAP_SCALE,
+      miniMapPlayerPositionX * constants.MINIMAP_SCALE,
+      miniMapPlayerPositionY * constants.MINIMAP_SCALE,
     );
 
     // Draw the raycast ray.
     canvasContext.lineTo( 
-      (miniMapPlayerPositionX + Math.cos(ray.angle) * ray.distance) * MINIMAP_SCALE,
-      (miniMapPlayerPositionY + Math.sin(ray.angle) * ray.distance) * MINIMAP_SCALE,
+      (miniMapPlayerPositionX + Math.cos(ray.angle) * ray.distance) * constants.MINIMAP_SCALE,
+      (miniMapPlayerPositionY + Math.sin(ray.angle) * ray.distance) * constants.MINIMAP_SCALE,
     );
 
     // Stop drawing the ray and render it.
@@ -365,20 +342,20 @@ const renderMiniMap = ({ canvasContext, rays }) => {
   });
 
   // Render player direction ray.
-  const playerDirectionRayLength = MINIMAP_PLAYER_SIZE * 2;
+  const playerDirectionRayLength = constants.MINIMAP_PLAYER_SIZE * 2;
   canvasContext.strokeStyle = colours.MINIMAP_PLAYER;
   canvasContext.beginPath();
 
   // The starting point of the line is the player location.
   canvasContext.moveTo(
-    miniMapPlayerPositionX * MINIMAP_SCALE,
-    miniMapPlayerPositionY * MINIMAP_SCALE,
+    miniMapPlayerPositionX * constants.MINIMAP_SCALE,
+    miniMapPlayerPositionY * constants.MINIMAP_SCALE,
   );
 
   // Draw the player direction ray.
   canvasContext.lineTo( 
-    (miniMapPlayerPositionX + Math.cos(player.angle) * playerDirectionRayLength) * MINIMAP_SCALE,
-    (miniMapPlayerPositionY + Math.sin(player.angle) * playerDirectionRayLength) * MINIMAP_SCALE,
+    (miniMapPlayerPositionX + Math.cos(player.angle) * playerDirectionRayLength) * constants.MINIMAP_SCALE,
+    (miniMapPlayerPositionY + Math.sin(player.angle) * playerDirectionRayLength) * constants.MINIMAP_SCALE,
   );
 
   // Stop drawing player direction ray and render it.
