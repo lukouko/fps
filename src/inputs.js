@@ -4,6 +4,7 @@ import * as helpers from './helpers';
 const inputs = {
   speed: 0,
   angularSpeed: 0,
+  enableMiniMap: false,
 };
 
 export const getCurrent = () => inputs;
@@ -17,20 +18,27 @@ export const initialise = () => {
 const handleKeyDown = (event) => {
   switch (event.key) {
     case 'ArrowUp':
+    case 'w':
       inputs.speed = constants.PLAYER_WALK_SPEED;
     break;
 
     case 'ArrowDown':
+    case 's':
       inputs.speed = -constants.PLAYER_WALK_SPEED;
     break;
 
     case 'ArrowLeft':
+    case 'a':
       inputs.angularSpeed = helpers.degToRadians(-constants.PLAYER_ANGULAR_SPEED_DEGREES);
     break;
 
     case 'ArrowRight':
+    case 'd':
       inputs.angularSpeed = helpers.degToRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES);
     break;
+
+    case 'Tab':
+      inputs.enableMiniMap = !inputs.enableMiniMap;
 
     default: break;
   }
@@ -41,11 +49,11 @@ const handleKeyDown = (event) => {
 };
 
 const handleKeyUp = (event) => {
-  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
     inputs.speed = 0;
   }
 
-  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'a' || event.key === 'd') {
     inputs.angularSpeed = 0;
   }
 };

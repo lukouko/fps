@@ -44,7 +44,7 @@ export const render = ({ player, map, wallRays, canvasContext }) => {
 
   // Render the passed rays array.
   canvasContext.strokeStyle = constants.colours.RAYS;
-  wallRays.forEach((ray) => {
+  wallRays.forEach((wallRay) => {
     canvasContext.beginPath();
 
     // The starting point of the ray is the player location.
@@ -55,8 +55,8 @@ export const render = ({ player, map, wallRays, canvasContext }) => {
 
     // Draw the raycast ray.
     canvasContext.lineTo( 
-      (miniMapPlayerPositionX + Math.cos(ray.angle) * ray.distance) * constants.MINIMAP_SCALE,
-      (miniMapPlayerPositionY + Math.sin(ray.angle) * ray.distance) * constants.MINIMAP_SCALE,
+      (miniMapPlayerPositionX + Math.cos(wallRay.angle) * wallRay.collisionDistance) * constants.MINIMAP_SCALE,
+      (miniMapPlayerPositionY + Math.sin(wallRay.angle) * wallRay.collisionDistance) * constants.MINIMAP_SCALE,
     );
 
     // Stop drawing the ray and render it.

@@ -1,6 +1,6 @@
 import { loadTextures } from './textures';
 import * as constants from './constants';
-import * as inputs from './inputs';
+import * as inputsApi from './inputs';
 import * as player from './player';
 import * as map from './map';
 import * as minimap from './mini-map';
@@ -28,7 +28,7 @@ const initialise = async () => {
   await loadTextures();
   await map.initialise();
   await player.initialise();
-  await inputs.initialise();
+  await inputsApi.initialise();
   await minimap.initialise();
   await scene.initialise();
 
@@ -46,16 +46,20 @@ const gameLoop = ({ canvasContext }) => {
     ++gameLoopCycles;
 
     clearScreen({ canvasContext });
-    player.move({ inputs: inputs.getCurrent() });
+
+    const inputs = inputsApi.getCurrent();
+    player.move({ inputs });
     
     const { wallRays } = scene.render({ canvasContext, player: player.getCurrent() });
     
-    minimap.render({
-      canvasContext,
-      map: map.getCurrent(),
-      wallRays,
-      player: player.getCurrent(),
-    });
+    if (inputs.enableMiniMap) {
+      minimap.render({
+        canvasContext,
+        map: map.getCurrent(),
+        wallRays,
+        player: player.getCurrent(),
+      });
+    }
 
     canvasContext.fillStyle = 'white';
     canvasContext.font = '16px Monospace';

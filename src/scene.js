@@ -107,8 +107,8 @@ export const render = ({ canvasContext, player }) => {
     const wallRay = {
       angle: angleOfRay,
       collisionDistance: collision.distance,
-      collidedHorizontally: collision.isHorizontal,
-      collidedVertically: collision.isVertical,
+      collidedHorizontally: !!collision.isHorizontal,
+      collidedVertically: !!collision.isVertical,
       collisionX: collision.x,
       collisionY: collision.y,
       collidedMapCell: collision.mapCell,
@@ -127,23 +127,34 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
   // the fish eye effect cause by calculating the rays from a single central point
   // on the player.
   const distance = wallRay.collisionDistance * Math.cos(wallRay.angle - player.angle);
-  // const floorDist = SCREEN_HEIGHT / 2 / Math.tan(FIELD_OF_VIEW / 2);
   const wallHeight = Math.floor(((constants.CELL_SIZE * 5) / distance) * 270);
-  const textureOffset = Math.floor(wallRay.collidedVertically ? wallRay.y : wallRay.x);
+  const textureOffset = Math.floor(wallRay.collidedVertically ? wallRay.collisionY : wallRay.collisionX);
 
   // Draw walls.
   const wallTexture = textures.getTextureImageById({ id: `wall${wallRay.collidedMapCell}`});
   canvasContext.drawImage(
     wallTexture, 
     (textureOffset - Math.floor(textureOffset / constants.CELL_SIZE) * constants.CELL_SIZE) % wallTexture.width,                // Source image x offset
-    0,                // Source image Y offset
-    1,                // Source image width
-    wallTexture.height,               // Source image height
-    rayIndex,     // Target image X offset
-    Math.floor(constants.SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
+    0,                      // Source image Y offset
+    1,                      // Source image width
+    wallTexture.height,     // Source image height
+    rayIndex,               // Target image X offset
+    Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2),                // Target image Y offset
     1,                // Target image width
     wallHeight,       // Target image height
   );
+
+  /*canvasContext.drawImage(
+    wallTexture, 
+    (textureOffset - Math.floor(textureOffset / constants.CELL_SIZE) * constants.CELL_SIZE) % wallTexture.width,                // Source image x offset
+    0,                      // Source image Y offset
+    1,                      // Source image width
+    wallTexture.height,     // Source image height
+    rayIndex,               // Target image X offset
+    Math.floor(constants.SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
+    1,                // Target image width
+    wallHeight,       // Target image height
+  );*/
 
   // Make walls that are further away a bit darker.
   const darkness = Math.min(distance / 300, 1);
