@@ -40,6 +40,9 @@ const calculateVerticalCollision = ({ angle, player }) => {
     }
   }
 
+  if (mapCell === 0) {
+    throw new Error('Vertical collsion with nothing');
+  }
   return { mapCell, isVertical: true, x: nextX, y: nextY };
 };
 
@@ -76,6 +79,11 @@ const calculateHorizontalCollision = ({ angle, player }) => {
     }
   }
 
+  if (mapCell === 0) {
+    console.log('X', nextX, 'xStepSize', xStepSize);
+    throw new Error('Horiztonal collsion with nothing');
+  }
+
   return { mapCell, isHorizontal: true, x: nextX, y: nextY  };
 }
 
@@ -84,10 +92,6 @@ const castWallRay = ({ angle, player }) => {
   const horizontalCollision = calculateHorizontalCollision({ angle, player });
 
   const collision = horizontalCollision.distance >= verticalCollision.distance ? verticalCollision : horizontalCollision;
-  if (collision.mapCell === 0) {
-    console.log('Nothing at', collision.x, collision.y)
-    throw new Error('Collided with nothing!');
-  }
   return collision;
 };
 
