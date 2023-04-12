@@ -88,11 +88,6 @@ const castWallRay = ({ angle, player }) => {
 };
 
 export const render = ({ canvasContext, player }) => {
-  if (Number.isNaN(player.angle) || player.angle === undefined) {
-    console.log(player);
-    throw new Error('Cannot render scene with invalid player angle');
-  }
-
   renderFloor({ canvasContext });
   renderCeiling({ canvasContext });
 
