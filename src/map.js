@@ -29,10 +29,6 @@ export const isOutOfBounds = ({ cellX, cellY }) => {
   return cellX < 0 || cellX >= map[0].length || cellY < 0 || cellY >= map.length;
 };
 
-export const canMoveToCellLocation = ({ cellX, cellY }) => {
-  if (Number.isNaN(cellX) || Number.isNaN(cellY)) {
-    throw new Error('Invalid cell number passed');
-  }
-  
-  return isOutOfBounds({ cellX, cellY }) || map[cellY][cellX] !== 0;
+export const canMoveToCellLocation = ({ cellX, cellY }) => {  
+  return isOutOfBounds({ cellX, cellY }) || map[cellY][cellX] === 0;
 };

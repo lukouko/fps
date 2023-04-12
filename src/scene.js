@@ -40,10 +40,7 @@ const calculateVerticalCollision = ({ angle, player }) => {
     }
   }
 
-  if (mapCell === 0) {
-    throw new Error('Vertical collsion with nothing');
-  }
-  return { mapCell, isVertical: true, x: nextX, y: nextY };
+  return { mapCell, distance: playerDistanceTo({ x: nextX, y: nextY }), isVertical: true, x: nextX, y: nextY };
 };
 
 const calculateHorizontalCollision = ({ angle, player }) => {
@@ -79,12 +76,7 @@ const calculateHorizontalCollision = ({ angle, player }) => {
     }
   }
 
-  if (mapCell === 0) {
-    console.log('X', nextX, 'xStepSize', xStepSize);
-    throw new Error('Horiztonal collsion with nothing');
-  }
-
-  return { mapCell, isHorizontal: true, x: nextX, y: nextY  };
+  return { mapCell, distance: playerDistanceTo({ x: nextX, y: nextY }), isHorizontal: true, x: nextX, y: nextY  };
 }
 
 const castWallRay = ({ angle, player }) => {
@@ -114,7 +106,7 @@ export const render = ({ canvasContext, player }) => {
     const collision = castWallRay({ angle: angleOfRay, player });
     const wallRay = {
       angle: angleOfRay,
-      collisionDistance: playerDistanceTo({ x: collision.x, y: collision.y }),
+      collisionDistance: collision.distance,
       collidedHorizontally: collision.isHorizontal,
       collidedVertically: collision.isVertical,
       collisionX: collision.x,

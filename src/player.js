@@ -8,7 +8,7 @@ const player = {
   angle: 0,
 };
 
-export const getCurrent = () => Object.freeze(player);
+export const getCurrent = () => player;
 
 export const initialise = () => {
 

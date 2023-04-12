@@ -6,7 +6,7 @@ const inputs = {
   angularSpeed: 0,
 };
 
-export const getCurrent = () => Object.freeze(inputs);
+export const getCurrent = () => inputs;
 
 export const initialise = () => {
   document.addEventListener('keydown', handleKeyDown);
