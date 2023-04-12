@@ -13,6 +13,16 @@ const PLAYER_WALK_SPEED = 10;
 const PLAYER_ANGULAR_SPEED_DEGREES = 4;
 const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
 
+const colours = Object.freeze({
+  CELL: 'grey',
+  MINIMAP_PLAYER: 'white',
+  RAYS: '#ffa600',
+  FLOOR: "#d52b1e", // "#ff6361"
+  CEILING: '#3C3C3C', // "#012975",
+  WALL: "#013aa6", // "#58508d"
+  WALL_DARK: "#012975", // "#003f5c"
+});
+
 module.exports = Object.freeze({
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
@@ -28,4 +38,5 @@ module.exports = Object.freeze({
   PLAYER_WALK_SPEED,
   PLAYER_ANGULAR_SPEED_DEGREES,
   PLAYER_CLIP_DETECTION_DISTANCE,
+  colours,
 });
