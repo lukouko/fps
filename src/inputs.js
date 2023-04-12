@@ -7,7 +7,7 @@ const inputs = {
   enableMiniMap: false,
 };
 
-export const getCurrent = () => inputs;
+export const getState = () => inputs;
 
 export const initialise = () => {
   document.addEventListener('keydown', handleKeyDown);

@@ -47,19 +47,21 @@ const gameLoop = ({ canvasContext }) => {
 
     clearScreen({ canvasContext });
 
-    const inputs = inputsApi.getCurrent();
+    const inputs = inputsApi.getState();
     player.move({ inputs });
     
-    const { wallRays } = scene.render({ canvasContext, player: player.getCurrent() });
+    const { wallRays } = scene.render({ canvasContext, player: player.getState() });
     
     if (inputs.enableMiniMap) {
       minimap.render({
         canvasContext,
-        map: map.getCurrent(),
+        map: map.getState(),
         wallRays,
-        player: player.getCurrent(),
+        player: player.getState(),
       });
     }
+
+    player.render({ canvasContext, inputs });
 
     canvasContext.fillStyle = 'white';
     canvasContext.font = '16px Monospace';

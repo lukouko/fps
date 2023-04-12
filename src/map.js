@@ -19,7 +19,7 @@ const map =[
   [2, 2, 2, 2, 2, 2, 2],
 ];
 
-export const getCurrent = () => Object.freeze(map);
+export const getState = () => Object.freeze(map);
 
 export const getMapCell = ({ cellX, cellY }) => map[cellY][cellX];
 

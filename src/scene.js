@@ -139,27 +139,15 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
     wallHeight,       // Target image height
   );
 
-  /*canvasContext.drawImage(
-    wallTexture, 
-    (textureOffset - Math.floor(textureOffset / constants.CELL_SIZE) * constants.CELL_SIZE) % wallTexture.width,                // Source image x offset
-    0,                      // Source image Y offset
-    1,                      // Source image width
-    wallTexture.height,     // Source image height
-    rayIndex,               // Target image X offset
-    Math.floor(constants.SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
-    1,                // Target image width
-    wallHeight,       // Target image height
-  );*/
-
   // Make walls that are further away a bit darker.
-  const darkness = Math.min(distance / 300, 1);
+  /*const darkness = Math.min(distance / 300, 1);
   canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.8})`;
   canvasContext.fillRect(
     rayIndex,
     Math.floor(constants.SCREEN_HEIGHT / 2) - Math.floor(wallHeight / 2),
     1,
     wallHeight,
-  );
+  );*/
 
   /* make side walls a bit darker */
   /*if (ray.vertical) {
