@@ -76,15 +76,6 @@ function config() {
               },
             },
 
-            // Links within index.html need to factor in hash codes of assets.
-            {
-              test: /(index)\.html$/,
-              use: {
-                loader: 'html-loader',
-                options: {attrs: 'img:src link:href'}
-              }
-            },
-
             {
               test: /\.js$/,
               exclude: (path) => /(node_modules)/.test(path),
