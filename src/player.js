@@ -58,20 +58,6 @@ const applyGunSway = ({ gunDefinition, playerSpeed }) => {
 };
 
 export const move = ({ inputs }) => {
-  // Gun sway when moving.
-  /*if (player.isMoving && inputs.speed === 0) {
-    // Player stopped moving, stop the gun sway animation.
-    player.isMoving = false;
-    stopGunSway();
-
-  } else if (!player.isMoving && inputs.speed !== 0) {
-    // Player started moving, commence gun sway animation.
-    player.isMoving = true;
-    const gunDefinition = gunDefinitions[player.selectedGun];
-    const playerSpeed = inputs.speed;
-    startGunSway({ gunDefinition, playerSpeed });
-  }*/
-
   // Calculate player movement.
   player.angle += inputs.angularSpeed;
   const xMovement = Math.cos(player.angle) * inputs.speed;

@@ -88,7 +88,7 @@ const castWallRay = ({ angle, player }) => {
 };
 
 export const render = ({ canvasContext, player }) => {
-  renderFloor({ canvasContext });
+  renderFloor({ canvasContext, player });
   renderCeiling({ canvasContext });
 
   const initialAngle = player.angle - constants.FIELD_OF_VIEW / 2; // The starting angle for ray casting.
@@ -138,6 +138,7 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
     1,                // Target image width
     wallHeight,       // Target image height
   );
+};
 
   // Make walls that are further away a bit darker.
   /*const darkness = Math.min(distance / 300, 1);
@@ -159,14 +160,78 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
       wallHeight
     );
   }*/
-};
 
-const renderFloor = ({ canvasContext }) => {
-  const floorGradient = canvasContext.createLinearGradient(0, constants.HALF_SCREEN_HEIGHT, 0, constants.SCREEN_HEIGHT);
+const renderFloor = ({ canvasContext, player }) => {
+  /*const floorGradient = canvasContext.createLinearGradient(0, constants.HALF_SCREEN_HEIGHT, 0, constants.SCREEN_HEIGHT);
   floorGradient.addColorStop(0, '#000000');
   floorGradient.addColorStop(1, '#9C9C9C');
   canvasContext.fillStyle = floorGradient;//`#747474`;
-  canvasContext.fillRect(0, Math.floor(constants.HALF_SCREEN_HEIGHT), constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT - Math.floor(constants.HALF_SCREEN_HEIGHT));
+  canvasContext.fillRect(0, Math.floor(constants.HALF_SCREEN_HEIGHT), constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT - Math.floor(constants.HALF_SCREEN_HEIGHT));*/
+
+  // We are using a variant of DDA found here: https://lodev.org/cgtutor/raycasting2.html
+  // We assume the existence of two imaginary planes to assist with the calculation.
+
+  // First, is a floor plane which represents the floor in scaled map space. 
+  // This plane sits directly in front of the camera at a distance of 1.
+
+  // Second, is a projection plane which represents the actual player's screen or viewport.
+  // This plane sits perpendicular to the camera angle, also at a distance of 1.
+
+  // Create a vector from the player camera's position and current angle to the imaginary
+  // floor plane at a distance of 1 unit away.
+  const cameraToFloorPlaneXComponent = Math.cos(player.angle);
+  const cameraToFloorPlaneYComponent = Math.sin(player.angle);
+
+  // Create a vector from the camera's position and perpendicular to the current angle to
+  // the imaginary projection plane at a distance of 1 unit away.
+  const cameraToProjectionPlaneXComponent = Math.sin(player.angle);
+  const cameraToProjectionPlaneYComponent = -Math.cos(player.angle);
+
+  const offScreenBuffer = new OffscreenCanvas(canvasContext.canvas.width, canvasContext.canvas.height);
+  const offScreenBufferContext = offScreenBuffer.getContext('2d');
+  //offScreenBufferContext.fillStyle = 'pink';
+
+  const imageData = offScreenBufferContext.createImageData(1, 1);
+  const pixelData = imageData.data;
+  pixelData[0] = 255; // R
+  pixelData[1] = 0;   // G
+  pixelData[2] = 0;   // B
+  pixelData[3] = 255; // Alpha
+
+  for (let yPosition = constants.HALF_SCREEN_HEIGHT_FLOORED; yPosition < constants.SCREEN_HEIGHT; ++yPosition) {
+    const yOffsetFromCentre = yPosition - constants.HALF_SCREEN_HEIGHT;
+    const distanceFromCameraToRowInFloorPlane = constants.HALF_SCREEN_HEIGHT / yOffsetFromCentre;
+
+    // Calculate the step sizes for each pixel along the floor projection plane.
+    const floorStepX = distanceFromCameraToRowInFloorPlane * (cameraToProjectionPlaneXComponent - cameraToFloorPlaneXComponent) / constants.SCREEN_WIDTH;
+    const floorStepY = distanceFromCameraToRowInFloorPlane * (cameraToProjectionPlaneYComponent - cameraToFloorPlaneYComponent) / constants.SCREEN_WIDTH;
+
+    // real world coordinates of the leftmost column. This will be updated as we step to the right.
+    let floorX = player.x + distanceFromCameraToRowInFloorPlane * cameraToFloorPlaneXComponent;
+    let floorY = player.y + distanceFromCameraToRowInFloorPlane * cameraToFloorPlaneYComponent;
+
+    for (let xPosition = 0; xPosition < constants.SCREEN_WIDTH; ++xPosition) {
+      // the cell coord is simply got from the integer parts of floorX and floorY
+      const cellX = Math.floor(floorX / constants.CELL_SIZE);
+      const cellY = Math.floor(floorY / constants.CELL_SIZE);
+
+      // get the texture coordinates
+      const texWidth = 5;
+      const texHeight = 5;
+      const textureX = Math.floor(texWidth * (floorX - cellX));
+      const textureY = Math.floor(texHeight * (floorY - cellY));
+
+      floorX += floorStepX;
+      floorY += floorStepY;
+
+      //offScreenBufferContext.fillRect(xPosition, yPosition - 1, 1, 1);
+
+
+      // offScreenBufferContext.putImageData(imageData, 1, 1);
+    }
+  }
+
+  //canvasContext.drawImage(offScreenBuffer, 0, 0);
 };
 
 const renderCeiling = ({ canvasContext }) => {

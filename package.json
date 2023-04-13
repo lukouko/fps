@@ -12,7 +12,7 @@
     "prettier-format-all": "prettier-eslint --write \"**/*.jsx\"",
     "lint": "eslint **/*.{jsx,js} --fix --max-warnings 0",
     "lint-all": "npm run lint",
-    "serve": "NODE_ENV=development webpack serve --port 5006 --host 0.0.0.0"
+    "serve": "webpack serve --port 5006 --host 0.0.0.0"
   },
   "jest": {
     "moduleNameMapper": {

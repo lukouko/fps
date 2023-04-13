@@ -21,7 +21,6 @@ function config() {
     mode: process.env.NODE_ENV,
 
     devtool: isProd ? false : 'cheap-module-source-map',
-
     entry: {
       'fps': ['./src/index.js'],
     },

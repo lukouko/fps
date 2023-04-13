@@ -1,5 +1,5 @@
-const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
+const SCREEN_WIDTH = 800;//window.innerWidth;
+const SCREEN_HEIGHT = 600;//window.innerHeight;
 const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
 const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 const HALF_SCREEN_WIDTH_FLOORED = Math.floor(HALF_SCREEN_WIDTH);
