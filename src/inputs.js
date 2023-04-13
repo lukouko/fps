@@ -5,6 +5,7 @@ const inputs = {
   speed: 0,
   angularSpeed: 0,
   enableMiniMap: false,
+  isRunning: false,
 };
 
 export const getState = () => inputs;

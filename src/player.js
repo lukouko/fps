@@ -3,31 +3,74 @@ import * as constants from './constants';
 import * as map from './map';
 
 const gunTypes = Object.freeze({
-  UZI: 1,
+  ASSAULT_RIFLE: 1,
 });
+
+const gunDefinitions = {
+  [gunTypes.ASSAULT_RIFLE]: {
+    id: gunTypes.ASSAULT_RIFLE,
+    widthScalingFactor: 0.3,
+    heightScalingFactor: 0.3,
+    xOffset: 300,
+    yOffset: 20,
+    gunSwayAmplitude: 1.5,
+    gunSwayFrequency: 0.002,
+  },
+};
 
 const player = {
   x: constants.CELL_SIZE * 1.25,
   y: constants.CELL_SIZE * 3,
   angle: 0,
   isMoving: false,
-  selectedGun: gunTypes.UZI,
+  selectedGun: gunTypes.ASSAULT_RIFLE,
+  gunSway: {
+    startTime: undefined,
+  },
 };
 
 export const getState = () => player;
 
 export const initialise = () => {
+};
 
+const applyGunSway = ({ gunDefinition, playerSpeed }) => {
+  if (playerSpeed === 0) {
+    player.gunSway.startTime = undefined;
+    return { gunSwayOffsetX: 0, gunSwayOffsetY: 0 };
+  }
+
+  if (!player.gunSway.startTime) {
+    player.gunSway.startTime = performance.now();
+  }
+
+  const adjustedSpeed = playerSpeed < 0 ? -playerSpeed : playerSpeed;
+  const magnitude = gunDefinition.gunSwayAmplitude * adjustedSpeed;
+
+  const timeNow = performance.now();
+  const timeElapsed = timeNow - player.gunSway.startTime;
+
+  const { gunSwayFrequency } = gunDefinition;
+  const gunSwayOffsetX = Math.sin(timeElapsed * gunSwayFrequency) * magnitude;
+  const gunSwayOffsetY = Math.sin(timeElapsed * gunSwayFrequency * 2) * magnitude;
+
+  return { gunSwayOffsetX, gunSwayOffsetY };
 };
 
 export const move = ({ inputs }) => {
   // Gun sway when moving.
-  if (player.isMoving && inputs.speed === 0) {
+  /*if (player.isMoving && inputs.speed === 0) {
     // Player stopped moving, stop the gun sway animation.
+    player.isMoving = false;
+    stopGunSway();
 
   } else if (!player.isMoving && inputs.speed !== 0) {
     // Player started moving, commence gun sway animation.
-  }
+    player.isMoving = true;
+    const gunDefinition = gunDefinitions[player.selectedGun];
+    const playerSpeed = inputs.speed;
+    startGunSway({ gunDefinition, playerSpeed });
+  }*/
 
   // Calculate player movement.
   player.angle += inputs.angularSpeed;
@@ -52,17 +95,29 @@ export const distanceTo = ({ x, y }) => {
 };
 
 export const render = ({ canvasContext, inputs }) => {
+  const gunDefinition = gunDefinitions[player.selectedGun];
   const gunTexture = textures.getTextureImageById({ id: `gun${player.selectedGun}`});
+
+  // Give the gun a bit of sway if we are moving.
+  const { gunSwayOffsetX, gunSwayOffsetY } = applyGunSway({ gunDefinition, playerSpeed: inputs.speed });
+
+  // We need to size and position the player gun relative to the size of the canvas
+  // to give a consistent look and feel across different devices.
+  const gunWidth = canvasContext.canvas.width * gunDefinition.widthScalingFactor;
+  const gunHeight = canvasContext.canvas.height * gunDefinition.heightScalingFactor;
+  const gunPositionX = canvasContext.canvas.width / 2 - gunWidth / 2 + gunDefinition.xOffset; // horizontal centre with some pixel offset
+  const gunPositionY = canvasContext.canvas.height - gunHeight + 1 + gunDefinition.yOffset; // Position at bottom of screen
+
   canvasContext.drawImage(
     gunTexture, 
     0,
     0,                      // Source image Y offset
     gunTexture.width,                      // Source image width
     gunTexture.height,     // Source image height
-    Math.floor(constants.HALF_SCREEN_WIDTH - gunTexture.width / 2) + 200,  // Target image X offset
-    constants.SCREEN_HEIGHT - gunTexture.height * 1.5,  // Target image Y offset
-    gunTexture.width * 1.5,                // Target image width
-    gunTexture.height * 1.5,       // Target image height
+    Math.floor(gunPositionX + gunSwayOffsetX),  // Target image X offset
+    Math.floor(gunPositionY + gunSwayOffsetY),  // Target image Y offset
+    gunWidth,                // Target image width
+    gunHeight,       // Target image height
   );
 
   // Draw indicator of target location.
