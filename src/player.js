@@ -73,7 +73,8 @@ export const move = ({ inputs }) => {
   }*/
 
   // Calculate player movement.
-  player.angle += inputs.angularSpeed;
+  player.angle += (inputs.angularSpeed + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.
+  player.angle = player.angle % (2 * Math.PI); // Normalise to a single circle.
   const xMovement = Math.cos(player.angle) * inputs.speed;
   const yMovement = Math.sin(player.angle) * inputs.speed;
 

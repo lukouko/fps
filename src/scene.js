@@ -3,8 +3,10 @@ import * as textures from './textures';
 import { distanceTo as playerDistanceTo } from './player';
 import { isOutOfBounds, getMapCell } from './map';
 
-export const initialise = () => {
+let previousOffset;
+let previousSlice;
 
+export const initialise = () => {
 };
 
 const calculateVerticalCollision = ({ angle, player }) => {
@@ -88,8 +90,8 @@ const castWallRay = ({ angle, player }) => {
 };
 
 export const render = ({ canvasContext, player }) => {
-  renderFloor({ canvasContext });
-  renderCeiling({ canvasContext });
+  //renderFloor({ canvasContext });
+  renderCeiling({ canvasContext, player });
 
   const initialAngle = player.angle - constants.FIELD_OF_VIEW / 2; // The starting angle for ray casting.
   const numberOfRays = constants.SCREEN_WIDTH;
@@ -169,7 +171,58 @@ const renderFloor = ({ canvasContext }) => {
   canvasContext.fillRect(0, Math.floor(constants.HALF_SCREEN_HEIGHT), constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT - Math.floor(constants.HALF_SCREEN_HEIGHT));
 };
 
-const renderCeiling = ({ canvasContext }) => {
-  canvasContext.fillStyle = constants.colours.CEILING;
-  canvasContext.fillRect(0, 0, constants.SCREEN_WIDTH, Math.floor(constants.HALF_SCREEN_HEIGHT));
+/*
+  if (previousSlice !== slicePixels || previousOffset != offsetPixels) {
+    previousSlice = slicePixels;
+    previousOffset = offsetPixels;
+
+    console.log(`player.angle ${player.angle}, slicePixels ${slicePixels}, offsetPixels ${offsetPixels}`);
+  }
+  */
+
+const renderCeiling = ({ canvasContext, player }) => {
+  const foregroundTexture = textures.getTextureImageById({ id: `foreground1` });
+
+  // Determine the percentage of the ceiling image we will show at any one time.
+  // Then determine the total number of pixels to show based on that percentage.
+  const slicePercentage = constants.FIELD_OF_VIEW / (Math.PI * 2);
+  const slicePixels = Math.floor(slicePercentage * foregroundTexture.width);
+
+  // Determine which part of the image to show based on the player angle.
+  const offsetPercentage = player.angle / (Math.PI * 2);
+  const offsetPixels = Math.floor(offsetPercentage * foregroundTexture.width);
+
+  // If the offsetPixels + slicePixels > foregroundTexture.width, we can't use a single draw operation
+  // as there isn't enough width remaining in the texture. To cater for this, we draw sliceSize - overflow
+  // in this draw operation. In the subsequent draw operation, we loop back to the starting offset and draw
+  // any overflow amount remaining.
+  const overflow = (offsetPixels + slicePixels) - foregroundTexture.width;
+
+  canvasContext.drawImage(
+    foregroundTexture,
+    offsetPixels,
+    0,
+    overflow <= 0 ? slicePixels : slicePixels - overflow,
+    foregroundTexture.height,
+    0,
+    0,
+    overflow <= 0 ? canvasContext.canvas.width : canvasContext.canvas.width - overflow,
+    constants.HALF_SCREEN_HEIGHT,
+  );
+  
+  // If the offsetPixels + slicePixels > foregroundTexture.width, we need to wrap back to the start of the texture image
+  // to draw in whatever part fell over the foregroundTexture.width.
+  if (overflow > 0) {
+    canvasContext.drawImage(
+      foregroundTexture,
+      0,
+      0,
+      overflow,
+      foregroundTexture.height,
+      canvasContext.canvas.width - overflow,
+      0,
+      overflow,
+      constants.HALF_SCREEN_HEIGHT,
+    );
+  }
 };
