@@ -12,7 +12,7 @@
     "prettier-format-all": "prettier-eslint --write \"**/*.jsx\"",
     "lint": "eslint **/*.{jsx,js} --fix --max-warnings 0",
     "lint-all": "npm run lint",
-    "serve": "NODE_ENV=development webpack serve --port 5006 --host 0.0.0.0"
+    "serve": "cross-env NODE_ENV=development webpack serve --port 5006 --host 0.0.0.0"
   },
   "jest": {
     "moduleNameMapper": {
@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.21.4",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",

@@ -181,12 +181,12 @@ const renderFloor = ({ canvasContext }) => {
   */
 
 const renderCeiling = ({ canvasContext, player }) => {
-  const foregroundTexture = textures.getTextureImageById({ id: `foreground1` });
+  const foregroundTexture = textures.getTextureImageById({ id: `foreground2` });
 
   // Determine the percentage of the ceiling image we will show at any one time.
   // Then determine the total number of pixels to show based on that percentage.
-  const slicePercentage = constants.FIELD_OF_VIEW / (Math.PI * 2);
-  const slicePixels = Math.floor(slicePercentage * foregroundTexture.width);
+  const slicePerRadian = foregroundTexture.width / (Math.PI * 2);
+  const slicePixels = Math.floor(constants.FIELD_OF_VIEW * slicePerRadian);
 
   // Determine which part of the image to show based on the player angle.
   const offsetPercentage = player.angle / (Math.PI * 2);
@@ -196,32 +196,48 @@ const renderCeiling = ({ canvasContext, player }) => {
   // as there isn't enough width remaining in the texture. To cater for this, we draw sliceSize - overflow
   // in this draw operation. In the subsequent draw operation, we loop back to the starting offset and draw
   // any overflow amount remaining.
-  const overflow = (offsetPixels + slicePixels) - foregroundTexture.width;
-
   canvasContext.drawImage(
     foregroundTexture,
     offsetPixels,
     0,
-    overflow <= 0 ? slicePixels : slicePixels - overflow,
+    slicePixels,
     foregroundTexture.height,
     0,
     0,
-    overflow <= 0 ? canvasContext.canvas.width : canvasContext.canvas.width - overflow,
+    constants.SCREEN_WIDTH,
     constants.HALF_SCREEN_HEIGHT,
   );
+
+  const resourceShortFall = (offsetPixels + slicePixels) - foregroundTexture.width;
+  const screenShortfall = Math.floor((constants.SCREEN_WIDTH / slicePixels) * resourceShortFall);
   
+  // Draw a red line where we have calculated the shortfall.
+  // helpful for debugging
+  /*if (resourceShortFall > 0) {
+    canvasContext.fillStyle = 'red';
+    canvasContext.fillRect(constants.SCREEN_WIDTH - screenShortfall, 0, 2, constants.SCREEN_HEIGHT);
+
+    if (previousSlice !== slicePixels || previousOffset != offsetPixels) {
+      previousSlice = slicePixels;
+      previousOffset = offsetPixels;
+  
+      console.log(`foregroundTexture.width ${foregroundTexture.width} resourceShortFall ${resourceShortFall}, screenShortFall ${screenShortfall}, slicePixels ${slicePixels}, offsetPixels ${offsetPixels}`);
+      console.log('Second image posi', constants.SCREEN_WIDTH - screenShortfall, 'Screen width', constants.SCREEN_WIDTH);
+    }
+  } */
+ 
   // If the offsetPixels + slicePixels > foregroundTexture.width, we need to wrap back to the start of the texture image
   // to draw in whatever part fell over the foregroundTexture.width.
-  if (overflow > 0) {
+  if (screenShortfall > 0) {
     canvasContext.drawImage(
       foregroundTexture,
       0,
       0,
-      overflow,
+      resourceShortFall,
       foregroundTexture.height,
-      canvasContext.canvas.width - overflow,
+      constants.SCREEN_WIDTH - screenShortfall - 1,
       0,
-      overflow,
+      screenShortfall + 1,//Math.floor(shortFall / slicePixels) * constants.SCREEN_WIDTH,
       constants.HALF_SCREEN_HEIGHT,
     );
   }

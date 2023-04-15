@@ -19,9 +19,9 @@ const gunDefinitions = {
 };
 
 const player = {
-  x: constants.CELL_SIZE * 1.25,
-  y: constants.CELL_SIZE * 3,
-  angle: 0,
+  x: constants.CELL_SIZE * 1.5,
+  y: constants.CELL_SIZE * 12,
+  angle: 5.2399,//0,
   isMoving: false,
   selectedGun: gunTypes.ASSAULT_RIFLE,
   gunSway: {
