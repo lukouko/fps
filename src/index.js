@@ -65,7 +65,7 @@ const gameLoop = ({ canvasContext }) => {
 
     canvasContext.fillStyle = 'white';
     canvasContext.font = '16px Monospace';
-    canvasContext.fillText(framesPerSecond, 25, 25);
+    canvasContext.fillText(`FPS: ${framesPerSecond}`, 25, 25);
   } catch (err) {
     console.error(err);
     clearInterval(gameLoopInterval);

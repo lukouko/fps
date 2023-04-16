@@ -18,6 +18,7 @@ function config() {
   const isProd = process.env.NODE_ENV === 'production';
 
   return {
+    target: 'web',
     mode: process.env.NODE_ENV,
 
     devtool: isProd ? false : 'cheap-module-source-map',

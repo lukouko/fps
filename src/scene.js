@@ -1,10 +1,10 @@
 import * as constants from './constants';
 import * as textures from './textures';
 import { distanceTo as playerDistanceTo } from './player';
-import { isOutOfBounds, getMapCell } from './map';
+import { isOutOfBounds, getMapCell, getScaledMapSize } from './map';
 
-let previousOffset;
-let previousSlice;
+let CEILING_ANIMATION_RADIANS_PER_FRAME = 0.0175 * Math.PI / 180;
+let ceilingAnimationAngle = 0;
 
 export const initialise = () => {
 };
@@ -90,7 +90,7 @@ const castWallRay = ({ angle, player }) => {
 };
 
 export const render = ({ canvasContext, player }) => {
-  //renderFloor({ canvasContext });
+  renderFloor({ canvasContext, player });
   renderCeiling({ canvasContext, player });
 
   const initialAngle = player.angle - constants.FIELD_OF_VIEW / 2; // The starting angle for ray casting.
@@ -125,6 +125,9 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
   // on the player.
   const distance = wallRay.collisionDistance * Math.cos(wallRay.angle - player.angle);
   const wallHeight = Math.floor(((constants.CELL_SIZE * 5) / distance) * 270);
+
+  // ADDING the / 2 to the distance here seemed to make things narrower but taller. Weird.
+ // let wallHeight = Math.floor((constants.CELL_SIZE / (distance / 2)) * (constants.HALF_SCREEN_HEIGHT_FLOORED / Math.tan(constants.FIELD_OF_VIEW / 2)) * (constants.SCREEN_WIDTH / constants.SCREEN_HEIGHT));
   const textureOffset = Math.floor(wallRay.collidedVertically ? wallRay.collisionY : wallRay.collisionX);
 
   // Draw walls.
@@ -142,8 +145,8 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
   );
 
   // Make walls that are further away a bit darker.
-  /*const darkness = Math.min(distance / 300, 1);
-  canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.8})`;
+  /*const darkness = Math.min(distance / 500, 1);
+  canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.5})`;
   canvasContext.fillRect(
     rayIndex,
     Math.floor(constants.SCREEN_HEIGHT / 2) - Math.floor(wallHeight / 2),
@@ -163,81 +166,65 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
   }*/
 };
 
-const renderFloor = ({ canvasContext }) => {
-  const floorGradient = canvasContext.createLinearGradient(0, constants.HALF_SCREEN_HEIGHT, 0, constants.SCREEN_HEIGHT);
-  floorGradient.addColorStop(0, '#000000');
-  floorGradient.addColorStop(1, '#9C9C9C');
-  canvasContext.fillStyle = floorGradient;//`#747474`;
-  canvasContext.fillRect(0, Math.floor(constants.HALF_SCREEN_HEIGHT), constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT - Math.floor(constants.HALF_SCREEN_HEIGHT));
+const renderFloor = ({ canvasContext, player }) => {
+  canvasContext.fillStyle = 'grey';
+  canvasContext.fillRect(0, constants.HALF_SCREEN_HEIGHT_FLOORED, constants.SCREEN_WIDTH, constants.HALF_SCREEN_HEIGHT_FLOORED);
 };
 
-/*
-  if (previousSlice !== slicePixels || previousOffset != offsetPixels) {
-    previousSlice = slicePixels;
-    previousOffset = offsetPixels;
-
-    console.log(`player.angle ${player.angle}, slicePixels ${slicePixels}, offsetPixels ${offsetPixels}`);
-  }
-  */
-
 const renderCeiling = ({ canvasContext, player }) => {
-  const foregroundTexture = textures.getTextureImageById({ id: `foreground2` });
+  //ceilingAnimationAngle += CEILING_ANIMATION_RADIANS_PER_FRAME;
+  //ceilingAnimationAngle = ceilingAnimationAngle % (2 * Math.PI);
 
-  // Determine the percentage of the ceiling image we will show at any one time.
-  // Then determine the total number of pixels to show based on that percentage.
-  const slicePerRadian = foregroundTexture.width / (Math.PI * 2);
+  // For now we assume an outdoor ceiling which has the benefit of us not having to factor in the
+  // x and y coordinates of the player for rendering the texture. We still need to factor in the 
+  // angle the player is facing. To accomplish this effect, we take a seamless image from the texture
+  // library and determine how many pixels to use from the texture per field of view chunk.
+  // We then simply offset the image as the player rotates to move the field of view along the image.
+  // A problem emerges towards the end of the image where we "run out of image". To overcome this
+  // limit, we simply print another picture where the first one ran out. The second image starts
+  // back at the start of the texture, giving the illusion of a 360 degree image.
+  const ceilingTexture = textures.getTextureImageById({ id: `clouds1-repeatable`});;
+
+  // Determine how many pixels per radian can be shown.
+  const slicePerRadian = ceilingTexture.width / (Math.PI * 2);
+
+  // Determine how many pixels per field of view window can be shown.
   const slicePixels = Math.floor(constants.FIELD_OF_VIEW * slicePerRadian);
 
   // Determine which part of the image to show based on the player angle.
-  const offsetPercentage = player.angle / (Math.PI * 2);
-  const offsetPixels = Math.floor(offsetPercentage * foregroundTexture.width);
+  const offsetPercentage = (player.angle + ceilingAnimationAngle) / (Math.PI * 2);
+  const offsetPixels = Math.floor(offsetPercentage * ceilingTexture.width);
 
-  // If the offsetPixels + slicePixels > foregroundTexture.width, we can't use a single draw operation
-  // as there isn't enough width remaining in the texture. To cater for this, we draw sliceSize - overflow
-  // in this draw operation. In the subsequent draw operation, we loop back to the starting offset and draw
-  // any overflow amount remaining.
+  // Draw the part of the image that corresponds to the players current viewing angle.
   canvasContext.drawImage(
-    foregroundTexture,
+    ceilingTexture,
     offsetPixels,
     0,
     slicePixels,
-    foregroundTexture.height,
+    ceilingTexture.height,
     0,
     0,
     constants.SCREEN_WIDTH,
-    constants.HALF_SCREEN_HEIGHT,
+    constants.HALF_SCREEN_HEIGHT_FLOORED,
   );
 
-  const resourceShortFall = (offsetPixels + slicePixels) - foregroundTexture.width;
+  // Determine if we "ran out of texture" at the end of the image in the previous operation, i.e. the FOV sliding window
+  // has run past the end of the image.
+  const resourceShortFall = (offsetPixels + slicePixels) - ceilingTexture.width;
   const screenShortfall = Math.floor((constants.SCREEN_WIDTH / slicePixels) * resourceShortFall);
   
-  // Draw a red line where we have calculated the shortfall.
-  // helpful for debugging
-  /*if (resourceShortFall > 0) {
-    canvasContext.fillStyle = 'red';
-    canvasContext.fillRect(constants.SCREEN_WIDTH - screenShortfall, 0, 2, constants.SCREEN_HEIGHT);
-
-    if (previousSlice !== slicePixels || previousOffset != offsetPixels) {
-      previousSlice = slicePixels;
-      previousOffset = offsetPixels;
-  
-      console.log(`foregroundTexture.width ${foregroundTexture.width} resourceShortFall ${resourceShortFall}, screenShortFall ${screenShortfall}, slicePixels ${slicePixels}, offsetPixels ${offsetPixels}`);
-      console.log('Second image posi', constants.SCREEN_WIDTH - screenShortfall, 'Screen width', constants.SCREEN_WIDTH);
-    }
-  } */
- 
-  // If the offsetPixels + slicePixels > foregroundTexture.width, we need to wrap back to the start of the texture image
-  // to draw in whatever part fell over the foregroundTexture.width.
+  // If we had a shortfall of image to display on the screen, starting back at the starting x coordinate of the texture,
+  // draw a second image to fill in the shortfall amount.
   if (screenShortfall > 0) {
     canvasContext.drawImage(
-      foregroundTexture,
+      ceilingTexture,
       0,
       0,
       resourceShortFall,
-      foregroundTexture.height,
+      ceilingTexture.height,
       constants.SCREEN_WIDTH - screenShortfall - 1,
       0,
-      screenShortfall + 1,//Math.floor(shortFall / slicePixels) * constants.SCREEN_WIDTH,
+      screenShortfall + 1,
       constants.HALF_SCREEN_HEIGHT,
     );
   }

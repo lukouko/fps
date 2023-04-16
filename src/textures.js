@@ -1,5 +1,7 @@
 // @ts-ignore
-import * as assets from 'fps/assets';
+import { images as imageAssets} from 'fps/assets';
+import { findLowestCommonMultipleOf } from './helpers';
+import * as constants from './constants';
 
 let texturesLookup;
 
@@ -8,21 +10,42 @@ export const loadTextures = async () => {
     throw new Error('Textures have already been loaded!');
   }
 
-  const textureLoadPromises = Object.entries(assets)
-    .map(([id, assetPath]) =>
-      new Promise((resolve) => {
-        const assetImage = new Image();
-        assetImage.onload = () => resolve({ id, image: assetImage });
-        assetImage.src = assetPath;
-      }),
-    );
-  
-  const textures = await Promise.all(textureLoadPromises);
-  
-  texturesLookup = textures.reduce((acc, { id, image }) => {
-    acc[id] = image;
-    return acc;
-  }, {});
+  texturesLookup = {};
+  const textureLoadPromises = imageAssets.map(async ({ id, assetPath, isRepeatable }) => {
+    const baseImage = await loadImageFromPath({ assetPath });
+    texturesLookup[id] = baseImage;
+
+    if (isRepeatable) {
+      const repeatedImage = await createRepeatedImage({ baseImage });
+      texturesLookup[`${id}-repeatable`] = repeatedImage;
+    }
+  });
+
+  await Promise.all(textureLoadPromises);
+};
+
+const loadImageFromPath = ({ assetPath }) => new Promise((resolve) => {
+  const image = new Image();
+  image.onload = () => resolve(image);
+  image.src = assetPath;
+});
+
+const createRepeatedImage = async ({ baseImage }) => {
+  const repeatingImageCanvas = document.createElement('canvas');
+
+  const targetWidth = findLowestCommonMultipleOf({ numbers: [baseImage.width, constants.SCREEN_WIDTH] });
+  const targetHeight = baseImage.width * ((Math.ceil(constants.HALF_SCREEN_HEIGHT_FLOORED) / baseImage.width));
+
+  repeatingImageCanvas.width = targetWidth;
+  repeatingImageCanvas.height = targetHeight;
+
+  const repeatingImageCanvasContext = repeatingImageCanvas.getContext('2d');
+  const repeatingImagePattern = repeatingImageCanvasContext.createPattern(baseImage, 'repeat');
+  repeatingImageCanvasContext.fillStyle = repeatingImagePattern;
+  repeatingImageCanvasContext.fillRect(0, 0, repeatingImageCanvas.width, repeatingImageCanvas.height);
+
+  const repeatingImage = await loadImageFromPath({ assetPath: repeatingImageCanvas.toDataURL() });
+  return repeatingImage;
 };
 
 export const getTextureImageById = ({ id }) => {

@@ -12,7 +12,7 @@ const gunDefinitions = {
     widthScalingFactor: 0.3,
     heightScalingFactor: 0.3,
     xOffset: 300,
-    yOffset: 20,
+    yOffset: 30,
     gunSwayAmplitude: 1.5,
     gunSwayFrequency: 0.002,
   },
