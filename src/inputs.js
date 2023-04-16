@@ -6,6 +6,7 @@ const inputs = {
   angularSpeed: 0,
   enableMiniMap: false,
   isRunning: false,
+  pitchAngle: 0,
 };
 
 export const getState = () => inputs;
@@ -13,7 +14,7 @@ export const getState = () => inputs;
 export const initialise = () => {
   document.addEventListener('keydown', handleKeyDown);
   document.addEventListener('keyup', handleKeyUp);
-  // document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mousemove', handleMouseMove);
 };
 
 const handleKeyDown = (event) => {
@@ -57,4 +58,10 @@ const handleKeyUp = (event) => {
   if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'a' || event.key === 'd') {
     inputs.angularSpeed = 0;
   }
+};
+
+const handleMouseMove = (event) => {
+  const centreY = constants.HALF_SCREEN_HEIGHT_FLOORED + 1;
+  const pitchFromCentre = event.clientY - centreY; // Negative pitch means heading to top of screen
+  inputs.pitchAngle = (pitchFromCentre / centreY) * constants.VERTICAL_FIELD_OF_VIEW;
 };

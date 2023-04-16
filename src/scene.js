@@ -139,7 +139,7 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
     1,                      // Source image width
     wallTexture.height,     // Source image height
     rayIndex,               // Target image X offset
-    Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2),                // Target image Y offset
+    Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2) - Math.floor(player.pitchAngle * constants.CELL_SIZE),                // Target image Y offset
     1,                // Target image width
     wallHeight,       // Target image height
   );
@@ -167,8 +167,10 @@ const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
 };
 
 const renderFloor = ({ canvasContext, player }) => {
+  const floorOffset = constants.HALF_SCREEN_HEIGHT_FLOORED - Math.floor(player.pitchAngle * constants.CELL_SIZE);
+  const floorHeight = constants.HALF_SCREEN_HEIGHT_FLOORED + Math.floor(player.pitchAngle * constants.CELL_SIZE);
   canvasContext.fillStyle = 'grey';
-  canvasContext.fillRect(0, constants.HALF_SCREEN_HEIGHT_FLOORED, constants.SCREEN_WIDTH, constants.HALF_SCREEN_HEIGHT_FLOORED);
+  canvasContext.fillRect(0, floorOffset, constants.SCREEN_WIDTH, floorHeight);
 };
 
 const renderCeiling = ({ canvasContext, player }) => {
@@ -183,7 +185,8 @@ const renderCeiling = ({ canvasContext, player }) => {
   // A problem emerges towards the end of the image where we "run out of image". To overcome this
   // limit, we simply print another picture where the first one ran out. The second image starts
   // back at the start of the texture, giving the illusion of a 360 degree image.
-  const ceilingTexture = textures.getTextureImageById({ id: `clouds1-repeatable`});;
+  const ceilingTexture = textures.getTextureImageById({ id: `clouds1-repeatable`});
+  const ceilingHeight = constants.HALF_SCREEN_HEIGHT_FLOORED - Math.floor(player.pitchAngle * constants.CELL_SIZE);
 
   // Determine how many pixels per radian can be shown.
   const slicePerRadian = ceilingTexture.width / (Math.PI * 2);
@@ -205,7 +208,7 @@ const renderCeiling = ({ canvasContext, player }) => {
     0,
     0,
     constants.SCREEN_WIDTH,
-    constants.HALF_SCREEN_HEIGHT_FLOORED,
+    ceilingHeight,
   );
 
   // Determine if we "ran out of texture" at the end of the image in the previous operation, i.e. the FOV sliding window
@@ -225,7 +228,7 @@ const renderCeiling = ({ canvasContext, player }) => {
       constants.SCREEN_WIDTH - screenShortfall - 1,
       0,
       screenShortfall + 1,
-      constants.HALF_SCREEN_HEIGHT,
+      ceilingHeight,
     );
   }
 };

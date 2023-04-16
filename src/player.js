@@ -22,6 +22,7 @@ const player = {
   x: constants.CELL_SIZE * 1.5,
   y: constants.CELL_SIZE * 12,
   angle: 5.2399,//0,
+  pitchAngle: 0,
   isMoving: false,
   selectedGun: gunTypes.ASSAULT_RIFLE,
   gunSway: {
@@ -71,6 +72,9 @@ export const move = ({ inputs }) => {
     const playerSpeed = inputs.speed;
     startGunSway({ gunDefinition, playerSpeed });
   }*/
+
+  // Calculate player pitch angle.
+  player.pitchAngle = inputs.pitchAngle;
 
   // Calculate player movement.
   player.angle += (inputs.angularSpeed + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.

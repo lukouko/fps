@@ -1,3 +1,5 @@
+import { degToRadians } from './helpers';
+
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
 const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
@@ -14,6 +16,8 @@ const CELL_SIZE = 256;
 const PLAYER_WALK_SPEED = 8;
 const PLAYER_ANGULAR_SPEED_DEGREES = 3;
 const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
+const MOUSE_PITCH_SENSITIVITY = 0.005;
+const VERTICAL_FIELD_OF_VIEW = degToRadians(90);
 
 const colours = Object.freeze({
   CELL: 'grey',
@@ -42,5 +46,7 @@ module.exports = Object.freeze({
   PLAYER_WALK_SPEED,
   PLAYER_ANGULAR_SPEED_DEGREES,
   PLAYER_CLIP_DETECTION_DISTANCE,
+  MOUSE_PITCH_SENSITIVITY,
+  VERTICAL_FIELD_OF_VIEW,
   colours,
 });
