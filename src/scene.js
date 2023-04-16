@@ -202,9 +202,9 @@ const renderCeiling = ({ canvasContext, player }) => {
   canvasContext.drawImage(
     ceilingTexture,
     offsetPixels,
-    0,
+    0 + Math.floor(player.pitchAngle * constants.CELL_SIZE),
     slicePixels,
-    ceilingTexture.height,
+    ceilingTexture.height - Math.floor(player.pitchAngle * constants.CELL_SIZE),
     0,
     0,
     constants.SCREEN_WIDTH,
