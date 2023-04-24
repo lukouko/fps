@@ -1,3 +1,5 @@
+import * as constants from './constants';
+
 export const degToRadians = (deg) => (deg * Math.PI) / 180;
 
 export const findLowestCommonMultipleOf = ({ numbers }) => {
@@ -18,3 +20,5 @@ export const findGreatestCommonDivisor = ({ a, b }) => {
   
   return findGreatestCommonDivisor({ a: b, b: a % b });
 }
+
+export const normaliseRadians = (rads) => (rads + constants.TWO_PI) % constants.TWO_PI;

@@ -1,5 +1,9 @@
-const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
+// General constants.
+const PI = Math.PI;
+const TWO_PI = PI;
+
+const SCREEN_WIDTH = 1024;//window.innerWidth;
+const SCREEN_HEIGHT = 768;// window.innerHeight;
 const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
 const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 const HALF_SCREEN_WIDTH_FLOORED = Math.floor(HALF_SCREEN_WIDTH);
@@ -8,12 +12,14 @@ const GAME_LOOP_TICK_MS = 20;
 const MINIMAP_BASE_POSITION_X = 5;
 const MINIMAP_BASE_POSITION_Y = 5;
 const MINIMAP_SCALE = 0.10;
-const FIELD_OF_VIEW = 60 * Math.PI / 180;
+const FIELD_OF_VIEW = 72 * Math.PI / 180;
 const MINIMAP_PLAYER_SIZE = 10;
 const CELL_SIZE = 256;
 const PLAYER_WALK_SPEED = 8;
 const PLAYER_ANGULAR_SPEED_DEGREES = 3;
 const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
+const PLAYER_DISTANCE_TO_PROJECTION_PLANE = (SCREEN_WIDTH / 2) / Math.tan(FIELD_OF_VIEW / 2);
+const PLAYER_HEIGHT = Math.floor(CELL_SIZE / 2);
 
 const colours = Object.freeze({
   CELL: 'grey',
@@ -26,6 +32,8 @@ const colours = Object.freeze({
 });
 
 module.exports = Object.freeze({
+  PI,
+  TWO_PI,
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
   HALF_SCREEN_WIDTH,
@@ -42,5 +50,7 @@ module.exports = Object.freeze({
   PLAYER_WALK_SPEED,
   PLAYER_ANGULAR_SPEED_DEGREES,
   PLAYER_CLIP_DETECTION_DISTANCE,
+  PLAYER_DISTANCE_TO_PROJECTION_PLANE,
+  PLAYER_HEIGHT,
   colours,
 });

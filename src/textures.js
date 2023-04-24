@@ -33,7 +33,7 @@ const loadImageFromPath = ({ assetPath }) => new Promise((resolve) => {
 const createRepeatedImage = async ({ baseImage }) => {
   const repeatingImageCanvas = document.createElement('canvas');
 
-  const targetWidth = findLowestCommonMultipleOf({ numbers: [baseImage.width, constants.SCREEN_WIDTH] });
+  const targetWidth = baseImage.width * 10;
   const targetHeight = baseImage.width * ((Math.ceil(constants.HALF_SCREEN_HEIGHT_FLOORED) / baseImage.width));
 
   repeatingImageCanvas.width = targetWidth;

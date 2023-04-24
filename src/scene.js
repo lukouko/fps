@@ -1,12 +1,46 @@
 import * as constants from './constants';
 import * as textures from './textures';
+import * as helpers from './helpers';
 import { distanceTo as playerDistanceTo } from './player';
 import { isOutOfBounds, getMapCell, getScaledMapSize } from './map';
+import { OffScreenBuffer } from './offscreen-buffer';
 
 let CEILING_ANIMATION_RADIANS_PER_FRAME = 0.0175 * Math.PI / 180;
 let ceilingAnimationAngle = 0;
 
+let floorTexture;
+let floorTextureBuffer;
+let floorTextureImage;
+let floorTexturePixels;
+
+let wallTexture;
+let wallTextureCanvas;
+let wallTextureImage;
+let wallTexturePixels;
+
+
+let offScreenBuffer;
+
 export const initialise = () => {
+  offScreenBuffer = new OffScreenBuffer({ width: constants.SCREEN_WIDTH, height: constants.SCREEN_HEIGHT });
+
+  floorTexture = textures.getTextureImageById({ id: `wall2`});
+  floorTextureBuffer = document.createElement('canvas');		
+  floorTextureBuffer.width = floorTexture.width;
+  floorTextureBuffer.height = floorTexture.height;
+  floorTextureBuffer.getContext('2d').drawImage(floorTexture, 0, 0);
+  
+  floorTextureImage = floorTextureBuffer.getContext('2d').getImageData(0, 0, floorTextureBuffer.width, floorTextureBuffer.height);
+  floorTexturePixels = floorTextureImage.data;
+
+  wallTexture = textures.getTextureImageById({ id: `wall2`});
+  wallTextureCanvas = document.createElement('canvas');		
+  wallTextureCanvas.width = wallTexture.width;
+  wallTextureCanvas.height = wallTexture.height;
+  wallTextureCanvas.getContext('2d').drawImage(wallTexture, 0, 0);
+  
+  wallTextureImage = wallTextureCanvas.getContext('2d').getImageData(0, 0, wallTextureCanvas.width, wallTextureCanvas.height);
+  wallTexturePixels = wallTextureImage.data;
 };
 
 const calculateVerticalCollision = ({ angle, player }) => {
@@ -90,8 +124,11 @@ const castWallRay = ({ angle, player }) => {
 };
 
 export const render = ({ canvasContext, player }) => {
-  renderFloor({ canvasContext, player });
-  renderCeiling({ canvasContext, player });
+  //renderFloor({ canvasContext, player });
+  offScreenBuffer.clear();
+  //renderCeiling({ canvasContext, player });
+
+  const offScreenBufferPixels = offScreenBuffer.getPixels();
 
   const initialAngle = player.angle - constants.FIELD_OF_VIEW / 2; // The starting angle for ray casting.
   const numberOfRays = constants.SCREEN_WIDTH;
@@ -112,38 +149,106 @@ export const render = ({ canvasContext, player }) => {
     };
 
     wallRays.push(wallRay);
-    renderWallRay({ canvasContext, player, wallRay, rayIndex });
+    renderWallRay({ canvasContext, offScreenBufferPixels, player, wallRay, rayIndex });
   }
+
+  
+  canvasContext.putImageData(offScreenBuffer.getImageData(), 0, 0);
 
   // Other parts of the app may need to make use of the rays we cast onto the walls.
   return { wallRays };
 };
 
-const renderWallRay = ({ canvasContext, player, wallRay, rayIndex }) => {
+const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, rayIndex }) => {
   // Using this calculation for distance instead of the raw ray distance fixes
   // the fish eye effect cause by calculating the rays from a single central point
   // on the player.
   const distance = wallRay.collisionDistance * Math.cos(wallRay.angle - player.angle);
-  const wallHeight = Math.floor(((constants.CELL_SIZE * 5) / distance) * 270);
+  const wallHeight = (constants.CELL_SIZE * constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE / distance); // Doesn't have to be cell size.
+  //const wallHeight = Math.floor(((constants.CELL_SIZE * 5) / distance) * 270);
 
   // ADDING the / 2 to the distance here seemed to make things narrower but taller. Weird.
  // let wallHeight = Math.floor((constants.CELL_SIZE / (distance / 2)) * (constants.HALF_SCREEN_HEIGHT_FLOORED / Math.tan(constants.FIELD_OF_VIEW / 2)) * (constants.SCREEN_WIDTH / constants.SCREEN_HEIGHT));
   const textureOffset = Math.floor(wallRay.collidedVertically ? wallRay.collisionY : wallRay.collisionX);
 
   // Draw walls.
-  const wallTexture = textures.getTextureImageById({ id: `wall${wallRay.collidedMapCell}`});
-  canvasContext.drawImage(
+  //const wallTexture = textures.getTextureImageById({ id: `wall${wallRay.collidedMapCell}`});
+  offScreenBuffer.drawVerticalBufferSlice({
+    sourcePixels: wallTexturePixels,
+    sourceX: textureOffset % wallTexture.width,
+    sourceWidth: wallTextureCanvas.width,
+    sourceHeight: wallTextureCanvas.height,
+    destinationX: rayIndex,
+    destinationY: Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2),
+    destinationHeight: wallHeight,
+  });
+  /*offScreenBuffer.drawImage({
+    sourceImage: wallTexture,
+    sourceX: textureOffset % wallTexture.width,
+    sourceY: 0,
+    sourceWidth: 1,
+    sourceHeight: wallTexture.height,
+    destinationX: rayIndex,
+    destinationY: Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2),
+    destinationWidth: 1,
+    destinationHeight: wallHeight,
+  })*/
+  
+  /*canvasContext.drawImage(
     wallTexture, 
-    (textureOffset - Math.floor(textureOffset / constants.CELL_SIZE) * constants.CELL_SIZE) % wallTexture.width,                // Source image x offset
+    textureOffset % wallTexture.width, // Source image x offset
     0,                      // Source image Y offset
     1,                      // Source image width
     wallTexture.height,     // Source image height
     rayIndex,               // Target image X offset
-    Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2),                // Target image Y offset
+    Math.floor(constants.HALF_SCREEN_HEIGHT) - Math.floor(wallHeight / 2), // Target image Y offset
     1,                // Target image width
     wallHeight,       // Target image height
-  );
+  );*/
 
+  // Draw floor.
+  const bytesPerPixel = 4;
+  const bottomOfWall = Math.floor(constants.HALF_SCREEN_HEIGHT + (wallHeight / 2));
+  let floorCeilingCanvasIndex = bottomOfWall * (offScreenBuffer.width * bytesPerPixel) + (bytesPerPixel * rayIndex);
+
+  for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex < constants.SCREEN_HEIGHT; ++floorPixelYIndex) {
+    const ratio = constants.PLAYER_HEIGHT / (floorPixelYIndex - constants.HALF_SCREEN_HEIGHT);
+    const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * ratio) * Math.cos(wallRay.angle - player.angle));
+    
+	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(wallRay.angle)) + player.x;
+    const yEnd = Math.floor(diagonalDistanceToFloor * Math.sin(wallRay.angle)) + player.y;
+
+    // Get the tile intersected by ray
+    const cellX = Math.floor(xEnd / constants.CELL_SIZE);
+    const cellY = Math.floor(yEnd / constants.CELL_SIZE);
+
+    if (isOutOfBounds({ cellX, cellY })) {
+      return;
+    }
+
+    const tileRow = Math.floor(yEnd % floorTexture.height);
+    const tileColumn = Math.floor(xEnd % floorTexture.width);
+
+    const sourceIndex = (tileRow * floorTextureBuffer.width * bytesPerPixel) + (bytesPerPixel * tileColumn);
+
+    // Cheap shading trick
+    const brightnessLevel = (300 / diagonalDistanceToFloor);
+    const red = Math.floor(floorTexturePixels[sourceIndex] * brightnessLevel);
+    const green = Math.floor(floorTexturePixels[sourceIndex + 1] * brightnessLevel);
+    const blue = Math.floor(floorTexturePixels[sourceIndex + 2] * brightnessLevel);
+    const alpha = Math.floor(floorTexturePixels[sourceIndex + 3]);	
+
+    // Draw the pixel
+    offScreenBufferPixels[floorCeilingCanvasIndex] = red;
+    offScreenBufferPixels[floorCeilingCanvasIndex + 1] = green;
+    offScreenBufferPixels[floorCeilingCanvasIndex + 2] = blue;
+    offScreenBufferPixels[floorCeilingCanvasIndex + 3] = alpha;
+    
+    // Go to the next pixel (directly under the current pixel)
+    floorCeilingCanvasIndex += (bytesPerPixel * offScreenBuffer.width);	
+  }
+
+  
   // Make walls that are further away a bit darker.
   /*const darkness = Math.min(distance / 500, 1);
   canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.5})`;
