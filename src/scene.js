@@ -207,7 +207,7 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
     // Calcualte the straight distance between the player and the pixel.
     const directFloorDistance = constants.PLAYER_HEIGHT / (floorPixelYIndex - constants.HALF_SCREEN_HEIGHT) ;
     //const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * Math.cos(wallRay.angle - player.angle));
-    const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance));
+    const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * (1.0 / Math.cos(wallRay.angle - player.angle)));
 
 
 	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(wallRay.angle)) + player.x;
@@ -227,7 +227,7 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
     const sourceIndex = (textureRow * floorTextureBuffer.width * bytesPerPixel) + (bytesPerPixel * textureColumn);
 
     // Cheap shading trick
-    const brightnessLevel = (500 / diagonalDistanceToFloor);
+    const brightnessLevel = (400 / diagonalDistanceToFloor);
     const red = Math.floor(floorTexturePixels[sourceIndex] * brightnessLevel);
     const green = Math.floor(floorTexturePixels[sourceIndex + 1] * brightnessLevel);
     const blue = Math.floor(floorTexturePixels[sourceIndex + 2] * brightnessLevel);
