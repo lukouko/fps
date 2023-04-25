@@ -139,8 +139,8 @@ export const render = ({ canvasContext, player }) => {
 };
 
 const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, rayIndex }) => {
-  const wallTexture = textures.getTextureById({ id: 'vertical_timber_1' });
-  const floorTexture = textures.getTextureById({ id: 'tiles_1' });
+  const wallTexture = textures.getTextureById({ id: 'plaster_1' });
+  const floorTexture = textures.getTextureById({ id: 'horizontal_timber_1' });
   const ceilingTexture = textures.getTextureById({ id: 'plaster_1' });
 
   // Using this calculation for distance instead of the raw ray distance fixes
@@ -172,8 +172,8 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
     return;
   }
 
-  let offScreenBufferFloorIndex = bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex);
-  let offScreenBufferCeilingIndex = topOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex);
+  let offScreenBufferFloorIndex = Math.floor(bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
+  let offScreenBufferCeilingIndex = Math.floor(topOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
 
   for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex < constants.SCREEN_HEIGHT; ++floorPixelYIndex) {
     // Calcualte the straight distance between the player and the pixel.
@@ -181,8 +181,8 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
     //const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * Math.cos(wallRay.angle - player.angle));
     const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * (1.0 / Math.cos(wallRay.angle - player.angle)));
 
-	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(wallRay.angle)) + player.x;
-    const yEnd = Math.floor(diagonalDistanceToFloor * Math.sin(wallRay.angle)) + player.y;
+	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(wallRay.angle) + player.x);
+    const yEnd = Math.floor(diagonalDistanceToFloor * Math.sin(wallRay.angle) + player.y);
 
     // Get the tile intersected by ray
     const cellX = Math.floor(xEnd / constants.CELL_SIZE);
