@@ -4,8 +4,8 @@ const degToRadians = (deg) => (deg * Math.PI) / 180;
 const PI = Math.PI;
 const TWO_PI = PI;
 
-const SCREEN_WIDTH = 854;//window.innerWidth;
-const SCREEN_HEIGHT = 480;// window.innerHeight;
+const SCREEN_WIDTH = 1080;//1024//854;//window.innerWidth;
+const SCREEN_HEIGHT = 768;//768//480;// window.innerHeight;
 const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
 const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 const HALF_SCREEN_WIDTH_FLOORED = Math.floor(HALF_SCREEN_WIDTH);

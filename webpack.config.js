@@ -77,6 +77,8 @@ function config() {
               },
             },
 
+            { test: /\.json$/, type: 'json' },
+
             {
               test: /\.js$/,
               exclude: (path) => /(node_modules)/.test(path),
