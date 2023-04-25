@@ -1,9 +1,11 @@
+const degToRadians = (deg) => (deg * Math.PI) / 180;
+
 // General constants.
 const PI = Math.PI;
 const TWO_PI = PI;
 
-const SCREEN_WIDTH = 1024;//window.innerWidth;
-const SCREEN_HEIGHT = 768;// window.innerHeight;
+const SCREEN_WIDTH = 854;//window.innerWidth;
+const SCREEN_HEIGHT = 480;// window.innerHeight;
 const HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
 const HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 const HALF_SCREEN_WIDTH_FLOORED = Math.floor(HALF_SCREEN_WIDTH);
@@ -12,13 +14,15 @@ const GAME_LOOP_TICK_MS = 20;
 const MINIMAP_BASE_POSITION_X = 5;
 const MINIMAP_BASE_POSITION_Y = 5;
 const MINIMAP_SCALE = 0.10;
-const FIELD_OF_VIEW = 72 * Math.PI / 180;
+const FIELD_OF_VIEW = degToRadians(72);
+const HALF_FIELD_OF_VIEW = FIELD_OF_VIEW / 2;
+const ANGLE_BETWEEN_RAYS = FIELD_OF_VIEW / SCREEN_WIDTH; // One ray is cast per vertical column of screen pixels.
 const MINIMAP_PLAYER_SIZE = 10;
 const CELL_SIZE = 256;
 const PLAYER_WALK_SPEED = 8;
 const PLAYER_ANGULAR_SPEED_DEGREES = 3;
 const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
-const PLAYER_DISTANCE_TO_PROJECTION_PLANE = (SCREEN_WIDTH / 2) / Math.tan(FIELD_OF_VIEW / 2);
+const PLAYER_DISTANCE_TO_PROJECTION_PLANE = (HALF_SCREEN_WIDTH) / Math.tan(HALF_FIELD_OF_VIEW);
 const PLAYER_HEIGHT = Math.floor(CELL_SIZE / 2);
 
 const colours = Object.freeze({
@@ -45,6 +49,8 @@ module.exports = Object.freeze({
   MINIMAP_BASE_POSITION_Y,
   MINIMAP_SCALE,
   FIELD_OF_VIEW,
+  HALF_FIELD_OF_VIEW,
+  ANGLE_BETWEEN_RAYS,
   MINIMAP_PLAYER_SIZE,
   CELL_SIZE,
   PLAYER_WALK_SPEED,

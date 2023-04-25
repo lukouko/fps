@@ -5,6 +5,7 @@ import * as player from './player';
 import * as map from './map';
 import * as minimap from './mini-map';
 import * as scene from './scene';
+import * as helpers from './helpers';
 
 let framesPerSecond = 0;
 let gameLoopCycles = 0;
@@ -31,6 +32,10 @@ const initialise = async () => {
   await inputsApi.initialise();
   await minimap.initialise();
   await scene.initialise();
+
+  if (helpers.isMobileDevice()) {
+    await helpers.requestFullScreen();
+  } 
 
   gameLoopInterval = setInterval(() => gameLoop({ canvasContext }), constants.GAME_LOOP_TICK_MS);
   fpsInterval = setInterval(trackFps, 1000);

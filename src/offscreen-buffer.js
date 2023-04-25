@@ -25,7 +25,10 @@ export class OffScreenBuffer {
   }
 
   clear() {
-    this.canvasContext.clearRect(0, 0, this.width, this.height);
+    this.canvasContext.fillStyle = 'black';
+    this.canvasContext.fillRect(0, 0, this.width, this.height);
+    this.imageData = this.canvasContext.getImageData(0, 0, this.width, this.height);
+    this.imagePixels = this.imageData.data;
   }
   
   writeTo({ canvasContext, xOffset = 0, yOffset = 0 }) {
