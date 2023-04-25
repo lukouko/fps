@@ -97,7 +97,7 @@ export const distanceTo = ({ x, y }) => {
 
 export const render = ({ canvasContext, inputs }) => {
   const gunDefinition = gunDefinitions[player.selectedGun];
-  const gunTexture = textures.getTextureImageById({ id: `gun${player.selectedGun}`});
+  const gunTexture = textures.getTextureById({ id: `gun${player.selectedGun}`});
 
   // Give the gun a bit of sway if we are moving.
   const { gunSwayOffsetX, gunSwayOffsetY } = applyGunSway({ gunDefinition, playerSpeed: inputs.speed });
@@ -110,7 +110,7 @@ export const render = ({ canvasContext, inputs }) => {
   const gunPositionY = canvasContext.canvas.height - gunHeight + 1 + gunDefinition.yOffset; // Position at bottom of screen
 
   canvasContext.drawImage(
-    gunTexture, 
+    gunTexture.baseImage, 
     0,
     0,                      // Source image Y offset
     gunTexture.width,                      // Source image width
