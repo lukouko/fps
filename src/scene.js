@@ -19,6 +19,10 @@ let wallTextureCanvas;
 let wallTextureImage;
 let wallTexturePixels;
 
+let ceilingTexture;
+let ceilingTextureBuffer;
+let ceilingTextureImage;
+let ceilingTexturePixels;
 
 let offScreenBuffer;
 
@@ -48,6 +52,15 @@ export const initialise = () => {
   
   floorTextureImage = floorTextureBuffer.getContext('2d').getImageData(0, 0, floorTextureBuffer.width, floorTextureBuffer.height);
   floorTexturePixels = floorTextureImage.data;
+
+  ceilingTexture = textures.getTextureImageById({ id: `white-plaster`});
+  ceilingTextureBuffer = document.createElement('canvas');		
+  ceilingTextureBuffer.width = ceilingTexture.width;
+  ceilingTextureBuffer.height = ceilingTexture.height;
+  ceilingTextureBuffer.getContext('2d').drawImage(ceilingTexture, 0, 0);
+  
+  ceilingTextureImage = ceilingTextureBuffer.getContext('2d').getImageData(0, 0, ceilingTextureBuffer.width, ceilingTextureBuffer.height);
+  ceilingTexturePixels = ceilingTextureImage.data;
 
   wallTexture = textures.getTextureImageById({ id: `wall2`});
   wallTextureCanvas = document.createElement('canvas');		
@@ -195,20 +208,21 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
   // Draw floor.
   const bytesPerPixel = 4;
   const bottomOfWall = Math.floor(constants.HALF_SCREEN_HEIGHT + (wallHeight / 2));
+  const topOfWall = Math.floor(constants.HALF_SCREEN_HEIGHT - (wallHeight / 2));
 
   // No need to render floor if the bottom of the wall reaches the bottom of the screen.
-  if (bottomOfWall > constants.SCREEN_HEIGHT) {
+  if (topOfWall <= 0 && bottomOfWall > constants.SCREEN_HEIGHT) {
     return;
   }
 
-  let floorCeilingCanvasIndex = bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex);
+  let offScreenBufferFloorIndex = bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex);
+  let offScreenBufferCeilingIndex = topOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex);
 
   for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex < constants.SCREEN_HEIGHT; ++floorPixelYIndex) {
     // Calcualte the straight distance between the player and the pixel.
     const directFloorDistance = constants.PLAYER_HEIGHT / (floorPixelYIndex - constants.HALF_SCREEN_HEIGHT) ;
     //const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * Math.cos(wallRay.angle - player.angle));
     const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * (1.0 / Math.cos(wallRay.angle - player.angle)));
-
 
 	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(wallRay.angle)) + player.x;
     const yEnd = Math.floor(diagonalDistanceToFloor * Math.sin(wallRay.angle)) + player.y;
@@ -233,14 +247,26 @@ const renderWallRay = ({ canvasContext, offScreenBufferPixels, player, wallRay, 
     const blue = Math.floor(floorTexturePixels[sourceIndex + 2] * brightnessLevel);
     const alpha = Math.floor(floorTexturePixels[sourceIndex + 3]);	
 
-    // Draw the pixel
-    offScreenBufferPixels[floorCeilingCanvasIndex] = red;
-    offScreenBufferPixels[floorCeilingCanvasIndex + 1] = green;
-    offScreenBufferPixels[floorCeilingCanvasIndex + 2] = blue;
-    offScreenBufferPixels[floorCeilingCanvasIndex + 3] = alpha;
-    
+    // Draw the floor pixel
+    offScreenBufferPixels[offScreenBufferFloorIndex] = red;
+    offScreenBufferPixels[offScreenBufferFloorIndex + 1] = green;
+    offScreenBufferPixels[offScreenBufferFloorIndex + 2] = blue;
+    offScreenBufferPixels[offScreenBufferFloorIndex + 3] = alpha;
+
+    // Draw the ceiling pixel.
+    const ceilingRed = Math.floor(ceilingTexturePixels[sourceIndex] * brightnessLevel);
+    const ceilingGreen = Math.floor(ceilingTexturePixels[sourceIndex + 1] * brightnessLevel);
+    const ceilingBlue = Math.floor(ceilingTexturePixels[sourceIndex + 2] * brightnessLevel);
+    const ceilingAlpha = Math.floor(ceilingTexturePixels[sourceIndex + 3]);	
+
+    offScreenBufferPixels[offScreenBufferCeilingIndex] = ceilingRed;
+    offScreenBufferPixels[offScreenBufferCeilingIndex + 1] = ceilingGreen;
+    offScreenBufferPixels[offScreenBufferCeilingIndex + 2] = ceilingBlue;
+    offScreenBufferPixels[offScreenBufferCeilingIndex + 3] = ceilingAlpha;
+
     // Go to the next pixel (directly under the current pixel)
-    floorCeilingCanvasIndex += localCache.offScreenBufferBytesPerRow;	
+    offScreenBufferFloorIndex += localCache.offScreenBufferBytesPerRow;
+    offScreenBufferCeilingIndex -= localCache.offScreenBufferBytesPerRow;
   }
 };
 

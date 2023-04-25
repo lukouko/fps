@@ -5,6 +5,7 @@ import wall3 from './brick_wall_128_128.jpg';
 import gun1 from './gun1.png';
 import gun2 from './gun2.png';
 import floorTiles1 from './floor_tiles_256_256.jpg';
+import whitePlaster from './white_plaster_256_256.jpg';
 import clouds1 from './clouds_1_508.jpg';
 
 const images = [
@@ -15,6 +16,7 @@ const images = [
   { id: 'gun1', assetPath: gun1 },
   { id: 'gun2', assetPath: gun2 },
   { id: 'gun2', assetPath: gun2 },
+  { id: 'white-plaster', assetPath: whitePlaster },
   { id: 'clouds1', assetPath: clouds1, isRepeatable: true },
 ];
 
