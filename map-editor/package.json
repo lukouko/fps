@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "classnames": "^2.3.2",
     "random": "3.0.6",
     "react": "^18.2.0",
     "react-redux": "^8.0.5",
@@ -32,6 +33,7 @@
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
+    "css-loader": "^6.7.3",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.8.0",
@@ -44,6 +46,7 @@
     "prettier-eslint": "^15.0.1",
     "prettier-eslint-cli": "^7.1.0",
     "react-dom": "^18.2.0",
+    "style-loader": "^3.3.2",
     "terser-webpack-plugin": "^5.3.7",
     "url-loader": "^4.1.1",
     "webpack": "^5.79.0",

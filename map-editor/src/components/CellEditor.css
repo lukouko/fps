@@ -1,0 +1,5 @@
+.cell-editor {
+  background-color: #1D2228;
+  flex: 1;
+  border-top: 1px solid var(--default-border-color);
+}

@@ -1,6 +1,8 @@
-import * as constants from './constants';
-import * as helpers from './helpers';
-import * as Types from './types';
+import * as helpers from 'game-engine/helpers';
+import * as Types from 'map-editor/types';
+
+const WALK_SPEED = 15;
+const ANGULAR_SPEED = 4;
 
 /**
  * Initialises inputs and returns input state.
@@ -25,26 +27,23 @@ const handleKeyDown = ({ event, inputs }) => {
   switch (event.key) {
     case 'ArrowUp':
     case 'w':
-      inputs.speed = constants.PLAYER_WALK_SPEED;
+      inputs.speed = WALK_SPEED;
     break;
 
     case 'ArrowDown':
     case 's':
-      inputs.speed = -constants.PLAYER_WALK_SPEED;
+      inputs.speed = -WALK_SPEED;
     break;
 
     case 'ArrowLeft':
     case 'a':
-      inputs.angularSpeed = helpers.degToRadians(-constants.PLAYER_ANGULAR_SPEED_DEGREES);
+      inputs.angularSpeed = helpers.degToRadians(-ANGULAR_SPEED);
     break;
 
     case 'ArrowRight':
     case 'd':
-      inputs.angularSpeed = helpers.degToRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES);
+      inputs.angularSpeed = helpers.degToRadians(ANGULAR_SPEED);
     break;
-
-    case 'Tab':
-      inputs.enableMiniMap = !inputs.enableMiniMap;
 
     default: break;
   }

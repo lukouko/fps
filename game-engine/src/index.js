@@ -6,6 +6,7 @@ import * as map from './map';
 import * as minimap from './mini-map';
 import * as scene from './scene';
 import * as helpers from './helpers';
+import * as Types from './types';
 
 let framesPerSecond = 0;
 let gameLoopCycles = 0;
@@ -13,9 +14,15 @@ let gameLoopInterval;
 let fpsInterval;
 
 const initialise = async () => {
+  const displayInfo = helpers.generateDisplayInfo({
+    width: 1080,
+    height: 768,
+    fieldOfView: 72,
+  });
+
   const canvas = document.createElement('canvas');
-  canvas.width = constants.SCREEN_WIDTH;
-  canvas.height = constants.SCREEN_HEIGHT;
+  canvas.width = displayInfo.width;
+  canvas.height = displayInfo.height;
 
   // Get the 2D rendering context of the canvas
   const canvasContext = canvas.getContext('2d');
@@ -26,47 +33,54 @@ const initialise = async () => {
 
   document.body.appendChild(canvas);
 
-  await loadTextures();
-  await map.initialise();
-  await player.initialise();
-  await inputsApi.initialise();
-  await minimap.initialise();
-  await scene.initialise();
+  await loadTextures({ displayInfo });
+
+  /** @type Types.GameState */
+  const gameState = {
+    mapState: await map.initialise(),
+    playerState: await player.initialise(),
+    inputState: await inputsApi.initialise(),
+    minimapState: await minimap.initialise(),
+    sceneState: await scene.initialise({ displayInfo }),
+  };
 
   if (helpers.isMobileDevice()) {
     await helpers.requestFullScreen();
   } 
 
-  gameLoopInterval = setInterval(() => gameLoop({ canvasContext }), constants.GAME_LOOP_TICK_MS);
+  gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
   fpsInterval = setInterval(trackFps, 1000);
 };
 
-const clearScreen = ({ canvasContext }) => {
-  canvasContext.fillStyle = 'black';
-  canvasContext.fillRect(0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
-};
-
-const gameLoop = ({ canvasContext }) => {
+const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
   try {
+    const { mapState, playerState, inputState } = gameState;
+
     ++gameLoopCycles;
-
-    clearScreen({ canvasContext });
-
-    const inputs = inputsApi.getState();
-    player.move({ inputs });
+    player.move({ playerState, inputState, mapState });
     
-    const { wallRays } = scene.render({ canvasContext, player: player.getState() });
+    const { wallRays } = scene.render({
+      canvasContext,
+      orientation: playerState.player.orientation,
+      mapState,
+      displayInfo,
+    });
     
-    if (inputs.enableMiniMap) {
+    if (gameState.inputState.enableMiniMap) {
       minimap.render({
         canvasContext,
-        map: map.getState(),
         wallRays,
-        player: player.getState(),
+        mapLayout: mapState.currentMap.layout,
+        playerOrientation: playerState.player.orientation,
       });
     }
 
-    player.render({ canvasContext, inputs });
+    player.render({
+      canvasContext,
+      inputState,
+      playerState,
+      displayInfo,
+    });
 
     canvasContext.fillStyle = 'white';
     canvasContext.font = '16px Monospace';

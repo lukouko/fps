@@ -1,0 +1,19 @@
+.map-controller {
+  background-color: #1A1D22;
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--default-border-color);
+}
+
+.map-file-menu {
+  display: flex;
+  flex: 0 30px; 
+  justify-content: space-between;
+  border-bottom: 1px solid var(--default-border-color);
+  padding-bottom: 10px;
+}
+
+.map-file-menu button {
+}

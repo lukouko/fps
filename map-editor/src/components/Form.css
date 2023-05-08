@@ -1,0 +1,34 @@
+.form {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+.form fieldset {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.form label {
+  font-size: 0.8rem;
+  font-weight: 300;
+}
+
+.form input {
+  flex: 1;
+  padding: 5px;
+  outline: none;
+  border-width: 1px;
+}
+
+.form input:active, .form input:focus {
+  border: 1px solid #80bdff;
+  
+}
+
+.form-row {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}

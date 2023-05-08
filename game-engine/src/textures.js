@@ -1,11 +1,17 @@
 // @ts-ignore
-import { images as imageAssets} from 'fps/assets';
-//import { findLowestCommonMultipleOf } from './helpers';
-//import * as constants from './constants';
+import { images as imageAssets} from './assets';
+import * as Types from './types';
 
+/** @type Object<string, Types.Texture> */
 let texturesLookup;
 
-export const loadTextures = async () => {
+/**
+ * Loads all of the assets as textures and stores them in a cache for later access
+ * @param {Object} params
+ * @param {Types.DisplayInfo} params.displayInfo
+ * @returns {Promise<undefined>}
+ */
+export const loadTextures = async ({ displayInfo }) => {
   if (texturesLookup) {
     throw new Error('Textures have already been loaded!');
   }
@@ -42,25 +48,32 @@ export const loadTextures = async () => {
     };
 
     /*if (isRepeatable) {
-      const repeatedImage = await createRepeatedImage({ baseImage });
+      const repeatedImage = await createRepeatedImage({ baseImage, displayInfo });
       texturesLookup[`${id}-repeatable`] = repeatedImage;
     }*/
   });
 
   await Promise.all(textureLoadPromises);
+  return;
 };
 
+/**
+ * Creates a new Image object from the given path.
+ * @param {Object} params
+ * @param {string} params.assetPath The path to the image. Can be a base64 encoded iamge path.
+ * @returns {Promise<HTMLImageElement>}
+ */
 const loadImageFromPath = ({ assetPath }) => new Promise((resolve) => {
   const image = new Image();
   image.onload = () => resolve(image);
   image.src = assetPath;
 });
 
-/*const createRepeatedImage = async ({ baseImage }) => {
+/*const createRepeatedImage = async ({ baseImage, displayInfo }) => {
   const repeatingImageCanvas = document.createElement('canvas');
 
   const targetWidth = baseImage.width * 10;
-  const targetHeight = baseImage.width * ((Math.ceil(constants.HALF_SCREEN_HEIGHT_FLOORED) / baseImage.width));
+  const targetHeight = baseImage.width * ((Math.ceil(displayInfo.halfScreenHeightFloored) / baseImage.width));
 
   repeatingImageCanvas.width = targetWidth;
   repeatingImageCanvas.height = targetHeight;
@@ -74,6 +87,12 @@ const loadImageFromPath = ({ assetPath }) => new Promise((resolve) => {
   return repeatingImage;
 };*/
 
+/**
+ * Returns the texture matching the passed id.
+ * @param {Object} params
+ * @param {Types.TextureId} params.id
+ * @returns {Types.Texture}
+ */
 export const getTextureById = ({ id }) => {
   if (!texturesLookup) {
     throw new Error('Cannot get texture prior to texture loading');

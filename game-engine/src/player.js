@@ -1,11 +1,13 @@
 import * as textures from './textures';
 import * as constants from './constants';
 import * as map from './map';
+import * as Types from './types';
 
 const gunTypes = Object.freeze({
   ASSAULT_RIFLE: 1,
 });
 
+/** @type Object<Types.GunId, Types.GunDefinition> */
 const gunDefinitions = {
   [gunTypes.ASSAULT_RIFLE]: {
     id: gunTypes.ASSAULT_RIFLE,
@@ -18,89 +20,45 @@ const gunDefinitions = {
   },
 };
 
-const player = {
-  x: constants.CELL_SIZE * 1.5,
-  y: constants.CELL_SIZE * 12,
-  angle: 5.2399,//0,
-  isMoving: false,
-  selectedGun: gunTypes.ASSAULT_RIFLE,
-  gunSway: {
-    startTime: undefined,
+/**
+ * Returns the initial state representing the player.
+ * @returns {Types.PlayerState}
+ */
+export const initialise = () => ({
+  player: {
+    orientation: {
+      position: {
+        x: constants.CELL_SIZE * 1.5,
+        y: constants.CELL_SIZE * 12,
+      },
+      angle: 5.2399,//0,
+    },
+    isMoving: false,
+    selectedGun: gunTypes.ASSAULT_RIFLE,
   },
-};
+  gunSwayStartTime: undefined,
+});
 
-export const getState = () => player;
 
-export const initialise = () => {
-};
-
-const applyGunSway = ({ gunDefinition, playerSpeed }) => {
-  if (playerSpeed === 0) {
-    player.gunSway.startTime = undefined;
-    return { gunSwayOffsetX: 0, gunSwayOffsetY: 0 };
-  }
-
-  if (!player.gunSway.startTime) {
-    player.gunSway.startTime = performance.now();
-  }
-
-  const adjustedSpeed = playerSpeed < 0 ? -playerSpeed : playerSpeed;
-  const magnitude = gunDefinition.gunSwayAmplitude * adjustedSpeed;
-
-  const timeNow = performance.now();
-  const timeElapsed = timeNow - player.gunSway.startTime;
-
-  const { gunSwayFrequency } = gunDefinition;
-  const gunSwayOffsetX = Math.sin(timeElapsed * gunSwayFrequency) * magnitude;
-  const gunSwayOffsetY = Math.sin(timeElapsed * gunSwayFrequency * 2) * magnitude;
-
-  return { gunSwayOffsetX, gunSwayOffsetY };
-};
-
-export const move = ({ inputs }) => {
-  // Gun sway when moving.
-  /*if (player.isMoving && inputs.speed === 0) {
-    // Player stopped moving, stop the gun sway animation.
-    player.isMoving = false;
-    stopGunSway();
-
-  } else if (!player.isMoving && inputs.speed !== 0) {
-    // Player started moving, commence gun sway animation.
-    player.isMoving = true;
-    const gunDefinition = gunDefinitions[player.selectedGun];
-    const playerSpeed = inputs.speed;
-    startGunSway({ gunDefinition, playerSpeed });
-  }*/
-
-  // Calculate player movement.
-  player.angle += (inputs.angularSpeed + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.
-  player.angle = player.angle % (2 * Math.PI); // Normalise to a single circle.
-  const xMovement = Math.cos(player.angle) * inputs.speed;
-  const yMovement = Math.sin(player.angle) * inputs.speed;
-
-  // Clipping checking.
-  const hypotheticalXCell = Math.floor((player.x + xMovement) / constants.CELL_SIZE);
-  const hypotheticalYCell = Math.floor((player.y + yMovement) / constants.CELL_SIZE);
-
-  if (!map.canMoveToCellLocation({ cellX: hypotheticalXCell, cellY: hypotheticalYCell })) {
-    return;
-  }
-
-  // Move the player in space.
-  player.x += xMovement;
-  player.y += yMovement;
-};
-
-export const distanceTo = ({ x, y }) => {
-  return Math.sqrt(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2));
-};
-
-export const render = ({ canvasContext, inputs }) => {
+/**
+ * Renders the player to the screen.
+ * @param {Object} params
+ * @param {CanvasRenderingContext2D} params.canvasContext A 2d canvas context from the canvas which is the render destination.
+ * @param {Types.InputState} params.inputState The current input state. Required for gun sway amount (i.e. current input speed).
+ * @param {Types.PlayerState} params.playerState The current player state.
+ * @param {Types.DisplayInfo} params.displayInfo
+ */
+export const render = ({ canvasContext, inputState, playerState, displayInfo }) => {
+  const { player } = playerState;
   const gunDefinition = gunDefinitions[player.selectedGun];
   const gunTexture = textures.getTextureById({ id: `gun${player.selectedGun}`});
 
   // Give the gun a bit of sway if we are moving.
-  const { gunSwayOffsetX, gunSwayOffsetY } = applyGunSway({ gunDefinition, playerSpeed: inputs.speed });
+  const { gunSwayOffsetX, gunSwayOffsetY } = applyGunSway({
+    gunDefinition,
+    playerSpeed: inputState.speed,
+    playerState,
+  });
 
   // We need to size and position the player gun relative to the size of the canvas
   // to give a consistent look and feel across different devices.
@@ -123,5 +81,72 @@ export const render = ({ canvasContext, inputs }) => {
 
   // Draw indicator of target location.
   canvasContext.fillStyle = 'white';
-  canvasContext.fillRect(constants.HALF_SCREEN_WIDTH_FLOORED, constants.HALF_SCREEN_HEIGHT_FLOORED + 50, 2, 2);
+  canvasContext.fillRect(displayInfo.halfWidthFloored, displayInfo.halfHeightFloored + 50, 2, 2);
 };
+
+/**
+ * Applies the current inputs to the player state, i.e. moves the player.
+ * @param {Object} params
+ * @param {Types.InputState} params.inputState The current input state.
+ * @param {Types.PlayerState} params.playerState The current player state.
+ * @param {Types.MapState} params.mapState The current map state.
+ * @returns 
+ */
+export const move = ({ inputState, playerState, mapState }) => {
+  const { player } = playerState;
+
+  // Calculate player movement.
+  player.orientation.angle += (inputState.angularSpeed + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.
+  player.orientation.angle = player.orientation.angle % (2 * Math.PI); // Normalise to a single circle.
+  const xMovement = Math.cos(player.orientation.angle) * inputState.speed;
+  const yMovement = Math.sin(player.orientation.angle) * inputState.speed;
+
+  // Clipping checking.
+
+  /** @type Types.Position */
+  const hypotheticalCell = {
+    x:  Math.floor((player.orientation.position.x + xMovement) / constants.CELL_SIZE),
+    y: Math.floor((player.orientation.position.y + yMovement) / constants.CELL_SIZE),
+  };
+
+  if (!map.canMoveToCellLocation({ position: hypotheticalCell, mapState })) {
+    return;
+  }
+
+  // Move the player in space.
+  player.orientation.position.x += xMovement;
+  player.orientation.position.y += yMovement;
+};
+
+/**
+ * Applies sway to the player's gun.
+ * 
+ * @param {Object} params
+ * @param {Types.GunDefinition} params.gunDefinition
+ * @param {Types.PlayerState} params.playerState The current player state.
+ * @param {number} params.playerSpeed The speed currently being applied to the player.
+ */
+const applyGunSway = ({ gunDefinition, playerState, playerSpeed }) => {
+  const { player } = playerState;
+  if (playerSpeed === 0) {
+    playerState.gunSwayStartTime = undefined;
+    return { gunSwayOffsetX: 0, gunSwayOffsetY: 0 };
+  }
+
+  if (!playerState.gunSwayStartTime) {
+    playerState.gunSwayStartTime = performance.now();
+  }
+
+  const adjustedSpeed = playerSpeed < 0 ? -playerSpeed : playerSpeed;
+  const magnitude = gunDefinition.gunSwayAmplitude * adjustedSpeed;
+
+  const timeNow = performance.now();
+  const timeElapsed = timeNow - playerState.gunSwayStartTime;
+
+  const { gunSwayFrequency } = gunDefinition;
+  const gunSwayOffsetX = Math.sin(timeElapsed * gunSwayFrequency) * magnitude;
+  const gunSwayOffsetY = Math.sin(timeElapsed * gunSwayFrequency * 2) * magnitude;
+
+  return { gunSwayOffsetX, gunSwayOffsetY };
+};
+

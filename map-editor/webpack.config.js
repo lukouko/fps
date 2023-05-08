@@ -58,7 +58,8 @@ function config() {
     },
     resolve: {
       alias: {
-        'fps': path.resolve(path.join(__dirname, './src')),
+        'map-editor': path.resolve(path.join(__dirname, './src')),
+        'game-engine': path.resolve(path.join(__dirname, '../game-engine/src')),
       },
       extensions: ['.eot', '.js', '.jsx', '.json'],
     },
@@ -78,6 +79,24 @@ function config() {
             },
 
             { test: /\.json$/, type: 'json' },
+
+            {
+              test: /\.css$/,
+              use: [
+                "style-loader",
+                {
+                  loader: "css-loader",
+                  options: {
+                    importLoaders: 1,
+                    modules: {
+                      localIdentName: '[name]_[local]_[hash:base64:6]',
+                      exportLocalsConvention: 'camelCase',
+                      mode: 'local',
+                    },
+                  },
+                },
+              ],
+            },
 
             {
               test: /\.(js|jsx)$/,

@@ -1,0 +1,23 @@
+.button {
+	padding: 12px 20px;
+	border-radius: 8px;
+	background-color: transparent;
+	border: 0;
+	font-weight: 600;
+	cursor: pointer;
+	transition: 0.15s ease;
+  font-family: "Outfit";
+}
+
+.primary {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.primary:hover, .primary:focus {
+  background-color: var(--primary-hover-color);
+}
+
+.secondary:hover, .secondary:focus {
+  background-color: var(--secondary-hover-color);
+}

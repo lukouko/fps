@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "baseUrl": "./",
+    "jsx": "react",
+    "paths": {
+      "game-engine/*": ["../game-engine/src/*"],
+      "map-editor/*": ["./src/*"]
+    }
+  }
+}
