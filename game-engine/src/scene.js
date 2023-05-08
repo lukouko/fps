@@ -221,7 +221,7 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
  * @param {Types.DisplayInfo} params.displayInfo 
  */
 const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo }) => {
-  const wallTexture = textures.getTextureById({ id: 'plaster_1' });
+  const wallTexture = textures.getTextureById({ id: 'vertical_timber_1' });
   const floorTexture = textures.getTextureById({ id: 'horizontal_timber_1' });
   const ceilingTexture = textures.getTextureById({ id: 'plaster_1' });
 

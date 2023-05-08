@@ -17,9 +17,9 @@ import Styles from './App.css';
 const TARGET_FRAME_RATE_PER_SECOND = 30;
 const GAME_TICK_INTERVAL_MS = 1000 / TARGET_FRAME_RATE_PER_SECOND;
 
-let gameState;
-
 export const App = () => {
+  const [gameState, setGameState] = useState(null);
+
   const startGameLoop = async (canvasContext) => {
     const displayInfo = generateDisplayInfo({
       width: canvasContext.canvas.width,
@@ -36,18 +36,30 @@ export const App = () => {
       initialiseScene({ displayInfo }),
     ]);
 
-    gameState = {
+    setGameState({
+      canvasContext,
+      displayInfo,
       mapState,
       cameraState,
       inputState,
       sceneState,
-    };
-
-    const intervalId = setInterval(() => {
-      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
-    }, GAME_TICK_INTERVAL_MS);
+    });
   };
 
+  useEffect(() => {
+    if (!gameState) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      const { canvasContext, displayInfo } = gameState;
+      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+    }, GAME_TICK_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+
+  }, [gameState])
+  
   /**
    * Renders the game state to the provided canvas context.
    * @param {Object} params
@@ -55,6 +67,10 @@ export const App = () => {
    * @param {Types.DisplayInfo} params.displayInfo
    */
   const renderGame = ({ canvasContext, displayInfo }) => {
+    if (gameState === null) {
+      return;
+    }
+
     const { mapState, cameraState, inputState } = gameState;
 
     moveCamera({ inputState, cameraState, mapState });
@@ -71,10 +87,10 @@ export const App = () => {
 
   const onNewMapRequested = (newMapConfig) => {
     const newMap = createNewMap(newMapConfig);
-    gameState = {
+    setGameState({
       ...gameState,
       mapState: createNewMapState({ newMap }),
-    };
+    });
   };
 
    return (

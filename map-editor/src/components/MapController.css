@@ -17,3 +17,16 @@
 
 .map-file-menu button {
 }
+
+.map-info-item {
+  font-size: 0.65rem;
+}
+
+.map-info-item .title {
+  margin-right: 5px;
+  font-weight: 400;
+}
+
+.map-info-item .value {
+  font-weight: 300;
+}
