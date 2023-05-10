@@ -125,7 +125,7 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
     },
   };
 
-  while (!result.mapCell) {
+  while (!result.mapCell?.wallTextureId) {
     const { x: nextX, y: nextY } = result.collisionPoint;
 
     result.collisionCell.x = isAngleFacingRight ? Math.floor(nextX / constants.CELL_SIZE) : Math.floor(nextX / constants.CELL_SIZE) - 1;
@@ -138,7 +138,7 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
 
     result.mapCell = getMapCell({ position: result.collisionCell, mapState });
 
-    if (!result.mapCell) {
+    if (!result.mapCell?.wallTextureId) {
       result.collisionPoint.x += xStepSize;
       result.collisionPoint.y += yStepSize;
     }
@@ -185,7 +185,7 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
     },
   };
 
-  while (!result.mapCell) {
+  while (!result.mapCell?.wallTextureId) {
     const { x: nextX, y: nextY } = result.collisionPoint;
 
     result.collisionCell.x = Math.floor(nextX / constants.CELL_SIZE);
@@ -198,7 +198,7 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
 
     result.mapCell = getMapCell({ position: result.collisionCell, mapState });
 
-    if (!result.mapCell) {
+    if (!result.mapCell?.wallTextureId) {
       result.collisionPoint.y += yStepSize;
       result.collisionPoint.x += xStepSize;
     }
@@ -221,9 +221,9 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
  * @param {Types.DisplayInfo} params.displayInfo 
  */
 const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo }) => {
-  const wallTexture = textures.getTextureById({ id: 'vertical_timber_1' });
-  const floorTexture = textures.getTextureById({ id: 'horizontal_timber_1' });
-  const ceilingTexture = textures.getTextureById({ id: 'plaster_1' });
+  const { wallTextureId } = rayCollision.mapCell;
+
+  const wallTexture = textures.getTextureById({ id: wallTextureId });
 
   // Using this calculation for distance instead of the raw ray distance fixes
   // the fish eye effect cause by calculating the rays from a single central point
@@ -274,6 +274,16 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
       continue;
     }
 
+    // The map cell which is having its floor and ceiling filled.
+    const mapCell = getMapCell({ position: { x: cellX, y: cellY }, mapState });
+
+    if (!mapCell.floorTextureId && !mapCell.ceilingTextureId) {
+      continue;
+    }
+
+    const floorTexture = textures.getTextureById({ id: mapCell.floorTextureId });
+    const ceilingTexture = textures.getTextureById({ id: mapCell.ceilingTextureId });
+
     // Note, we are assuming the same texture size for floor and ceiling here.
     // If that stops holding true, we will need separate calculations for floor and ceiling.
     const textureRow = Math.floor(yEnd % floorTexture.height);
@@ -293,6 +303,7 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     offScreenBufferPixels[offScreenBufferFloorIndex + 3] = alpha;
 
     // Draw the ceiling pixel.
+    
     const ceilingRed = Math.floor(ceilingTexture.pixelBuffer[sourceIndex] * brightnessLevel);
     const ceilingGreen = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 1] * brightnessLevel);
     const ceilingBlue = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 2] * brightnessLevel);

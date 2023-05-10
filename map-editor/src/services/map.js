@@ -31,16 +31,16 @@ export const createNewMap = ({ width, height }) => {
     for (let xIndex = 0; xIndex < width; ++xIndex) {
       // If we are at the edge of the map, set a default wall texture.
       if (yIndex === 0 || yIndex === (height - 1) || xIndex === 0 || xIndex === (width - 1)) {
-        newMapLayout[yIndex][xIndex] = 1;
-        /*newMapLayout[yIndex][xIndex] = {
+        //newMapLayout[yIndex][xIndex] = 1;
+        newMapLayout[yIndex][xIndex] = {
           wallTextureId: defaultWallTextureId,
-        };*/
+        };
       } else {
-        newMapLayout[yIndex][xIndex] = 0;
-        /*newMapLayout[yIndex][xIndex] = {
+        //newMapLayout[yIndex][xIndex] = 0;
+        newMapLayout[yIndex][xIndex] = {
           floorTextureId: defaultFloorTextureId,
           ceilingTextureId: defaultCeilingTextureId,
-        };*/
+        };
       }
     }
   }

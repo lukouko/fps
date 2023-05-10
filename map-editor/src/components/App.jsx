@@ -58,7 +58,7 @@ export const App = () => {
 
     return () => clearInterval(intervalId);
 
-  }, [gameState])
+  }, [gameState]);
   
   /**
    * Renders the game state to the provided canvas context.

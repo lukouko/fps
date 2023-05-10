@@ -73,7 +73,10 @@
 //////////// Map types ////////////
 
 /**
- * @typedef {Number} MapCell
+ * @typedef {Object} MapCell
+ * @property {TextureId|undefined} wallTextureId
+ * @property {TextureId|undefined} floorTextureId
+ * @property {TextureId|undefined} ceilingTextureId
  */
 
 /**

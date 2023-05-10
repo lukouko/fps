@@ -53,7 +53,7 @@ export const isOutOfBounds = ({ mapState, position }) => {
  * @returns {boolean} True if the location is valid, false otherwise.
  */
 export const canMoveToCellLocation = ({ mapState, position }) => {  
-  return isOutOfBounds({ mapState, position }) || mapState.currentMap.layout[position.y][position.x] === 0;
+  return isOutOfBounds({ mapState, position }) || !mapState.currentMap.layout[position.y][position.x].wallTextureId;
 };
 
 /**
@@ -86,9 +86,11 @@ export const validateMap = ({ map }) => {
     }
 
     row.forEach((cell, xIndex) => {
-      if (!Number.isSafeInteger(cell)) {
-        throw new Error(`'map.layout[${yIndex}][${xIndex}]' must be an integer, got ${cell}`);
+      if (!cell || typeof cell !== 'object') {
+        throw new Error(`'map.layout[${yIndex}][${xIndex}]' must be an object, got ${typeof cell}`);
       }
+
+      if (!cell.wallTextureId && (!cell.floorTextureId || !cell.ceilingTextureId))
 
       if (yIndex === 0 || yIndex === map.layout.length - 1 || xIndex === 0 || xIndex === row.length - 1) {
         if (!cell) {
