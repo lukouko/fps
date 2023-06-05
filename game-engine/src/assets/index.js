@@ -9,6 +9,7 @@ import asphalt1 from './asphalt_1_256_256.jpg';
 import horizontalTimber1 from './horizontal_timber_1_256_256.jpg';
 import gun1 from './gun1.png';
 import gun2 from './gun2.png';
+import underConstruction from './under_construction.jpg';
 // import clouds1 from './clouds_1_508.jpg';
 
 const images = [
@@ -23,6 +24,7 @@ const images = [
   { id: 'gun1', assetPath: gun1 },
   { id: 'gun2', assetPath: gun2 },
   { id: 'gun2', assetPath: gun2 },
+  { id: 'under_construction', assetPath: underConstruction },
   // { id: 'clouds1', assetPath: clouds1, isRepeatable: true },
 ];
 

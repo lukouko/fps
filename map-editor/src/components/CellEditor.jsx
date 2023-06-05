@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Types from 'map-editor/types';
+import { WallCreator } from './WallCreator';
 import { Button, ButtonTypes } from './Button';
 import { Dropdown } from './Dropdown';
 import { TextureSelectorModal } from './TextureSelectorModal';
@@ -14,13 +15,15 @@ const textureAttachSelectOptions = Object.values(TextureTypes).map((textureType)
 /**
  * 
  * @param {Object} params
- * @param {Types.MapCell} params.cameraFocusCell
- * @param {Types.MapCell} params.cameraPositionCell
- * @param {function} params.onReplaceTexture
+ * @param {Types.MapCell} params.focusCell
+ * @param {Types.Position} params.focusPosition
+ * @param {Types.MapCell} params.cameraCell
+ * @param {Types.Position} params.cameraPosition
+ * @param {function} params.onReplaceTextureAt
  * @returns 
  */
-export const CellEditor = ({ cameraFocusCell, cameraPositionCell, onReplaceTexture }) => {
-  if (!cameraFocusCell || !cameraPositionCell) {
+export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt }) => {
+  if (!focusCell || !focusPosition || !cameraCell || !cameraPosition) {
     return null;
   }
 
@@ -36,22 +39,28 @@ export const CellEditor = ({ cameraFocusCell, cameraPositionCell, onReplaceTextu
     }
 
     const { textureId, selectedAttachTextureType } = attachedTexture;
-    console.log('Attached texture', attachedTexture);
-    if ((selectedAttachTextureType === TextureTypes.CEILING && cameraPositionCell.ceilingTextureId !== textureId) ||
-        (selectedAttachTextureType === TextureTypes.FLOOR && cameraPositionCell.floorTextureId !== textureId) ||
-        (selectedAttachTextureType === TextureTypes.WALL && cameraFocusCell.wallTextureId !== textureId)) {
+
+    if ((selectedAttachTextureType === TextureTypes.CEILING && cameraCell.ceilingTextureId !== textureId) ||
+        (selectedAttachTextureType === TextureTypes.FLOOR && cameraCell.floorTextureId !== textureId) ||
+        (selectedAttachTextureType === TextureTypes.WALL && focusCell.wallTextureId !== textureId)) {
       onReplaceTexture({ textureType: selectedAttachTextureType, textureId });
     }
-  }, [cameraFocusCell, cameraPositionCell])
+
+  }, [focusPosition, focusCell, cameraPosition, cameraCell ]);
 
   const onNewTextureSelected = ({ textureId }) => {
     onReplaceTexture({ textureType: textureTypeToSelect, textureId });
     setTextureTypeToSelect('');
-  }
+  };
+
+  const onReplaceTexture = ({ textureType, textureId }) => {
+    const position = textureType === TextureTypes.WALL ? focusPosition : cameraPosition;
+    onReplaceTextureAt({ position, textureType, textureId });
+  };
   
-  const wallTexture = getTextureById({ id: cameraFocusCell.wallTextureId });
-  const floorTexture = cameraPositionCell?.floorTextureId && getTextureById({ id: cameraPositionCell.floorTextureId });
-  const ceilingTexture = cameraPositionCell?.ceilingTextureId && getTextureById({ id: cameraPositionCell.ceilingTextureId });
+  const wallTexture = getTextureById({ id: focusCell.wallTextureId });
+  const floorTexture = cameraCell.floorTextureId && getTextureById({ id: cameraCell.floorTextureId });
+  const ceilingTexture = cameraCell.ceilingTextureId && getTextureById({ id: cameraCell.ceilingTextureId });
 
   return (
     <div className={Styles.cellEditor}>
@@ -66,27 +75,32 @@ export const CellEditor = ({ cameraFocusCell, cameraPositionCell, onReplaceTextu
           textureIds={getTextureIds()}
           onConfirm={({ textureId }) => {
             setAttachedTexture({ textureId, selectedAttachTextureType });
+            onReplaceTexture({ textureType: selectedAttachTextureType, textureId });
             setShowAttachedTextureModal(false);
           }}
-          onCancel={() => attachedTexture(null)} />
+          onCancel={() => setShowAttachedTextureModal(false)} />
       )}
       <div className={Styles.commandPanel}>
         <Dropdown selectedOptionId={selectedAttachTextureType} options={textureAttachSelectOptions} onChange={setSelectedAttachTextureType} isDisabled={!!attachedTexture}/>
         {!attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Attach to Texture" onClick={() => setShowAttachedTextureModal(true)}/> }
         {attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Detach from Texture" onClick={() => setAttachedTexture(null)}/> }
-        <Button type={ButtonTypes.PRIMARY} label='Add Wall at Location' onClick={() => {}}/>
+        
+      </div>
+      <div className={Styles.wallCreatorPanel}>
+        <h1>Wall Creation</h1>
+        <WallCreator cell={cameraCell} position={cameraPosition} onReplaceTextureAt={onReplaceTextureAt} />
       </div>
       <div className={Styles.texturePanel}>
         <div className={Styles.textureDisplay}>
-          <h1>Wall Texture</h1>
+          <h2>Wall Texture</h2>
           <img src={wallTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.WALL)}/>
         </div>
         <div className={Styles.textureDisplay}>
-          <h1>Floor Texture</h1>
+          <h2>Floor Texture</h2>
           {floorTexture && <img src={floorTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.FLOOR)}/>}
         </div>
         <div className={Styles.textureDisplay}>
-          <h1>Ceiling Texture</h1>
+          <h2>Ceiling Texture</h2>
           {ceilingTexture && <img src={ceilingTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}/>}
         </div>
       </div>

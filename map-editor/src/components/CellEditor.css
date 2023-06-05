@@ -7,6 +7,15 @@
   padding: 10px;
 }
 
+.cell-editor h1 {
+  line-height: 1rem;
+  padding-top: 5px;
+  padding-bottom: 15px;
+  font-size: 1.3rem;
+  border-bottom: 1px solid var(--default-border-color);
+  margin-bottom: 15px;
+}
+
 .command-panel {
   flex: 0 200px;
   display: flex;
@@ -17,6 +26,15 @@
 
 .command-panel button, .command-panel select {
   margin-bottom: 10px;
+}
+
+.wall-creator-panel {
+  flex: 0 200px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--default-border-color);
+  padding-right: 20px;
+  padding-left: 20px;
 }
 
 .texture-panel {
@@ -31,9 +49,10 @@
   padding-right: 20px;
 }
 
-.texture-display h1 {
+.texture-display h2 {
   line-height: 1rem;
   padding: 5px;
+  font-size: 1rem
 }
 
 .texture-display img {

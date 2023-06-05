@@ -114,20 +114,15 @@ export const App = () => {
       </div>
       <div className={Styles.cellEditorRow}>
         <CellEditor 
-          cameraFocusCell={cameraFocusPoint?.mapCell}
-          cameraPositionCell={cameraCell}
-          onReplaceTexture={({ textureType, textureId }) => {
-              if (textureType === TextureTypes.WALL && cameraFocusPoint?.mapCell) {
-                cameraFocusPoint.mapCell.wallTextureId = textureId;
-              }
-
-              if (textureType === TextureTypes.FLOOR && cameraCell) {
-                cameraCell.floorTextureId = textureId;
-              }
-
-              if (textureType === TextureTypes.CEILING && cameraCell) {
-                cameraCell.ceilingTextureId = textureId;
-              }
+          focusCell={cameraFocusPoint?.mapCell}
+          focusPosition={cameraFocusPoint?.collisionCell}
+          cameraCell={cameraCell}
+          cameraPosition={cameraPosition}
+          onReplaceTextureAt={
+            ({ position, textureType, textureId }) => {
+              const targetCell = getMapCell({ mapState: gameState.mapState, position });
+              const propertyName = `${textureType.toLowerCase()}TextureId`;
+              targetCell[propertyName] = textureId;
             }
           }
         />
