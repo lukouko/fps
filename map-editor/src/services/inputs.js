@@ -1,7 +1,7 @@
 import * as helpers from 'game-engine/helpers';
 import * as Types from 'map-editor/types';
 
-const WALK_SPEED = 15;
+const WALK_SPEED = 30;
 const ANGULAR_SPEED = 4;
 
 /**

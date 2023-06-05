@@ -2,4 +2,41 @@
   background-color: #1D2228;
   flex: 1;
   border-top: 1px solid var(--default-border-color);
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+}
+
+.command-panel {
+  flex: 0 200px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--default-border-color);
+  padding-right: 20px;
+}
+
+.command-panel button, .command-panel select {
+  margin-bottom: 10px;
+}
+
+.texture-panel {
+  flex: 0 400px;
+  display: flex;
+  padding-left: 20px;
+  border-right: 1px solid var(--default-border-color);
+}
+
+.texture-display {
+  flex: 0 50px;
+  padding-right: 20px;
+}
+
+.texture-display h1 {
+  line-height: 1rem;
+  padding: 5px;
+}
+
+.texture-display img {
+  width: 150px;
+  cursor: pointer;
 }

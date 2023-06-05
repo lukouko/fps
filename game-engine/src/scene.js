@@ -44,7 +44,7 @@ export const initialise = ({ displayInfo }) => {
  * @param {Types.Orientation} params.orientation The perspective from which the scene is to be rendered.
  * @param {Types.MapState} params.mapState The current map state.
  * @param {Types.DisplayInfo} params.displayInfo
- * @returns {{wallRays: Array<Types.RayCollision>}}
+ * @returns {{wallRays: Array<Types.RayCollision>, centreRay: Types.RayCollision}}
  */
 export const render = ({ canvasContext, orientation, mapState, displayInfo }) => {
   offScreenBuffer.clear();
@@ -53,21 +53,28 @@ export const render = ({ canvasContext, orientation, mapState, displayInfo }) =>
   const initialAngle = orientation.angle - displayInfo.halfFieldOfView; // The starting angle for ray casting.
   
   const wallRays = [];
+  let centreRay;
 
   /** @type Types.Orientation */
   const rayOrientation = { ...orientation };
 
   for (let rayIndex = 0; rayIndex < displayInfo.width; ++rayIndex) {
     rayOrientation.angle = initialAngle + localCache.rayBaseAngleByScreenColumn[rayIndex];
+    
     const rayCollision = castWallRay({ orientation: rayOrientation, mapState });
     wallRays.push(rayCollision);
+
+    if (rayIndex === displayInfo.halfWidthFloored) {
+      centreRay = rayCollision;
+    }
+    
     renderWallRay({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo });
   }
   
   canvasContext.putImageData(offScreenBuffer.getImageData(), 0, 0);
 
   // Other parts of the app may need to make use of the rays we cast onto the walls.
-  return { wallRays };
+  return { wallRays, centreRay };
 };
 
 /**
@@ -229,7 +236,7 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   // the fish eye effect cause by calculating the rays from a single central point
   // on the player.
   const distance = rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle);
-  const wallHeight = (constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance); // Doesn't have to be cell size.
+  const wallHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance); // Doesn't have to be cell size.
   const halfWallHeight = wallHeight / 2;
   const wallTextureOffset = Math.floor(rayCollision.isVertical ? rayCollision.collisionPoint.y : rayCollision.collisionPoint.x);
 
@@ -257,7 +264,12 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   let offScreenBufferFloorIndex = Math.floor(bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
   let offScreenBufferCeilingIndex = Math.floor(topOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
 
-  for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex < displayInfo.height; ++floorPixelYIndex) {
+  // Because of the Math.floor logic throughout, there is a good chance that the ceiling has 1 more pixel than the floor (or vice versa).
+  // To account for this we have a +1 on the displayInfo.height. This might lead to a crash, but it's super efficient, so for now, i'll assume
+  // it works and adjust if it turns out not to work.
+  const pixelsToRender = displayInfo.height + 1;
+
+  for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex <= pixelsToRender; ++floorPixelYIndex) {
     // Calcualte the straight distance between the player and the pixel.
     const directFloorDistance = constants.PLAYER_HEIGHT / (floorPixelYIndex - displayInfo.halfHeight) ;
     //const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * Math.cos(wallRay.angle - player.angle));
@@ -303,7 +315,6 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     offScreenBufferPixels[offScreenBufferFloorIndex + 3] = alpha;
 
     // Draw the ceiling pixel.
-    
     const ceilingRed = Math.floor(ceilingTexture.pixelBuffer[sourceIndex] * brightnessLevel);
     const ceilingGreen = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 1] * brightnessLevel);
     const ceilingBlue = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 2] * brightnessLevel);

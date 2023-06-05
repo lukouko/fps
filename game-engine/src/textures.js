@@ -105,3 +105,12 @@ export const getTextureById = ({ id }) => {
 
   return texture;
 };
+
+/**
+ * Returns an array of TextureIds representing all of the textures available.
+ * 
+ * @returns {Array<Types.TextureId>}
+ */
+export const getTextureIds = () => {
+  return Object.keys(texturesLookup);
+};

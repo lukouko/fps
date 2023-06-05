@@ -21,3 +21,7 @@
 .secondary:hover, .secondary:focus {
   background-color: var(--secondary-hover-color);
 }
+
+.disabled {
+	opacity: 0.5;
+}

@@ -6,6 +6,7 @@ import * as GameEngineTypes from 'game-engine/types';
 /** @typedef {GameEngineTypes.DisplayInfo} DisplayInfo */
 
 //////////// Map types ////////////
+/** @typedef {GameEngineTypes.MapCell} MapCell */
 /** @typedef {GameEngineTypes.Map} Map */
 /** @typedef {GameEngineTypes.MapState} MapState */
 
@@ -17,6 +18,7 @@ import * as GameEngineTypes from 'game-engine/types';
 
 /**
  * @typedef {Object} Camera
+ * @property {Position} cellPosition
  * @property {Orientation} orientation
  * @property {boolean} isMoving
  */

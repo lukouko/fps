@@ -17,7 +17,7 @@ export const initialise = ({ displayInfo }) => gameEngineScene.initialise({ disp
  * @param {Types.Orientation} params.orientation The perspective from which the scene is to be rendered.
  * @param {Types.MapState} params.mapState The current map state.
  * @param {Types.DisplayInfo} params.displayInfo
- * @returns {{wallRays: Array<Types.RayCollision>}}
+ * @returns {{wallRays: Array<Types.RayCollision>, centreRay: Types.RayCollision}}
  */
 export const render = ({ canvasContext, orientation, mapState, displayInfo }) => 
   gameEngineScene.render({ canvasContext, orientation, mapState, displayInfo });

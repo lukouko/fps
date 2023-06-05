@@ -13,8 +13,10 @@ const buttonStyleLookup = Object.freeze({
   [ButtonTypes.SECONDARY]: Styles.secondary,
 });
 
-export const Button = ({ label, type, onClick }) => {
+export const Button = ({ label, type, onClick, isDisabled = false }) => {
+  const noop = () => {};
+
   return (
-    <button className={classnames(Styles.button, buttonStyleLookup[type])} onClick={onClick}>{label}</button>
+    <button className={classnames(Styles.button, buttonStyleLookup[type], isDisabled && Styles.disabled)} onClick={isDisabled ? noop : onClick}>{label}</button>
   );
 };

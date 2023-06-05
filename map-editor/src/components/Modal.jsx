@@ -3,7 +3,17 @@ import { Button, ButtonTypes } from './Button';
 // @ts-ignore
 import Styles from './Modal.css';
 
-export const Modal = ({ title, children, showConfirm = false, showCancel = false, confirmLabel='OK', cancelLabel='Cancel', onConfirm = () => {}, onCancel = () => {} }) => {
+export const Modal = ({ 
+  title,
+  children,
+  showConfirm = false,
+  disableConfirm = false,
+  showCancel = false,
+  confirmLabel='OK',
+  cancelLabel='Cancel',
+  onConfirm = () => {},
+  onCancel = () => {},
+}) => {
   return (
     <div className={Styles.modal}>
       <div className={Styles.modalContainer}>
@@ -15,7 +25,7 @@ export const Modal = ({ title, children, showConfirm = false, showCancel = false
         </div>
         <div className={Styles.modalContainerFooter}>
           {showCancel && <Button type={ButtonTypes.SECONDARY} label={cancelLabel} onClick={onCancel} />}
-          {showConfirm && <Button type={ButtonTypes.PRIMARY} label={confirmLabel} onClick={onConfirm} />}
+          {showConfirm && <Button type={ButtonTypes.PRIMARY} label={confirmLabel} onClick={onConfirm} isDisabled={disableConfirm} />}
         </div>
       </div>
     </div>

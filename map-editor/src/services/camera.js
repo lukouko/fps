@@ -8,6 +8,10 @@ import * as Types from 'map-editor/types';
  */
 export const initialise = () => ({
   camera: {
+    cellPosition: {
+      x: 1,
+      y: 1,
+    },
     orientation: {
       position: {
         x: constants.CELL_SIZE * 1.5,
@@ -64,4 +68,8 @@ export const move = ({ inputState, cameraState, mapState }) => {
   // Move the player in space.
   camera.orientation.position.x += xMovement;
   camera.orientation.position.y += yMovement;
+
+  // Update camera cell position
+  camera.cellPosition.x = Math.floor(camera.orientation.position.x / constants.CELL_SIZE);
+  camera.cellPosition.y = Math.floor(camera.orientation.position.y / constants.CELL_SIZE);
 };
