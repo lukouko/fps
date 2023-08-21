@@ -25,9 +25,10 @@ let draftWalls = {};
  * @param {Types.Position} params.position
  * @param {Types.MapCell} params.cell
  * @param {function} params.onReplaceTextureAt
- * @returns 
+ * @param {function} params.onCreateWalls
+ * @returns {JSX.Element} 
  */
-export const WallCreator = ({ position, cell, onReplaceTextureAt }) => {
+export const WallCreator = ({ position, cell, onReplaceTextureAt, onCreateWalls }) => {
   if (!position || !cell) {
     return null;
   }
@@ -63,6 +64,14 @@ export const WallCreator = ({ position, cell, onReplaceTextureAt }) => {
     setIsDraftingWall(true);
   };
 
+  const onConfirmWalls = () => {
+    const positions = Object.values(draftWalls).map(({ position }) => ({ position }));
+    onCreateWalls({ positions });
+    setIsDraftingWall(false);
+    setIsDraftingPaused(false);
+    draftWalls = {};
+  };
+
   // Scraps the draft wall changes.
   const onCancelWallDrafting = () => {
     setIsDraftingWall(false);
@@ -81,7 +90,7 @@ export const WallCreator = ({ position, cell, onReplaceTextureAt }) => {
   return (
     <div className={Styles.wallCreator}>
       {!isDraftingWall && <Button type={ButtonTypes.PRIMARY} label="Draw Wall" onClick={() => onStartWallDrafting()} />}
-      {isDraftingWall && <Button type={ButtonTypes.PRIMARY} label="Confirm Wall" onClick={() => onCancelWallDrafting()} />}
+      {isDraftingWall && <Button type={ButtonTypes.PRIMARY} label="Confirm Wall" onClick={() => onConfirmWalls()} />}
       {isDraftingWall && !isDraftingPaused && <Button type={ButtonTypes.PRIMARY} label="Pause Drawing" onClick={() => setIsDraftingPaused(true)} />}
       {isDraftingWall && isDraftingPaused && <Button type={ButtonTypes.PRIMARY} label="Resume Drawing" onClick={() => setIsDraftingPaused(false)} />}
       {isDraftingWall && <Button type={ButtonTypes.PRIMARY} label='Cancel Wall' isDisabled={!isDraftingWall} onClick={onCancelWallDrafting} />}

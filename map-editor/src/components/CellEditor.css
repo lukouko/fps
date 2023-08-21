@@ -4,58 +4,76 @@
   border-top: 1px solid var(--default-border-color);
   display: flex;
   flex-direction: row;
-  padding: 10px;
 }
 
-.cell-editor h1 {
-  line-height: 1rem;
-  padding-top: 5px;
-  padding-bottom: 15px;
-  font-size: 1.3rem;
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--default-border-color);
+}
+
+.panel-title {
+  flex: 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.panel-title h1 {
+  line-height: 1.2rem;
+  padding: 10px 0px 10px 10px;
+  font-size: 1.2rem;
   border-bottom: 1px solid var(--default-border-color);
-  margin-bottom: 15px;
 }
 
-.command-panel {
-  flex: 0 200px;
+.panel-body {
+  padding: 10px 20px 0px 20px;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  border-right: 1px solid var(--default-border-color);
-  padding-right: 20px;
 }
 
-.command-panel button, .command-panel select {
-  margin-bottom: 10px;
-}
-
-.wall-creator-panel {
-  flex: 0 200px;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--default-border-color);
-  padding-right: 20px;
-  padding-left: 20px;
-}
-
-.texture-panel {
+.texture-selection-panel {
   flex: 0 400px;
-  display: flex;
-  padding-left: 20px;
-  border-right: 1px solid var(--default-border-color);
+}
+
+.texture-selection-panel-body {
+  flex-direction: row;
+  gap: 20px;
 }
 
 .texture-display {
-  flex: 0 50px;
-  padding-right: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .texture-display h2 {
   line-height: 1rem;
-  padding: 5px;
-  font-size: 1rem
+  font-size: 1rem;
+  flex: 0 1rem;
+  padding-bottom: 5px;
+  text-align: center;
 }
 
 .texture-display img {
   width: 150px;
   cursor: pointer;
+}
+
+.texture-painting-panel {
+  flex: 0 200px;
+}
+
+.texture-painting-panel-body {
+  gap: 15px;
+}
+
+.wall-creation-panel {
+  flex: 0 200px;
+}
+
+.wall-creation-panel-body {
+  gap: 15px;
 }

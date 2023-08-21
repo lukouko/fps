@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import classnames from 'classnames';
 import * as Types from 'map-editor/types';
 import { WallCreator } from './WallCreator';
 import { Button, ButtonTypes } from './Button';
@@ -20,9 +21,10 @@ const textureAttachSelectOptions = Object.values(TextureTypes).map((textureType)
  * @param {Types.MapCell} params.cameraCell
  * @param {Types.Position} params.cameraPosition
  * @param {function} params.onReplaceTextureAt
- * @returns 
+ * @param {function} params.onCreateWalls
+ * @returns {JSX.Element}
  */
-export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt }) => {
+export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt, onCreateWalls }) => {
   if (!focusCell || !focusPosition || !cameraCell || !cameraPosition) {
     return null;
   }
@@ -80,28 +82,41 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
           }}
           onCancel={() => setShowAttachedTextureModal(false)} />
       )}
-      <div className={Styles.commandPanel}>
-        <Dropdown selectedOptionId={selectedAttachTextureType} options={textureAttachSelectOptions} onChange={setSelectedAttachTextureType} isDisabled={!!attachedTexture}/>
-        {!attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Attach to Texture" onClick={() => setShowAttachedTextureModal(true)}/> }
-        {attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Detach from Texture" onClick={() => setAttachedTexture(null)}/> }
-        
-      </div>
-      <div className={Styles.wallCreatorPanel}>
-        <h1>Wall Creation</h1>
-        <WallCreator cell={cameraCell} position={cameraPosition} onReplaceTextureAt={onReplaceTextureAt} />
-      </div>
-      <div className={Styles.texturePanel}>
-        <div className={Styles.textureDisplay}>
-          <h2>Wall Texture</h2>
-          <img src={wallTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.WALL)}/>
+      <div className={classnames(Styles.panel, Styles.textureSelectionPanel)}>
+        <div className={Styles.panelTitle}>
+          <h1>Texture Selection</h1>
         </div>
-        <div className={Styles.textureDisplay}>
-          <h2>Floor Texture</h2>
-          {floorTexture && <img src={floorTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.FLOOR)}/>}
+        <div className={classnames(Styles.panelBody, Styles.textureSelectionPanelBody)}>
+          <div className={Styles.textureDisplay}>
+            <h2>Wall</h2>
+            <img src={wallTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.WALL)}/>
+          </div>
+          <div className={Styles.textureDisplay}>
+            <h2>Floor</h2>
+            {floorTexture && <img src={floorTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.FLOOR)}/>}
+          </div>
+          <div className={Styles.textureDisplay}>
+            <h2>Ceiling</h2>
+            {ceilingTexture && <img src={ceilingTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}/>}
+          </div>
         </div>
-        <div className={Styles.textureDisplay}>
-          <h2>Ceiling Texture</h2>
-          {ceilingTexture && <img src={ceilingTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}/>}
+      </div>
+      <div className={classnames(Styles.panel, Styles.texturePaintingPanel)}>
+        <div className={Styles.panelTitle}>
+          <h1>Texture Painting</h1>
+        </div>
+        <div className={classnames(Styles.panelBody, Styles.texturePaintingPanelBody)}>
+          <Dropdown selectedOptionId={selectedAttachTextureType} options={textureAttachSelectOptions} onChange={setSelectedAttachTextureType} isDisabled={!!attachedTexture}/>
+          {!attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Paint Texture" onClick={() => setShowAttachedTextureModal(true)}/> }
+          {attachedTexture && <Button type={ButtonTypes.PRIMARY} label="Stop Painting Texture" onClick={() => setAttachedTexture(null)}/> }
+        </div>
+      </div>
+      <div className={classnames(Styles.panel, Styles.wallCreationPanel)}>
+        <div className={Styles.panelTitle}>
+          <h1>Wall Creation</h1>
+        </div>
+        <div className={classnames(Styles.panelBody, Styles.wallCreationPanelBody)}>
+          <WallCreator cell={cameraCell} position={cameraPosition} onReplaceTextureAt={onReplaceTextureAt} onCreateWalls={onCreateWalls}/>
         </div>
       </div>
     </div>

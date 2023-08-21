@@ -125,6 +125,14 @@ export const App = () => {
               targetCell[propertyName] = textureId;
             }
           }
+          onCreateWalls={({ positions }) => {
+            positions.forEach(({ position }) => {
+              const mapCell = getMapCell({ mapState: gameState.mapState, position });
+              delete mapCell.ceilingTextureId;
+              delete mapCell.floorTextureId;
+              mapCell.wallTextureId = 'bricks_1';
+            });
+          }}
         />
       </div>
     </div>

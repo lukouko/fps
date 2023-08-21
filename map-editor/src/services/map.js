@@ -6,7 +6,7 @@ import * as Types from 'map-editor/types';
  * @returns {Types.MapState}
  */
 export const initialise = () => {
-  const newMap = createNewMap({ width: 5, height: 5 });
+  const newMap = createNewMap({ width: 20, height: 20 });
   gameEngineMap.validateMap({ map: newMap });
   return createNewMapState({ newMap });
 };
@@ -36,7 +36,6 @@ export const createNewMap = ({ width, height }) => {
           wallTextureId: defaultWallTextureId,
         };
       } else {
-        //newMapLayout[yIndex][xIndex] = 0;
         newMapLayout[yIndex][xIndex] = {
           floorTextureId: defaultFloorTextureId,
           ceilingTextureId: defaultCeilingTextureId,
