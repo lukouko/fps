@@ -202,7 +202,7 @@ const renderScene = ({ canvasContext, rays }) => {
     const distance = ray.distance;
     const wallHeight = ((CELL_SIZE * 5) / distance) * 277;
     canvasContext.fillStyle = ray.vertical ? colours.WALL_DARK : colours.WALL;
-    canvasContext.fillRect(i, SCREEN_HEIGHT / 2 - wallHeight / 2, 1, wallHeight);
+    canvasContext.fillRect(i, SCREEN_HEIGHT / 2 - wallHeight / 2, 1, wallHeight); // x, y, width, height
     canvasContext.fillStyle = colours.FLOOR;
     canvasContext.fillRect(
       i,
