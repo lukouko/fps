@@ -47,9 +47,10 @@ export const MapController = ({ gameState, onNewMapRequested }) => {
       <div className={Styles.mapFileMenu}>
         <Button type={ButtonTypes.PRIMARY} label="New Map" onClick={() => setShowNewMapModal(true)}/>
         <Button type={ButtonTypes.PRIMARY} label="Save Map" onClick={() => handleSaveMapRequested()} />
-        <Button type={ButtonTypes.PRIMARY} label="Load Map" />
+        <Button type={ButtonTypes.PRIMARY} label="Load Map" onClick={() => {}} />
       </div>
       {renderMapInformation({ gameState })}
+      {renderCameraInformation({ gameState })}
 
     </div>
   );
@@ -69,21 +70,51 @@ const renderMapInformation = ({ gameState }) => {
   return (
     <div className={Styles.mapInformation}>
       <h1>Map Information</h1>
-      <div className={Styles.mapInfoItem}>
+      <div className={Styles.infoItem}>
         <span className={Styles.title}>Cell Width:</span>
         <span className={Styles.value}>{gameState.mapState.unscaledMapBounds.x}</span>
       </div>
-      <div className={Styles.mapInfoItem}>
+      <div className={Styles.infoItem}>
         <span className={Styles.title}>Cell Height:</span>
         <span className={Styles.value}>{gameState.mapState.unscaledMapBounds.y}</span>
       </div>
-      <div className={Styles.mapInfoItem}>
+      <div className={Styles.infoItem}>
         <span className={Styles.title}>Scaled Width:</span>
         <span className={Styles.value}>{gameState.mapState.scaledMapBounds.x}</span>
       </div>
-      <div className={Styles.mapInfoItem}>
+      <div className={Styles.infoItem}>
         <span className={Styles.title}>Scaled Height:</span>
         <span className={Styles.value}>{gameState.mapState.scaledMapBounds.y}</span>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * 
+ * @param {Object} params
+ * @param {Types.GameState} params.gameState
+ * @returns {JSX.Element}
+ */
+const renderCameraInformation = ({ gameState }) => {
+  if (!gameState || !gameState.mapState) {
+    return <h1>Camera Information</h1>;
+  }
+
+  return (
+    <div className={Styles.cameraInformation}>
+      <h1>Camera Information</h1>
+      <div className={Styles.infoItem}>
+        <span className={Styles.title}>Cell Position X, Y:</span>
+        <span className={Styles.value}>{gameState.cameraState.camera.cellPosition.x},{` `}{gameState.cameraState.camera.cellPosition.y}</span>
+      </div>
+      <div className={Styles.infoItem}>
+        <span className={Styles.title}>Scaled Position X, Y:</span>
+        <span className={Styles.value}>{gameState.cameraState.camera.orientation.position.x},{` `}{gameState.cameraState.camera.orientation.position.y}</span>
+      </div>
+      <div className={Styles.infoItem}>
+        <span className={Styles.title}>Orientation Angle:</span>
+        <span className={Styles.value}>{gameState.cameraState.camera.orientation.angle}</span>
       </div>
     </div>
   );

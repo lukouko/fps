@@ -80,12 +80,19 @@
  */
 
 /**
+ * @typedef {Object} Sprite
+ * @property {Position} position
+ * @property {TextureId} textureId
+ */
+
+/**
  * @typedef {Array<Array<MapCell>>} MapLayout
  */
 
 /**
  * @typedef {Object} Map
  * @property {MapLayout} layout
+ * @property {Array<Sprite>} sprites
  */
 
 /**

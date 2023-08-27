@@ -18,15 +18,22 @@
 .map-file-menu button {
 }
 
-.map-info-item {
+.map-information {
+}
+
+.camera-information {
+  margin-top: 20px;
+}
+
+.info-item {
   font-size: 0.65rem;
 }
 
-.map-info-item .title {
+.info-item .title {
   margin-right: 5px;
   font-weight: 400;
 }
 
-.map-info-item .value {
+.info-item .value {
   font-weight: 300;
 }

@@ -5,7 +5,7 @@ import { MapController } from './MapController';
 import { generateDisplayInfo } from 'game-engine/helpers';
 import { loadTextures, TextureTypes } from 'map-editor/services/textures';
 import { initialise as initialiseMap, createNewMap, createNewMapState } from 'map-editor/services/map';
-import { initialise as initialiseCamera, move as moveCamera, render as renderCamera } from 'map-editor/services/camera';
+import { initialise as initialiseCamera, move as moveCamera, render as renderCamera, addXandY } from 'map-editor/services/camera';
 import { initialise as initialiseInputs } from 'map-editor/services/inputs';
 import { initialise as initialiseScene, render as renderScene } from 'map-editor/services/scene';
 import * as Types from 'map-editor/types';
@@ -59,6 +59,31 @@ export const App = () => {
     }, GAME_TICK_INTERVAL_MS);
 
     return () => clearInterval(intervalId);
+
+    /*const { canvasContext, displayInfo } = gameState;
+    requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+
+    const { cameraState, mapState } = gameState;
+
+    setTimeout(() => {
+      addXandY({ cameraState, mapState, x: 40 });
+      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+    }, 100);
+
+    setTimeout(() => {
+      addXandY({ cameraState, mapState, x: 40 });
+      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+    }, 200);
+
+    setTimeout(() => {
+      addXandY({ cameraState, mapState, x: 40 });
+      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+    }, 300);
+
+    setTimeout(() => {
+      addXandY({ cameraState, mapState, x: 40 });
+      requestAnimationFrame(() => renderGame({ canvasContext, displayInfo }));
+    }, 400);*/
 
   }, [gameState]);
   

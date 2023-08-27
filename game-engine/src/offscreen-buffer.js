@@ -15,7 +15,7 @@ export class OffScreenBuffer {
     this.canvas.width = width;
     this.canvas.height = height;
 
-    this.canvasContext = this.canvas.getContext('2d');
+    this.canvasContext = this.canvas.getContext('2d', { willReadFrequently: true });
     if (!this.canvasContext) {
       throw new Error('Failed to get canvas context for OffScreenBuffer');
     }

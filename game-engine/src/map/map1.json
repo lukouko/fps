@@ -1,4 +1,10 @@
 {
+  "sprites": [
+    { 
+      "textureId": "better-looking-matt",
+      "position": { "x": 2560, "y": 2560 }
+    }
+  ],
   "layout": [
     [
       {

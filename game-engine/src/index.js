@@ -15,8 +15,8 @@ let fpsInterval;
 
 const initialise = async () => {
   const displayInfo = helpers.generateDisplayInfo({
-    width: 1080,
-    height: 768,
+    width: 800,
+    height: 600,
     fieldOfView: 72,
   });
 
@@ -75,12 +75,12 @@ const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
       });
     }
 
-    player.render({
+    /*player.render({
       canvasContext,
       inputState,
       playerState,
       displayInfo,
-    });
+    });*/
 
     canvasContext.fillStyle = 'white';
     canvasContext.font = '16px Monospace';

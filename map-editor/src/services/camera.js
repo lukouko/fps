@@ -14,10 +14,16 @@ export const initialise = () => ({
     },
     orientation: {
       position: {
-        x: constants.CELL_SIZE * 1.5,
-        y: constants.CELL_SIZE * 1.5,
+        x: 2001,
+        y: 2848,
       },
-      angle: 5.2399,//0,
+      angle: 0.003912244016675004,//0,
+      /*
+      position: {
+        x: 2001,
+        y: 2848,
+      },
+      angle: 3.0756917275266815,//0,*/
     },
     isMoving: false,
   },
@@ -66,8 +72,36 @@ export const move = ({ inputState, cameraState, mapState }) => {
   }
 
   // Move the player in space.
-  camera.orientation.position.x += xMovement;
-  camera.orientation.position.y += yMovement;
+  camera.orientation.position.x = Math.floor(camera.orientation.position.x + xMovement);
+  camera.orientation.position.y = Math.floor(camera.orientation.position.y + yMovement);
+
+  // Update camera cell position
+  camera.cellPosition.x = Math.floor(camera.orientation.position.x / constants.CELL_SIZE);
+  camera.cellPosition.y = Math.floor(camera.orientation.position.y / constants.CELL_SIZE);
+};
+
+export const addXandY = ({ cameraState, mapState, x = 0, y = 0 }) => {
+  const { camera } = cameraState;
+
+  // Calculate camera movement.
+  const xMovement = x;
+  const yMovement = y;
+
+  // Clipping checking.
+
+  /** @type Types.Position */
+  const hypotheticalCell = {
+    x: Math.floor((camera.orientation.position.x + xMovement) / constants.CELL_SIZE),
+    y: Math.floor((camera.orientation.position.y + yMovement) / constants.CELL_SIZE),
+  };
+
+  if (!map.canMoveToCellLocation({ position: hypotheticalCell, mapState })) {
+    return;
+  }
+
+  // Move the player in space.
+  camera.orientation.position.x = Math.floor(camera.orientation.position.x + xMovement);
+  camera.orientation.position.y = Math.floor(camera.orientation.position.y + yMovement);
 
   // Update camera cell position
   camera.cellPosition.x = Math.floor(camera.orientation.position.x / constants.CELL_SIZE);

@@ -46,6 +46,16 @@ export const createNewMap = ({ width, height }) => {
 
   return {
     layout: newMapLayout,
+    sprites: [
+      { 
+        textureId: 'gun1',
+        position: { x: 2560, y: 2560 },
+      },
+      { 
+        textureId: 'gun1',
+        position: { x: 1200, y: 1200 },
+      }
+    ],
   };
 };
 

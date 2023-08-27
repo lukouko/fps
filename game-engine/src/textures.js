@@ -19,7 +19,7 @@ export const loadTextures = async ({ displayInfo }) => {
   texturesLookup = {};
   const bytesPerPixel = 4;
 
-  const textureLoadPromises = imageAssets.map(async ({ id, assetPath, isRepeatable }) => {
+  const textureLoadPromises = imageAssets.map(async ({ id, assetPath, isRepeatable, isSprite }) => {
     const baseImage = await loadImageFromPath({ assetPath });
 
     const canvas = document.createElement('canvas');		
@@ -51,6 +51,13 @@ export const loadTextures = async ({ displayInfo }) => {
       const repeatedImage = await createRepeatedImage({ baseImage, displayInfo });
       texturesLookup[`${id}-repeatable`] = repeatedImage;
     }*/
+
+    if (isSprite) {
+      const scaledTextures = await createScaledTextures({ baseImage });
+      scaledTextures.forEach(({ label, texture}) => {
+        texturesLookup[`${id}-${label}`] = texture;
+      });
+    }
   });
 
   await Promise.all(textureLoadPromises);
@@ -68,6 +75,47 @@ const loadImageFromPath = ({ assetPath }) => new Promise((resolve) => {
   image.onload = () => resolve(image);
   image.src = assetPath;
 });
+
+const createScaledTextures = async ({ baseImage }) => {
+  const scales = [];
+  for (let i = 5; i < 100; i += 1) {
+    scales.push({ label: `${i}`, scale: i / 100 });
+  }
+
+  const scaledImagePromises = scales.map(async ({ label, scale }) => {
+    const width = Math.floor(baseImage.width * scale);
+    const height = Math.floor(baseImage.height * scale);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const canvasContext = canvas.getContext('2d');
+    canvasContext.drawImage(baseImage, 0, 0, width, height);
+
+    const scaledImage = await loadImageFromPath({ assetPath: canvas.toDataURL() });
+
+    const imageData = canvasContext.getImageData(0, 0, width, height);
+    const pixelBuffer = imageData.data;
+
+    return {
+      label,
+      texture: {
+        baseImage: scaledImage,
+        canvas,
+        canvasContext,
+        imageData,
+        pixelBuffer,
+        bytesPerRow: 4 * width,
+        width: width,
+        height: height,
+      },
+    };
+  });
+
+  const scaledTextures = await Promise.all(scaledImagePromises);
+  return scaledTextures;
+};
 
 /*const createRepeatedImage = async ({ baseImage, displayInfo }) => {
   const repeatingImageCanvas = document.createElement('canvas');
