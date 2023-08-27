@@ -84,9 +84,9 @@ const initialise = () => {
     }
   });
 
-  document.addEventListener('mousemove', (e) => {
+  /* document.addEventListener('mousemove', (e) => {
     player.angle += toRadians(e.movementX);
-  });
+  }); */
 
   setInterval(() => gameLoop({ canvasContext }), GAME_LOOP_TICK_MS);
   
