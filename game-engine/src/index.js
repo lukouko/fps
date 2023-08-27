@@ -15,8 +15,8 @@ let fpsInterval;
 
 const initialise = async () => {
   const displayInfo = helpers.generateDisplayInfo({
-    width: 800,
-    height: 600,
+    width: 1080,
+    height: 768,
     fieldOfView: 72,
   });
 
