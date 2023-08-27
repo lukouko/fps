@@ -18,7 +18,7 @@ const PLAYER_CLIP_DETECTION_DISTANCE = PLAYER_WALK_SPEED + 1;
 const map = [
   [2, 2, 2, 2, 2, 2, 2],
   [2, 0, 0, 0, 0, 0, 2],
-  [2, 0, 2, 2, 0, 2, 2],
+  [2, 0, 3, 3, 0, 2, 2],
   [2, 0, 0, 0, 0, 0, 2],
   [2, 0, 2, 0, 2, 0, 2],
   [2, 0, 0, 0, 0, 0, 2],
@@ -82,6 +82,12 @@ const initialise = async () => {
     textures.wood1 = new Image();
     textures.wood1.onload = resolve;
     textures.wood1.src = assets.bricks2_128;
+  });
+
+  await new Promise((resolve) => {
+    textures.ali = new Image();
+    textures.ali.onload = resolve;
+    textures.ali.src = assets.ali;
   });
 
   document.body.appendChild(canvas);
@@ -268,11 +274,11 @@ const renderScene = ({ canvasContext, rays }) => {
 
     // Draw walls.
     canvasContext.drawImage(
-      textures.wood1, 
+      ray.wallCollision === 3 ? textures.ali : textures.wood1, 
       textureOffset - Math.floor(textureOffset / CELL_SIZE) * CELL_SIZE,                // Source image x offset
       0,                // Source image Y offset
       1,                // Source image width
-      textures.wood1.height,               // Source image height
+      ray.wallCollision === 3 ? textures.ali.height : textures.wood1.height,               // Source image height
       rayIndex,     // Target image X offset
       Math.floor(SCREEN_HEIGHT / 2) - wallHeight / 2,                // Target image Y offset
       1,                // Target image width
