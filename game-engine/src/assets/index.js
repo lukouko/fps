@@ -10,6 +10,7 @@ import horizontalTimber1 from './horizontal_timber_1_256_256.jpg';
 import gun1 from './gun1.png';
 import gun2 from './gun2.png';
 import underConstruction from './under_construction.jpg';
+import betterLookingBart from './bart.jpg';
 
 // Sprites.
 import betterLookingMatt from './better-looking-matt.png';
@@ -29,6 +30,7 @@ const images = [
   { id: 'gun2', assetPath: gun2 },
   { id: 'under_construction', assetPath: underConstruction },
   { id: 'better-looking-matt', assetPath: betterLookingMatt, isSprite: true },
+  { id: 'better-looking-bart', assetPath: betterLookingBart },
   // { id: 'clouds1', assetPath: clouds1, isRepeatable: true },
 ];
 
