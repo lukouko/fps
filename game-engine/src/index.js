@@ -37,8 +37,8 @@ const map = [
 ];
 
 const player = {
-  x: CELL_SIZE * 1.25,
-  y: CELL_SIZE * 3,
+  x: CELL_SIZE * 1.55,
+  y: CELL_SIZE * 15,
   angle: 0,//9.61,
   angularSpeed: 0,
   speed: 0,
@@ -286,7 +286,7 @@ const renderScene = ({ canvasContext, rays }) => {
     );
 
     // Make walls that are further away a bit darker.
-    const darkness = Math.min(distance / 300, 1);
+    const darkness = Math.min(distance / 500, 1);
     canvasContext.fillStyle = `rgba(0, 0, 0, ${darkness * 0.8})`;
     canvasContext.fillRect(
       rayIndex,
