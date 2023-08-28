@@ -7,9 +7,9 @@ import tiles2 from './tiles_2_256_256.jpg';
 import plaster1 from './plaster_1_256_256.jpg';
 import asphalt1 from './asphalt_1_256_256.jpg';
 import horizontalTimber1 from './horizontal_timber_1_256_256.jpg';
-import gun1 from './gun1.png';
-import gun2 from './gun2.png';
 import underConstruction from './under_construction.jpg';
+import ali from './ali.jpg';
+import bart from './bart.jpg';
 // import clouds1 from './clouds_1_508.jpg';
 
 const images = [
@@ -21,10 +21,9 @@ const images = [
   { id: 'plaster_1', assetPath: plaster1 },
   { id: 'asphalt_1', assetPath: asphalt1 },
   { id: 'horizontal_timber_1', assetPath: horizontalTimber1 },
-  { id: 'gun1', assetPath: gun1 },
-  { id: 'gun2', assetPath: gun2 },
-  { id: 'gun2', assetPath: gun2 },
   { id: 'under_construction', assetPath: underConstruction },
+  { id: 'ali', assetPath: ali },
+  { id: 'bart', assetPath: bart },
   // { id: 'clouds1', assetPath: clouds1, isRepeatable: true },
 ];
 
