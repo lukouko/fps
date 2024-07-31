@@ -6,6 +6,7 @@ import * as map from './map';
 import * as minimap from './mini-map';
 import * as scene from './scene';
 import * as helpers from './helpers';
+import * as networkClient from './network-client';
 import * as Types from './types';
 
 let framesPerSecond = 0;
@@ -31,43 +32,31 @@ const initialise = async () => {
     throw new Error('No canvasContext found');
   }
 
-  const socket = new WebSocket(
-    'ws://localhost:8080',
-  );
+  document.body.appendChild(canvas);
 
-  socket.onopen = (event) => {
-    console.log('Opened connection to the server!');
-    socket.send('I am a client reporting for duty');
+  await loadTextures({ displayInfo });
+
+  /** @type Types.GameState */
+  const gameState = {
+    mapState: await map.initialise(),
+    playerState: await player.initialise(),
+    inputState: await inputsApi.initialise(),
+    minimapState: await minimap.initialise(),
+    sceneState: await scene.initialise({ displayInfo }),
+    networkClientState: await networkClient.initialise(),
   };
 
-  socket.onmessage = (msg) => {
-    console.log('Received message: ', msg);
-  };
+  if (helpers.isMobileDevice()) {
+    await helpers.requestFullScreen();
+  } 
 
-  //document.body.appendChild(canvas);
-
-  // await loadTextures({ displayInfo });
-
-  // /** @type Types.GameState */
-  // const gameState = {
-  //   mapState: await map.initialise(),
-  //   playerState: await player.initialise(),
-  //   inputState: await inputsApi.initialise(),
-  //   minimapState: await minimap.initialise(),
-  //   sceneState: await scene.initialise({ displayInfo }),
-  // };
-
-  // if (helpers.isMobileDevice()) {
-  //   await helpers.requestFullScreen();
-  // } 
-
-  // gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
-  // fpsInterval = setInterval(trackFps, 1000);
+  gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
+  fpsInterval = setInterval(trackFps, 1000);
 };
 
 const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
   try {
-    const { mapState, playerState, inputState } = gameState;
+    const { mapState, playerState, inputState, networkClientState } = gameState;
 
     ++gameLoopCycles;
     player.move({ playerState, inputState, mapState });
@@ -78,6 +67,8 @@ const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
       mapState,
       displayInfo,
     });
+
+    networkClient.render({ playerState, gameState, networkClientState, inputState });
     
     if (gameState.inputState.enableMiniMap) {
       minimap.render({
