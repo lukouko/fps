@@ -31,25 +31,38 @@ const initialise = async () => {
     throw new Error('No canvasContext found');
   }
 
-  document.body.appendChild(canvas);
+  const socket = new WebSocket(
+    'ws://localhost:8080',
+  );
 
-  await loadTextures({ displayInfo });
-
-  /** @type Types.GameState */
-  const gameState = {
-    mapState: await map.initialise(),
-    playerState: await player.initialise(),
-    inputState: await inputsApi.initialise(),
-    minimapState: await minimap.initialise(),
-    sceneState: await scene.initialise({ displayInfo }),
+  socket.onopen = (event) => {
+    console.log('Opened connection to the server!');
+    socket.send('I am a client reporting for duty');
   };
 
-  if (helpers.isMobileDevice()) {
-    await helpers.requestFullScreen();
-  } 
+  socket.onmessage = (msg) => {
+    console.log('Received message: ', msg);
+  };
 
-  gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
-  fpsInterval = setInterval(trackFps, 1000);
+  //document.body.appendChild(canvas);
+
+  // await loadTextures({ displayInfo });
+
+  // /** @type Types.GameState */
+  // const gameState = {
+  //   mapState: await map.initialise(),
+  //   playerState: await player.initialise(),
+  //   inputState: await inputsApi.initialise(),
+  //   minimapState: await minimap.initialise(),
+  //   sceneState: await scene.initialise({ displayInfo }),
+  // };
+
+  // if (helpers.isMobileDevice()) {
+  //   await helpers.requestFullScreen();
+  // } 
+
+  // gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
+  // fpsInterval = setInterval(trackFps, 1000);
 };
 
 const gameLoop = ({ canvasContext, gameState, displayInfo }) => {

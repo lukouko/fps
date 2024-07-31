@@ -138,6 +138,34 @@
 //////////// Minimap types ////////////
 /** @typedef {Object} MiniMapState */
 
+//////////// Network Client Types ////////////
+/** @typedef {'CLIENT'|'SERVER'} NetworkMessageSource */
+
+/**
+ * @typedef {Object} ClientConnectionMessage
+ * @property {string} playerName
+ * @property {string} id
+ * @property {string} avatar
+ */
+
+/** 
+ * @typedef {Object} ClientDataMessage 
+ * @property {Position} playerPosition
+ * @property {boolean} [isDead] 
+ */
+
+/** 
+ * @typedef {Object} ClientNetworkMessage 
+ * @property {NetworkMessageSource} source
+ * @property {'CONNECT'|'DATA'|'DISCONNECT'} type
+ * @property {ClientConnectionMessage|ClientDataMessage} payload
+ */
+
+/**
+ * @typedef {Object} NetworkClientState
+ * @property {Object} wsClient
+ * @property {number} ticksSinceLastPing
+ */
 
 // Engine types
 /**
@@ -147,5 +175,6 @@
  * @property {PlayerState} playerState
  * @property {MiniMapState} minimapState
  * @property {SceneState} sceneState
+ * @property {NetworkClientState} networkClientState
  */
 export const Types = {};
