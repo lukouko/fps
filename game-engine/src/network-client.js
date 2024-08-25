@@ -12,7 +12,7 @@ const stateData = {};
  */
 export const initialise = ({ onServerStateUpdate }) => {
   const wsClient = new WebSocket(
-    `ws://${window.location.hostname}:8080`,
+    `ws://${window.location.hostname}:8082`,
   );
 
   wsClient.onopen = (event) => {

@@ -60,6 +60,10 @@
 //////////// Input types ////////////
 
 /**
+ * @typedef {'KEYBOARD'|'MOBILE'} InputMethod
+ */
+
+/**
  * @typedef {Object} Inputs
  * @property {number} speed The current forward or backward speed being applied.
  * @property {number} angularSpeed The current angular speed being applied (radians)

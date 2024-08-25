@@ -3,7 +3,7 @@ const { v4: uuid } = require('uuid');
 const messageFactory = require('./message-factory');
 const constants = require('./constants');
 
-const fpsServer = new WebSocketServer({ port: 8080 });
+const fpsServer = new WebSocketServer({ port: 8082 });
 
 const serverGameState = {
   players: {},

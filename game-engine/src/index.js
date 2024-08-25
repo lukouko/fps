@@ -22,8 +22,14 @@ const initialise = async () => {
   });
 
   const canvas = document.createElement('canvas');
+
   canvas.width = displayInfo.width;
   canvas.height = displayInfo.height;
+
+  const inputCanvas = document.createElement('canvas');
+  
+  inputCanvas.width = displayInfo.width;
+  inputCanvas.height = displayInfo.height;
 
   // Get the 2D rendering context of the canvas
   const canvasContext = canvas.getContext('2d');
@@ -32,7 +38,10 @@ const initialise = async () => {
     throw new Error('No canvasContext found');
   }
 
+  const inputCanvasContext = inputCanvas.getContext('2d');
+
   document.body.appendChild(canvas);
+  document.body.appendChild(inputCanvas);
 
   await loadTextures({ displayInfo });
 
@@ -40,7 +49,7 @@ const initialise = async () => {
   const gameState = {
     mapState: await map.initialise(),
     playerState: await player.initialise(),
-    inputState: await inputsApi.initialise(),
+    inputState: await inputsApi.initialise({ inputCanvasContext, inputMethod: 'MOBILE' }),
     minimapState: await minimap.initialise(),
     sceneState: await scene.initialise({ displayInfo }),
     networkClientState: await networkClient.initialise({ onServerStateUpdate: ({ processedServerGameState }) => onServerStateUpdate({ processedServerGameState, gameState }) }),
@@ -78,7 +87,7 @@ const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
       displayInfo,
     });
 
-    networkClient.render({ playerState, networkClientState, inputState });
+    networkClient.render({ playerState, networkClientState });
     
     if (gameState.inputState.enableMiniMap) {
       minimap.render({
