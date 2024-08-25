@@ -1,9 +1,13 @@
-const { WebSocketServer } = require('ws');
+const { WebSocketServer, WebSocket } = require('ws');
 const { v4: uuid } = require('uuid');
 const messageFactory = require('./message-factory');
 const constants = require('./constants');
 
 const fpsServer = new WebSocketServer({ port: 8080 });
+
+const serverGameState = {
+  players: {},
+};
 
 fpsServer.on('connection', (fpsClient, req) => {
   const clientId = uuid();
@@ -12,6 +16,8 @@ fpsServer.on('connection', (fpsClient, req) => {
     clientId,
     isAlive: true,
   };
+
+  serverGameState.players[clientId] = {};
 
   fpsClient.on('error', console.error);
 
@@ -26,12 +32,22 @@ fpsServer.on('connection', (fpsClient, req) => {
     }
   });
 
-  fpsClient.send(messageFactory.connectionEstablished({ clientId: clientInfo.clientId }));
+  fpsClient.send(messageFactory.connectionEstablished({ clientId: clientInfo.clientId, serverGameState }));
+
+  // Start sending game state data to the client.
+  setInterval(() => {
+    fpsServer.clients.forEach((fpsClient) => {
+      if (fpsClient.readyState === WebSocket.OPEN) {
+        fpsClient.send(messageFactory.serverGameStateUpdate({ serverGameState }));
+      }
+    }, constants.SERVER_GAME_STATE_INTERVAL_MS);
+  });
 
   // Start tracking client activity and terminate connection if the client dies
   const activityInterval = setInterval(() => {
     if (!clientInfo.isAlive) {
       console.log(`${clientInfo.clientId}: disconnecting due to activity timeout`);
+      delete serverGameState[clientId];
       fpsClient.terminate();
       return;
     }
@@ -40,6 +56,9 @@ fpsServer.on('connection', (fpsClient, req) => {
   }, constants.KEEP_ALIVE_INTERVAL_MS);
 
   fpsClient.on('close', function close() {
+    console.log(`${clientInfo.clientId}: closed by the client`);
+    delete serverGameState[clientId];
+
     // @ts-ignore
     clearInterval(activityInterval);
   });
@@ -68,7 +87,7 @@ const handleClientMessage = (clientMessage, fpsClient, fpsServer, clientInfo) =>
 
   switch (messageType) {
     case clientMessageTypes.GAME_STATE_UPDATE:
-      // Broadcast the info out to all clients.
+      serverGameState.players[clientId].playerPosition = payload.playerPosition;
       console.log(`${clientId}: Received game status update`, payload);
     break;
 

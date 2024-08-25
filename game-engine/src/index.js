@@ -16,8 +16,8 @@ let fpsInterval;
 
 const initialise = async () => {
   const displayInfo = helpers.generateDisplayInfo({
-    width: 800,
-    height: 600,
+    width: 640,
+    height: 480,
     fieldOfView: 72,
   });
 
@@ -43,7 +43,7 @@ const initialise = async () => {
     inputState: await inputsApi.initialise(),
     minimapState: await minimap.initialise(),
     sceneState: await scene.initialise({ displayInfo }),
-    networkClientState: await networkClient.initialise(),
+    networkClientState: await networkClient.initialise({ onServerStateUpdate: ({ processedServerGameState }) => onServerStateUpdate({ processedServerGameState, gameState }) }),
   };
 
   if (helpers.isMobileDevice()) {
@@ -52,6 +52,16 @@ const initialise = async () => {
 
   gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
   fpsInterval = setInterval(trackFps, 1000);
+};
+
+/**
+ * Processes updates of game state received by the network client.
+ * @param {Object} params
+ * @param {Types.ProcessedServerGameState} params.processedServerGameState
+ * @param {Types.GameState} params.gameState
+ */
+const onServerStateUpdate = ({ processedServerGameState, gameState}) => {
+  map.updateForServerGameState({ mapState: gameState.mapState, processedServerGameState });
 };
 
 const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
@@ -68,7 +78,7 @@ const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
       displayInfo,
     });
 
-    networkClient.render({ playerState, gameState, networkClientState, inputState });
+    networkClient.render({ playerState, networkClientState, inputState });
     
     if (gameState.inputState.enableMiniMap) {
       minimap.render({

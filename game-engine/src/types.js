@@ -168,6 +168,32 @@
  * @property {number} ticksSinceLastPing
  */
 
+/**
+ * @typedef {Object} ServerPlayerState
+ * @property {Position} playerPosition
+ */
+
+/**
+ * @typedef {Object} ServerGameState
+ * @property {Object<string, ServerPlayerState>} players
+ */
+
+/**
+ * @typedef {Object} ServerGameStateMessage
+ * @property {ServerGameState} serverGameState
+ */
+
+/**
+ * @typedef {Object} ServerConnectionEstablishedMessage
+ * @property {ServerGameState} serverGameState
+ * @property {string} clientId
+ */
+
+/**
+ * @typedef {Object} ProcessedServerGameState
+ * @property {Array<Sprite>} sprites
+ */
+
 // Engine types
 /**
  * @typedef {Object} GameState

@@ -1,26 +1,35 @@
 import * as Types from './types';
 import { serverMessageTypes, clientMessageTypes, NETWORK_DATA_INTERVAL_TICKS, MAX_RADIO_SILENCE_TICKS } from './constants';
 
-export const initialise = () => {
-  const wsClient = new WebSocket(
-    'ws://localhost:8080',
-  );
+const stateData = {};
 
-  const stateData = {
-    wsClient,
-    ticksSinceLastPing: 0,
-  };
+/**
+ * Initialises the network client state.
+ * @param {Object} params
+ * @param {Function} params.onServerStateUpdate Callback function that the game loop can use to update other game state based on server messages.
+ * 
+ * @returns {Types.NetworkClientState}
+ */
+export const initialise = ({ onServerStateUpdate }) => {
+  const wsClient = new WebSocket(
+    `ws://${window.location.hostname}:8080`,
+  );
 
   wsClient.onopen = (event) => {
     console.log('Opened connection to the server!');
   };
 
-  wsClient.onmessage = (serverMessage) => onServerMessage({ serverMessage, wsClient });
+  wsClient.onmessage = (serverMessage) => onServerMessage({ serverMessage, onServerStateUpdate });
 
+  stateData.wsClient = wsClient;
+  stateData.ticksSinceLastPing = 0;
+  stateData.clientId = 'unknown';
+
+  // @ts-ignore
   return stateData;
 };
 
-const onServerMessage = ({ serverMessage, wsClient }) => {
+const onServerMessage = ({ serverMessage, onServerStateUpdate }) => {
   try {
     const { messageType, payload } = JSON.parse(serverMessage.data);
   
@@ -30,7 +39,11 @@ const onServerMessage = ({ serverMessage, wsClient }) => {
 
     switch (messageType) {
       case serverMessageTypes.CONNECTION_ESTABLISHED:
-        handleConnectionEstablished({ payload, wsClient });
+        handleConnectionEstablished({ payload, onServerStateUpdate });
+        break;
+      
+      case serverMessageTypes.SERVER_GAME_STATE_UPDATE:
+        handleGameStateUpdate({ payload, onServerStateUpdate });
         break;
       default:
         throw new Error(`Server message with type '${messageType}' has no associated message handler`);
@@ -41,9 +54,65 @@ const onServerMessage = ({ serverMessage, wsClient }) => {
   }
 };
 
-const handleConnectionEstablished = ({ payload, wsClient }) => {
-  console.log('Received connection established from server', payload);
-  wsClient.send(JSON.stringify({ messageType: clientMessageTypes.GAME_STATE_UPDATE, payload: { game: 'yes' } }));
+/**
+ * Handles a SERVER_GAME_STATE_UPDATE message from the server.
+ * @param {Object} params
+ * @param {Types.ServerConnectionEstablishedMessage} params.payload The message received from the server.
+ * @param {Function} params.onServerStateUpdate Callback function allowing the game loop to apply the updated server data.
+ */
+const handleConnectionEstablished = ({ payload, onServerStateUpdate }) => {
+  const { clientId, serverGameState } = payload;
+  stateData.clientId = clientId;
+  console.log(`Assigned client ID: ${clientId}`);
+
+  const processedServerGameState = convertServerGameStateForClient({ clientId: stateData.clientId, serverGameState });
+  onServerStateUpdate({ processedServerGameState });
+};
+
+/**
+ * Handles a SERVER_GAME_STATE_UPDATE message from the server.
+ * @param {Object} params
+ * @param {Types.ServerGameStateMessage} params.payload The message received from the server.
+ * @param {Function} params.onServerStateUpdate Callback function allowing the game loop to apply the updated server data.
+ */
+const handleGameStateUpdate = ({ payload, onServerStateUpdate }) => {
+  const { serverGameState } = payload;
+  const processedServerGameState = convertServerGameStateForClient({ clientId: stateData.clientId, serverGameState });
+  onServerStateUpdate({ processedServerGameState });
+};
+
+/**
+ * Converts a server game state update payload into a data structure consumable by onServerStateUpdate.
+ * @param {Object} params
+ * @param {string} params.clientId the client id of the current client.
+ * @param {Types.ServerGameState} params.serverGameState
+ * 
+ * @returns {Types.ProcessedServerGameState}
+ */
+const convertServerGameStateForClient = ({ clientId, serverGameState }) => {
+  const processedServerGameState = Object.entries(serverGameState.players).reduce((acc, [otherClientId, playerObject]) => {
+    if (clientId === otherClientId) {
+      // No client state is needed to be applied for the current client.
+      // It's already managed in the client itself.
+      return acc;
+    }
+
+    if (!playerObject.playerPosition) {
+      // No player position received by server yet. All g.
+      return acc;
+    }
+
+    acc.sprites.push({
+      textureId: "better-looking-matt",
+      position: playerObject.playerPosition,
+    });
+
+    return acc;
+  }, {
+    sprites: [],
+  });
+
+  return processedServerGameState;
 };
 
 /**

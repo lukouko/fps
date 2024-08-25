@@ -23,6 +23,16 @@ export const initialise = () => ({
 });
 
 /**
+ * Updates the map with processed server game state.
+ * @param {Object} params
+ * @param {Types.MapState} params.mapState
+ * @param {Types.ProcessedServerGameState} params.processedServerGameState
+ */
+export const updateForServerGameState = ({ mapState, processedServerGameState }) => {
+  mapState.currentMap.sprites = processedServerGameState.sprites;
+};
+
+/**
  * Returns the map cell at a given position in unscaled map cell space.
  * 
  * @param {Object} params

@@ -45,6 +45,7 @@ const MAX_RADIO_SILENCE_TICKS = 100; // 2 seconds
 // Message types that are supported from the server.
 const serverMessageTypes = Object.freeze({
   CONNECTION_ESTABLISHED: 'CONNECTION_ESTABLISHED',
+  SERVER_GAME_STATE_UPDATE: 'SERVER_GAME_STATE_UPDATE',
 });
 
 // Message types that the client can send to the server.
