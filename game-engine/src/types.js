@@ -47,6 +47,7 @@
  * @typedef {Object} Player
  * @property {Orientation} orientation
  * @property {boolean} isMoving
+ * @property {boolean} isDead
  * @property {GunId} selectedGun
  */
 

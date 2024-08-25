@@ -34,6 +34,7 @@ export const initialise = () => ({
       angle: 5.2399,//0,
     },
     isMoving: false,
+    isDead: false,
     selectedGun: gunTypes.ASSAULT_RIFLE,
   },
   gunSwayStartTime: undefined,
@@ -105,13 +106,15 @@ export const move = ({ inputState, playerState, mapState }) => {
 
   /** @type Types.Position */
   const hypotheticalCell = {
-    x:  Math.floor((player.orientation.position.x + xMovement) / constants.CELL_SIZE),
+    x: Math.floor((player.orientation.position.x + xMovement) / constants.CELL_SIZE),
     y: Math.floor((player.orientation.position.y + yMovement) / constants.CELL_SIZE),
   };
 
   if (!map.canMoveToCellLocation({ position: hypotheticalCell, mapState })) {
     return;
   }
+
+  player.isMoving = !!inputState.speed;
 
   // Move the player in space.
   player.orientation.position.x += xMovement;

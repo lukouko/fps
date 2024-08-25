@@ -22,8 +22,8 @@ export const render = ({ canvasContext, playerOrientation, mapLayout, wallRays }
   mapLayout.forEach((row, y) => {
     // Loop through each cell in the current row. We can treat cell index in the row array as a basis for X coordinates.
     row.forEach((cell, x) => {
-      // TODO: Determine how to render cell based on value. For now, we are just using on or off. On being grey.
-      if (cell !== 0) {
+      // TODO: Determine how to render cell based on texture. For now, we are just using on or off. On being grey.
+      if (cell?.wallTextureId) {
         canvasContext.fillStyle = constants.colours.CELL;
         canvasContext.fillRect(
           constants.MINIMAP_BASE_POSITION_X + x * miniMapCellSize,

@@ -14,7 +14,6 @@ import betterLookingBart from './bart.jpg';
 
 // Sprites.
 import betterLookingMatt from './better-looking-matt.png';
-// import clouds1 from './clouds_1_508.jpg';
 
 const images = [
   { id: 'bricks_1', assetPath: bricks1 },
@@ -31,7 +30,6 @@ const images = [
   { id: 'under_construction', assetPath: underConstruction },
   { id: 'better-looking-matt', assetPath: betterLookingMatt, isSprite: true },
   { id: 'better-looking-bart', assetPath: betterLookingBart },
-  // { id: 'clouds1', assetPath: clouds1, isRepeatable: true },
 ];
 
 export {
