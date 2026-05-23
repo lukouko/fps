@@ -49,7 +49,7 @@ const initialise = async () => {
   const gameState = {
     mapState: await map.initialise(),
     playerState: await player.initialise(),
-    inputState: await inputsApi.initialise({ inputCanvasContext, inputMethod: 'MOBILE' }),
+    inputState: await inputsApi.initialise({ inputCanvasContext, inputMethod: 'KEYBOARD' }),
     minimapState: await minimap.initialise(),
     sceneState: await scene.initialise({ displayInfo }),
     networkClientState: await networkClient.initialise({ onServerStateUpdate: ({ processedServerGameState }) => onServerStateUpdate({ processedServerGameState, gameState }) }),

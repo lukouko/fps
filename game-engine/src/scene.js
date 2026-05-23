@@ -337,115 +337,88 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
 
 /**
  * Renders all of the sprites in mapstate to the scene.
- * 
+ *
  * @param {Object} params
  * @param {Object} params.offScreenBufferPixels The array of pixels representing the projection plane.
  * @param {Array<Types.RayCollision>} params.wallRays The rays cast for walls
  * @param {Types.Orientation} params.orientation The perspective point and angle from which the scene is being rendered.
  * @param {Types.MapState} params.mapState The current map state.
- * @param {Types.DisplayInfo} params.displayInfo 
+ * @param {Types.DisplayInfo} params.displayInfo
  */
 const renderSprites = ({ offScreenBufferPixels, wallRays, orientation, mapState, displayInfo }) => {
-  // Sort sprites by distance from the player, further to closest.
-  const sortedSprites = [];
-
-  const maxDistance = helpers.distanceBetween({ positionA: { x: 0, y: 0 }, positionB: mapState.scaledMapBounds }) / 3;
+  const sprites = [];
 
   for (const sprite of mapState.currentMap.sprites) {
-    const spriteDistance = helpers.distanceBetween({ positionA: orientation.position, positionB: sprite.position });
+    const dx = sprite.position.x - orientation.position.x;
+    const dy = sprite.position.y - orientation.position.y;
+    const spriteDistance = Math.sqrt(dx * dx + dy * dy);
+    if (spriteDistance <= 0) continue;
 
-    // The angle between the sprite position and player position.
-    const spriteAngle = Math.atan2(sprite.position.y - orientation.position.y, sprite.position.x - orientation.position.x);
-    //const spriteAngle = Math.atan2(orientation.position.y - sprite.position.y, orientation.position.x - sprite.position.x);
-    // The angle between the sprite and player orientation angle
-    const spriteAngleOffset = spriteAngle - orientation.angle;
+    const spriteAngle = Math.atan2(dy, dx);
+    let spriteAngleOffset = spriteAngle - orientation.angle;
 
-    let angleDifference = Math.abs(spriteAngle - orientation.angle);
-    angleDifference = angleDifference % (2 * Math.PI);
-    if (angleDifference > Math.PI) {
-      angleDifference = 2 * Math.PI - angleDifference;
-    }
+    // Normalise to [-PI, PI]
+    while (spriteAngleOffset > Math.PI) spriteAngleOffset -= 2 * Math.PI;
+    while (spriteAngleOffset < -Math.PI) spriteAngleOffset += 2 * Math.PI;
 
-    const isOutsideFOV = angleDifference > displayInfo.fieldOfView;
-    if (!isOutsideFOV) {
-      sortedSprites.push({ sprite, spriteDistance, spriteAngle, spriteAngleOffset });
-    }
+    // Skip sprites behind the player
+    if (Math.abs(spriteAngleOffset) >= Math.PI / 2) continue;
+
+    sprites.push({ sprite, spriteDistance, spriteAngleOffset });
   }
 
-  sortedSprites.sort((a, b) => b.spriteDistance - a.spriteDistance);
+  sprites.sort((a, b) => b.spriteDistance - a.spriteDistance);
 
-  // Render the sprites
-  for (const { sprite, spriteDistance, spriteAngleOffset, spriteAngle } of sortedSprites) {
-    // Calculate the projected height of the sprite on the screen. The size of the sprite will get smaller
-    // when the player is further away.
-    const relativeSpriteDistance = (maxDistance - spriteDistance) / maxDistance;
-    if (relativeSpriteDistance < 0.05) {
-      continue;
-    }
+  for (const { sprite, spriteDistance, spriteAngleOffset } of sprites) {
+    const spriteTexture = textures.getTextureById({ id: sprite.textureId });
+    if (!spriteTexture) continue;
 
-    const spriteTextureSuffix = getTextureLabel({ distance: relativeSpriteDistance });
-    const spriteTexture = textures.getTextureById({ id: `better-looking-matt${spriteTextureSuffix}`});
+    // Fisheye-corrected perpendicular distance — same correction used for walls.
+    const perpDistance = spriteDistance * Math.cos(spriteAngleOffset);
+    if (perpDistance <= 0) continue;
 
-    // Calculate the screen coordinates for the sprite
-    const spriteScreenStartY = displayInfo.halfHeight - Math.floor(spriteTexture.height / 2);
-    const spriteScreenEndY = spriteTexture.height + spriteScreenStartY;
-    const spriteScreenOffsetX = Math.floor(Math.tan(spriteAngleOffset) * (displayInfo.distanceToProjectionPlane / displayInfo.fieldOfView));
-    const spriteScreenStartX = Math.floor(displayInfo.halfWidth + spriteScreenOffsetX);
-    const spriteScreenEndX = spriteScreenStartX + spriteTexture.width;
+    // Project size using the same formula as walls.
+    const projectedHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / perpDistance);
+    const projectedWidth = Math.floor(projectedHeight * spriteTexture.width / spriteTexture.height);
 
-    if (
-      spriteScreenEndX < 0 || spriteScreenStartX >= displayInfo.width ||
-      spriteDistance <= 0
-    ) {
-      // Skip drawing if the sprite is not within the field of view or behind the player
-      continue;
-    }
+    const spriteCenterX = Math.floor(displayInfo.halfWidth + Math.tan(spriteAngleOffset) * displayInfo.distanceToProjectionPlane);
+    const spriteLeft = spriteCenterX - Math.floor(projectedWidth / 2);
+    const spriteTop = Math.floor(displayInfo.halfHeight - projectedHeight / 2);
 
-    for (let screenX = Math.max(spriteScreenStartX, 0); screenX < Math.min(spriteScreenEndX, displayInfo.width); screenX++) {
-      const spriteX = Math.floor(screenX - spriteScreenStartX);
+    const drawLeft = Math.max(spriteLeft, 0);
+    const drawRight = Math.min(spriteLeft + projectedWidth, displayInfo.width);
+    const drawTop = Math.max(spriteTop, 0);
+    const drawBottom = Math.min(spriteTop + projectedHeight, displayInfo.height);
 
-      if (spriteDistance < wallRays[screenX].distance) {
-        for (let screenY = spriteScreenStartY; screenY < Math.min(spriteScreenEndY, displayInfo.height); ++screenY) {
-          const spriteY = Math.floor(screenY - spriteScreenStartY);
-          const bytesPerPixel = 4;
-          const textureIndex = (spriteY * spriteTexture.bytesPerRow) + (bytesPerPixel * spriteX);
-    
-          const brightnessLevel = 1;
-          const spriteRed = Math.floor(spriteTexture.pixelBuffer[textureIndex] * brightnessLevel);
-          const spriteGreen = Math.floor(spriteTexture.pixelBuffer[textureIndex + 1] * brightnessLevel);
-          const spriteBlue = Math.floor(spriteTexture.pixelBuffer[textureIndex + 2] * brightnessLevel);
-          const spriteAlpha = Math.floor(spriteTexture.pixelBuffer[textureIndex + 3]);
+    if (drawLeft >= drawRight || drawTop >= drawBottom) continue;
 
-          // Skip invisible sprite colour.
-          if (spriteGreen === 0 && spriteBlue === 0 && spriteRed === 0) {
-            continue;
-          }
-    
-          // Calculate sprite screen position (x-coordinate on the screen) and index in screen buffer    
-          const offScreenBufferSpriteIndex = (screenX * bytesPerPixel) + (screenY * localCache.offScreenBufferBytesPerRow);
+    const bytesPerPixel = 4;
 
-          offScreenBufferPixels[offScreenBufferSpriteIndex] = spriteRed;
-          offScreenBufferPixels[offScreenBufferSpriteIndex + 1] = spriteGreen;
-          offScreenBufferPixels[offScreenBufferSpriteIndex + 2] = spriteBlue;
-          offScreenBufferPixels[offScreenBufferSpriteIndex + 3] = spriteAlpha;
-        }
+    for (let screenX = drawLeft; screenX < drawRight; screenX++) {
+      if (spriteDistance >= wallRays[screenX].distance) continue;
+
+      const texX = Math.floor((screenX - spriteLeft) * spriteTexture.width / projectedWidth);
+
+      for (let screenY = drawTop; screenY < drawBottom; screenY++) {
+        const texY = Math.floor((screenY - spriteTop) * spriteTexture.height / projectedHeight);
+
+        const textureIndex = (texY * spriteTexture.bytesPerRow) + (bytesPerPixel * texX);
+        const r = spriteTexture.pixelBuffer[textureIndex];
+        const g = spriteTexture.pixelBuffer[textureIndex + 1];
+        const b = spriteTexture.pixelBuffer[textureIndex + 2];
+        const a = spriteTexture.pixelBuffer[textureIndex + 3];
+
+        if (r === 0 && g === 0 && b === 0) continue;
+
+        const bufferIndex = (screenX * bytesPerPixel) + (screenY * localCache.offScreenBufferBytesPerRow);
+        offScreenBufferPixels[bufferIndex] = r;
+        offScreenBufferPixels[bufferIndex + 1] = g;
+        offScreenBufferPixels[bufferIndex + 2] = b;
+        offScreenBufferPixels[bufferIndex + 3] = a;
       }
     }
   }
 };
-
-const getTextureLabel = ({ distance }) => {
-  const rounded = Math.round(distance * 100);
-  if (rounded >= 100) {
-    return '';
-  }
-
-  if (rounded <= 5) {
-    return '-5';
-  }
-
-  return `-${rounded}`;
-}
 
 const debugLog = (...args) => {
   const debug = false;
