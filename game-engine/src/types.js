@@ -88,6 +88,7 @@
  * @typedef {Object} Sprite
  * @property {Position} position
  * @property {TextureId} textureId
+ * @property {number} [heightOffset] 0=floor-standing (default), positive=raised above floor (0.5 = bottom at eye level)
  */
 
 /**
@@ -97,7 +98,8 @@
 /**
  * @typedef {Object} Map
  * @property {MapLayout} layout
- * @property {Array<Sprite>} sprites
+ * @property {Array<Sprite>} staticSprites Map-defined decoration; never overwritten by server updates.
+ * @property {Array<Sprite>} sprites Dynamic sprites (other players, enemies) from the server.
  */
 
 /**

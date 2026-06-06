@@ -28,10 +28,10 @@ export const initialise = () => ({
   player: {
     orientation: {
       position: {
-        x: constants.CELL_SIZE * 1.5,
-        y: constants.CELL_SIZE * 12,
+        x: constants.CELL_SIZE * 2.5,  // entry hall, cell (2,13)
+        y: constants.CELL_SIZE * 13.5,
       },
-      angle: 5.2399,//0,
+      angle: 4.712, // facing north (up)
     },
     isMoving: false,
     isDead: false,

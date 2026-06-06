@@ -9,6 +9,8 @@ let offScreenBuffer;
 
 const localCache = {
   rayBaseAngleByScreenColumn: {},
+  // cos of each column's angle offset — used for perpendicular-distance depth testing in sprite rendering.
+  cosineByScreenColumn: {},
   offScreenBufferBytesPerRow: 0,
 };
 
@@ -37,9 +39,10 @@ export const initialise = ({ displayInfo }) => {
   // textures visibly curve at the screen edges. Arctan spacing makes the wall
   // intersection point linear in screen-column, matching true perspective projection.
   for (let screenColumn = 0; screenColumn < displayInfo.width; ++screenColumn) {
-    localCache.rayBaseAngleByScreenColumn[screenColumn] = Math.atan(
-      (screenColumn - displayInfo.halfWidth) / displayInfo.distanceToProjectionPlane
-    );
+    const ratio = (screenColumn - displayInfo.halfWidth) / displayInfo.distanceToProjectionPlane;
+    localCache.rayBaseAngleByScreenColumn[screenColumn] = Math.atan(ratio);
+    // cos(atan(x)) = 1/sqrt(1+x²) — no Math.cos needed.
+    localCache.cosineByScreenColumn[screenColumn] = 1 / Math.sqrt(1 + ratio * ratio);
   }
 };
 
@@ -347,9 +350,15 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
  * @param {Types.DisplayInfo} params.displayInfo
  */
 const renderSprites = ({ offScreenBufferPixels, wallRays, orientation, mapState, displayInfo }) => {
-  const sprites = [];
+  const visible = [];
 
-  for (const sprite of mapState.currentMap.sprites) {
+  // Collect both map-defined static sprites and server-driven dynamic sprites.
+  const allSprites = [
+    ...(mapState.currentMap.staticSprites || []),
+    ...(mapState.currentMap.sprites       || []),
+  ];
+
+  for (const sprite of allSprites) {
     const dx = sprite.position.x - orientation.position.x;
     const dy = sprite.position.y - orientation.position.y;
     const spriteDistance = Math.sqrt(dx * dx + dy * dy);
@@ -357,65 +366,75 @@ const renderSprites = ({ offScreenBufferPixels, wallRays, orientation, mapState,
 
     const spriteAngle = Math.atan2(dy, dx);
     let spriteAngleOffset = spriteAngle - orientation.angle;
-
-    // Normalise to [-PI, PI]
-    while (spriteAngleOffset > Math.PI) spriteAngleOffset -= 2 * Math.PI;
+    while (spriteAngleOffset >  Math.PI) spriteAngleOffset -= 2 * Math.PI;
     while (spriteAngleOffset < -Math.PI) spriteAngleOffset += 2 * Math.PI;
-
-    // Skip sprites behind the player
     if (Math.abs(spriteAngleOffset) >= Math.PI / 2) continue;
 
-    sprites.push({ sprite, spriteDistance, spriteAngleOffset });
+    visible.push({ sprite, spriteDistance, spriteAngleOffset });
   }
 
-  sprites.sort((a, b) => b.spriteDistance - a.spriteDistance);
+  visible.sort((a, b) => b.spriteDistance - a.spriteDistance);
 
-  for (const { sprite, spriteDistance, spriteAngleOffset } of sprites) {
+  const bytesPerPixel = 4;
+
+  for (const { sprite, spriteDistance, spriteAngleOffset } of visible) {
     const spriteTexture = textures.getTextureById({ id: sprite.textureId });
     if (!spriteTexture) continue;
 
-    // Fisheye-corrected perpendicular distance — same correction used for walls.
     const perpDistance = spriteDistance * Math.cos(spriteAngleOffset);
     if (perpDistance <= 0) continue;
 
-    // Project size using the same formula as walls.
+    // projectedHeight is the on-screen pixel height of a full CELL_SIZE-tall object at this distance.
     const projectedHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / perpDistance);
-    const projectedWidth = Math.floor(projectedHeight * spriteTexture.width / spriteTexture.height);
+
+    // Scale the sprite's on-screen height by its texture's actual height relative to CELL_SIZE
+    // so a barrel (192px texture) appears shorter than a wall, not the same height.
+    const screenHeight = Math.floor(projectedHeight * spriteTexture.height / constants.CELL_SIZE);
+    const projectedWidth = Math.floor(screenHeight * spriteTexture.width / spriteTexture.height);
+
+    // heightOffset: 0 = floor-standing (sprite bottom sits on the floor line).
+    // Positive values raise the sprite above the floor (e.g. 0.5 = bottom at eye level).
+    // The floor line in screen space is halfHeight + projectedHeight/2.
+    const heightOffset = sprite.heightOffset ?? 0;
+    const spriteBottom = Math.floor(displayInfo.halfHeight + projectedHeight / 2)
+      - Math.floor(projectedHeight * heightOffset);
+    const spriteTop = spriteBottom - screenHeight;
 
     const spriteCenterX = Math.floor(displayInfo.halfWidth + Math.tan(spriteAngleOffset) * displayInfo.distanceToProjectionPlane);
-    const spriteLeft = spriteCenterX - Math.floor(projectedWidth / 2);
-    const spriteTop = Math.floor(displayInfo.halfHeight - projectedHeight / 2);
+    const spriteLeft    = spriteCenterX - Math.floor(projectedWidth / 2);
 
-    const drawLeft = Math.max(spriteLeft, 0);
-    const drawRight = Math.min(spriteLeft + projectedWidth, displayInfo.width);
-    const drawTop = Math.max(spriteTop, 0);
-    const drawBottom = Math.min(spriteTop + projectedHeight, displayInfo.height);
-
+    const drawLeft   = Math.max(spriteLeft, 0);
+    const drawRight  = Math.min(spriteLeft + projectedWidth,  displayInfo.width);
+    const drawTop    = Math.max(spriteTop, 0);
+    const drawBottom = Math.min(spriteTop + screenHeight, displayInfo.height);
     if (drawLeft >= drawRight || drawTop >= drawBottom) continue;
 
-    const bytesPerPixel = 4;
+    // Distance shading — same formula as walls so sprites blend with the environment.
+    const distFactor = Math.min(1.0, constants.WALL_SHADE_FULL_BRIGHT_DISTANCE / perpDistance);
+    const shade = (Math.max(constants.WALL_SHADE_MIN, distFactor) * 255 + 0.5) | 0;
 
     for (let screenX = drawLeft; screenX < drawRight; screenX++) {
-      if (spriteDistance >= wallRays[screenX].distance) continue;
+      // Compare perpendicular depths (projection onto the forward axis) rather than raw
+      // Euclidean distances. Raw comparison breaks because the wall ray at column screenX
+      // points in a different direction to the player→sprite vector — side-wall rays for
+      // columns at the edge of a wide sprite can be shorter than spriteDistance even when
+      // no wall actually occludes the sprite, causing edge columns to flicker as the player moves.
+      if (perpDistance >= wallRays[screenX].distance * localCache.cosineByScreenColumn[screenX]) continue;
 
       const texX = Math.floor((screenX - spriteLeft) * spriteTexture.width / projectedWidth);
 
       for (let screenY = drawTop; screenY < drawBottom; screenY++) {
-        const texY = Math.floor((screenY - spriteTop) * spriteTexture.height / projectedHeight);
+        const texY = Math.floor((screenY - spriteTop) * spriteTexture.height / screenHeight);
 
-        const textureIndex = (texY * spriteTexture.bytesPerRow) + (bytesPerPixel * texX);
-        const r = spriteTexture.pixelBuffer[textureIndex];
-        const g = spriteTexture.pixelBuffer[textureIndex + 1];
-        const b = spriteTexture.pixelBuffer[textureIndex + 2];
-        const a = spriteTexture.pixelBuffer[textureIndex + 3];
+        const texIdx = (texY * spriteTexture.bytesPerRow) + (bytesPerPixel * texX);
+        // Use alpha channel for transparency (supports proper PNG transparency).
+        if (spriteTexture.pixelBuffer[texIdx + 3] < 128) continue;
 
-        if (r === 0 && g === 0 && b === 0) continue;
-
-        const bufferIndex = (screenX * bytesPerPixel) + (screenY * localCache.offScreenBufferBytesPerRow);
-        offScreenBufferPixels[bufferIndex] = r;
-        offScreenBufferPixels[bufferIndex + 1] = g;
-        offScreenBufferPixels[bufferIndex + 2] = b;
-        offScreenBufferPixels[bufferIndex + 3] = a;
+        const bufIdx = (screenX * bytesPerPixel) + (screenY * localCache.offScreenBufferBytesPerRow);
+        offScreenBufferPixels[bufIdx]     = spriteTexture.pixelBuffer[texIdx]     * shade >> 8;
+        offScreenBufferPixels[bufIdx + 1] = spriteTexture.pixelBuffer[texIdx + 1] * shade >> 8;
+        offScreenBufferPixels[bufIdx + 2] = spriteTexture.pixelBuffer[texIdx + 2] * shade >> 8;
+        offScreenBufferPixels[bufIdx + 3] = 255;
       }
     }
   }

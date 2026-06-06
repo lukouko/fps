@@ -1,11 +1,10 @@
 import * as constants from '../constants';
 import * as Types from '../types';
 // @ts-ignore
-import map1 from './saved-map.json';
-import map2 from './map1.json';
+import map1 from './map1.json';
 
 /** @type Types.Map */
-const defaultMap = map2;
+const defaultMap = map1;
 
 /**
  * Initialises map state.
@@ -30,6 +29,8 @@ export const initialise = () => ({
  * @param {Types.ProcessedServerGameState} params.processedServerGameState
  */
 export const updateForServerGameState = ({ mapState, processedServerGameState }) => {
+  // Only dynamic (network) sprites are replaced — staticSprites defined in the
+  // map JSON are never touched by server updates.
   mapState.currentMap.sprites = processedServerGameState.sprites;
 };
 
