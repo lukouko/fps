@@ -102,17 +102,21 @@ export const move = ({ inputState, playerState, mapState }) => {
   const xMovement = Math.cos(player.orientation.angle) * inputState.speed;
   const yMovement = Math.sin(player.orientation.angle) * inputState.speed;
 
-  // Clipping checking.
+  // Clipping: test five points (centre + four axis-aligned edges at clip radius) to ensure
+  // the player never gets within PLAYER_CLIP_DETECTION_DISTANCE pixels of a wall face.
+  const newX = player.orientation.position.x + xMovement;
+  const newY = player.orientation.position.y + yMovement;
+  const r = constants.PLAYER_CLIP_DETECTION_DISTANCE;
 
-  /** @type Types.Position */
-  const hypotheticalCell = {
-    x: Math.floor((player.orientation.position.x + xMovement) / constants.CELL_SIZE),
-    y: Math.floor((player.orientation.position.y + yMovement) / constants.CELL_SIZE),
-  };
+  const isBlocked = [
+    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor(newY / constants.CELL_SIZE) },
+    { x: Math.floor((newX + r) / constants.CELL_SIZE),     y: Math.floor(newY / constants.CELL_SIZE) },
+    { x: Math.floor((newX - r) / constants.CELL_SIZE),     y: Math.floor(newY / constants.CELL_SIZE) },
+    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor((newY + r) / constants.CELL_SIZE) },
+    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor((newY - r) / constants.CELL_SIZE) },
+  ].some(pt => !map.canMoveToCellLocation({ position: pt, mapState }));
 
-  if (!map.canMoveToCellLocation({ position: hypotheticalCell, mapState })) {
-    return;
-  }
+  if (isBlocked) return;
 
   player.isMoving = !!inputState.speed;
 

@@ -63,8 +63,9 @@ export const isOutOfBounds = ({ mapState, position }) => {
  * @param {Types.Position} params.position The position to check in unscaled map cell space.
  * @returns {boolean} True if the location is valid, false otherwise.
  */
-export const canMoveToCellLocation = ({ mapState, position }) => {  
-  return isOutOfBounds({ mapState, position }) || !mapState.currentMap.layout[position.y][position.x].wallTextureId;
+export const canMoveToCellLocation = ({ mapState, position }) => {
+  if (isOutOfBounds({ mapState, position })) return false;
+  return !mapState.currentMap.layout[position.y][position.x].wallTextureId;
 };
 
 /**

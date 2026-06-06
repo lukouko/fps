@@ -39,20 +39,21 @@ export class OffScreenBuffer {
 // (x, y, width, height, xOffset, brighnessLevel)
 // x=destinationX, y=destinationY, width = destinationWidth, height=destinationHeight, 
   drawVerticalBufferSlice({ sourcePixels, sourceX, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight }) {
-	//console.log("this.fWallTextureBuffer="+this.fWallTextureBuffer);
-		//var xOffset=x%this.fWallTexture.width;	// wrap the image position
-		let dy = destinationHeight; // Was dy
     const brightnessLevel = 0.8;
-		const bytesPerPixel = 4;
-		
-		let sourceBufferIndex = (bytesPerPixel * sourceX);
-		const lastSourceBufferIndex = sourceBufferIndex + (sourceWidth * sourceHeight * bytesPerPixel);
-		
-		//var targetCanvasPixels=this.canvasContext.createImageData(0, 0, width, height);
-		let destBufferIndex = (this.width * bytesPerPixel) * destinationY + (bytesPerPixel * destinationX); // Was target Index
-				
-		let heightToDraw = destinationHeight;
-		let yError = 0;   
+    const bytesPerPixel = 4;
+
+    // Clip to visible screen area — prevents near-infinite loops when the player is very
+    // close to a wall (wallHeight can reach 100k+ pixels, but only screenHeight are visible).
+    //if (destinationY >= this.height || destinationY + destinationHeight <= 0) return;
+    // const visibleRows = Math.min(destinationHeight, this.height);
+
+    let sourceBufferIndex = (bytesPerPixel * sourceX);
+    const lastSourceBufferIndex = sourceBufferIndex + (sourceWidth * sourceHeight * bytesPerPixel);
+
+    let destBufferIndex = (this.width * bytesPerPixel) * destinationY + (bytesPerPixel * destinationX);
+
+    let heightToDraw = destinationHeight;
+    let yError = 0;   
 		
 		// we're going to draw the first row, then move down and draw the next row
 		// and so on we can use the original x destination to find out
