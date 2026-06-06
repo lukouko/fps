@@ -242,9 +242,16 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   // Convert Euclidean ray distance to perpendicular (projection-plane) distance to
   // prevent the wall-height fisheye that results from using the raw Euclidean distance.
   const distance = rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle);
-  const wallHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance); // Doesn't have to be cell size.
+  const wallHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance);
   const halfWallHeight = wallHeight / 2;
   const wallTextureOffset = Math.floor(rayCollision.isVertical ? rayCollision.collisionPoint.y : rayCollision.collisionPoint.x);
+
+  // Shade: distance fog clamped to a minimum, with horizontal faces (N/S) dimmed to
+  // create a cheap directional-light illusion that makes geometry more readable.
+  const distFactor = Math.min(1.0, constants.WALL_SHADE_FULL_BRIGHT_DISTANCE / distance);
+  const shade = (Math.max(constants.WALL_SHADE_MIN, distFactor)
+    * (rayCollision.isHorizontal ? constants.WALL_SHADE_HORIZONTAL_DIM : 1.0)
+    * 255 + 0.5) | 0;
 
   // Draw walls.
   offScreenBuffer.drawVerticalBufferSlice({
@@ -255,6 +262,7 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     destinationX: rayIndex,
     destinationY: displayInfo.halfHeightFloored - Math.floor(halfWallHeight),
     destinationHeight: wallHeight,
+    shade,
   });
 
   // Draw floor and ceiling.
@@ -282,6 +290,11 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   const colOffset = bytesPerPixel * rayIndex;
   const pixelsToRender = displayInfo.height + 1;
 
+  // Slope-based shade: floorShadeSlope * (floorY - halfHeight) == FULL_BRIGHT_DIST * 255 / diagonalDist,
+  // which is the same shade formula as walls but avoids a division inside the pixel loop.
+  const floorShadeSlope = constants.WALL_SHADE_FULL_BRIGHT_DISTANCE * 255 / floorBase;
+  const floorMinShade = constants.WALL_SHADE_MIN * 255 | 0;
+
   let floorBufIdx = Math.floor(bottomOfWall * bytesPerRow + colOffset);
   let ceilBufIdx = Math.floor(topOfWall * bytesPerRow + colOffset);
 
@@ -304,14 +317,18 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     const srcIdx = (yEnd % floorTexture.height) * floorTexture.bytesPerRow
       + (xEnd % floorTexture.width) * bytesPerPixel;
 
-    offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx];
-    offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1];
-    offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2];
+    let pixelShade = floorShadeSlope * (floorY - halfHeight) | 0;
+    if (pixelShade > 255) pixelShade = 255;
+    if (pixelShade < floorMinShade) pixelShade = floorMinShade;
+
+    offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
+    offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
+    offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
     offScreenBufferPixels[floorBufIdx + 3] = floorTexture.pixelBuffer[srcIdx + 3];
 
-    offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx];
-    offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1];
-    offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2];
+    offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
+    offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
+    offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
     offScreenBufferPixels[ceilBufIdx + 3] = ceilingTexture.pixelBuffer[srcIdx + 3];
 
     floorBufIdx += bytesPerRow;

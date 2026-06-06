@@ -54,6 +54,13 @@ const clientMessageTypes = Object.freeze({
   PLAYER_DEAD: 'PLAYER_DEAD',
 });
 
+// Wall shading.
+// Walls are at full brightness up to WALL_SHADE_FULL_BRIGHT_DISTANCE, then fade linearly.
+// Horizontal faces (north/south) are dimmed by WALL_SHADE_HORIZONTAL_DIM to fake directional light.
+const WALL_SHADE_FULL_BRIGHT_DISTANCE = CELL_SIZE * 8;
+const WALL_SHADE_MIN = 0.25;
+const WALL_SHADE_HORIZONTAL_DIM = 0.80;
+
 // Some colour constants...only used by the minimap atm.
 const colours = Object.freeze({
   CELL: 'grey',
@@ -74,6 +81,9 @@ module.exports = Object.freeze({
   PLAYER_ANGULAR_SPEED_DEGREES,
   PLAYER_CLIP_DETECTION_DISTANCE,
   PLAYER_HEIGHT,
+  WALL_SHADE_FULL_BRIGHT_DISTANCE,
+  WALL_SHADE_MIN,
+  WALL_SHADE_HORIZONTAL_DIM,
   colours,
   NETWORK_DATA_INTERVAL_TICKS,
   MAX_RADIO_SILENCE_TICKS,

@@ -25,6 +25,7 @@ export class OffScreenBuffer {
     // Uint32 view over the same buffer — fill() on a typed array is a highly
     // optimised intrinsic, far cheaper than a fillRect + getImageData round-trip.
     this.imagePixels32 = new Uint32Array(this.imagePixels.buffer);
+
   }
 
   clear() {
@@ -39,8 +40,7 @@ export class OffScreenBuffer {
   // castColumn, topOfWall, 1, (bottomOfWall-topOfWall)+1, xOffset, 160/(dist)
 // (x, y, width, height, xOffset, brighnessLevel)
 // x=destinationX, y=destinationY, width = destinationWidth, height=destinationHeight, 
-  drawVerticalBufferSlice({ sourcePixels, sourceX, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight }) {
-    const brightnessLevel = 0.8;
+  drawVerticalBufferSlice({ sourcePixels, sourceX, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight, shade }) {
     const bytesPerPixel = 4;
 
     // Clip to visible screen area — prevents near-infinite loops when the player is very
@@ -77,10 +77,10 @@ export class OffScreenBuffer {
 			// will be copied more than once)
 			//BIT srcBit = shadedPal[*src];
    	
-			const red = Math.floor(sourcePixels[sourceBufferIndex] * brightnessLevel);
-			const green = Math.floor(sourcePixels[sourceBufferIndex + 1] * brightnessLevel);
-			const blue = Math.floor(sourcePixels[sourceBufferIndex + 2] * brightnessLevel);
-			const alpha = Math.floor(sourcePixels[sourceBufferIndex + 3]);
+			const red   = sourcePixels[sourceBufferIndex]     * shade >> 8;
+			const green = sourcePixels[sourceBufferIndex + 1] * shade >> 8;
+			const blue  = sourcePixels[sourceBufferIndex + 2] * shade >> 8;
+			const alpha = sourcePixels[sourceBufferIndex + 3];
 			
 			// while there's a row to draw & not end of drawing area
 			while (yError >= sourceWidth)
