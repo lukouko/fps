@@ -247,7 +247,12 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   const distance = rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle);
   const wallHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance);
   const halfWallHeight = wallHeight / 2;
-  const wallTextureOffset = Math.floor(rayCollision.isVertical ? rayCollision.collisionPoint.y : rayCollision.collisionPoint.x);
+  // Retain the sub-pixel fractional part of the collision coordinate for bilinear X filtering.
+  // Math.floor was previously used here, discarding that fraction and causing nearest-neighbour sampling.
+  const rawTexCoord = rayCollision.isVertical ? rayCollision.collisionPoint.y : rayCollision.collisionPoint.x;
+  const texXRaw  = rawTexCoord % wallTexture.width;  // float in [0, textureWidth)
+  const texXInt  = texXRaw | 0;                       // integer column
+  const texXFrac = texXRaw - texXInt;                 // fractional part for bilinear lerp
 
   // Shade: distance fog clamped to a minimum, with horizontal faces (N/S) dimmed to
   // create a cheap directional-light illusion that makes geometry more readable.
@@ -259,7 +264,8 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   // Draw walls.
   offScreenBuffer.drawVerticalBufferSlice({
     sourcePixels: wallTexture.pixelBuffer,
-    sourceX: wallTextureOffset % wallTexture.width,
+    sourceX: texXInt,
+    texXFrac,
     sourceWidth: wallTexture.width,
     sourceHeight: wallTexture.height,
     destinationX: rayIndex,

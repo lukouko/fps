@@ -1,6 +1,6 @@
 // General constants.
 const PI = Math.PI;
-const TWO_PI = PI;
+const TWO_PI = PI * 2;
 
 // The attempted amount of time between frames.
 // If render takes longer than this, we will start losing frames.

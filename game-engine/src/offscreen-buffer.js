@@ -37,74 +37,67 @@ export class OffScreenBuffer {
     canvasContext.putImageData(this.imageData, xOffset, yOffset);
   }
 
-  // castColumn, topOfWall, 1, (bottomOfWall-topOfWall)+1, xOffset, 160/(dist)
-// (x, y, width, height, xOffset, brighnessLevel)
-// x=destinationX, y=destinationY, width = destinationWidth, height=destinationHeight, 
-  drawVerticalBufferSlice({ sourcePixels, sourceX, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight, shade }) {
+  // Draws a vertically scaled and bilinearly filtered texture column to the offscreen buffer.
+  // sourceX / texXFrac together give the sub-pixel X position in the texture:
+  //   sourceX  = integer column (0 .. sourceWidth-1)
+  //   texXFrac = fractional part (0.0 .. <1.0) — lerps toward the next column
+  // Y is also bilinearly filtered: the exact fractional texture-Y is computed per screen pixel
+  // from the destination/source height ratio, eliminating the staircase of the old Bresenham scaler.
+  drawVerticalBufferSlice({ sourcePixels, sourceX, texXFrac = 0, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight, shade }) {
     const bytesPerPixel = 4;
+    const bpr = sourceWidth * bytesPerPixel; // bytes per texture row
 
-    // Clip to visible screen area — prevents near-infinite loops when the player is very
-    // close to a wall (wallHeight can reach 100k+ pixels, but only screenHeight are visible).
-    //if (destinationY >= this.height || destinationY + destinationHeight <= 0) return;
-    // const visibleRows = Math.min(destinationHeight, this.height);
+    // Clip destination to the visible screen vertically.
+    const startY = Math.max(destinationY, 0);
+    const endY   = Math.min(destinationY + destinationHeight, this.height);
+    if (startY >= endY) return;
 
-    let sourceBufferIndex = (bytesPerPixel * sourceX);
-    const lastSourceBufferIndex = sourceBufferIndex + (sourceWidth * sourceHeight * bytesPerPixel);
+    // Precompute X-axis bilinear weights (constant for the whole column).
+    const txA  = sourceX;
+    const txB  = (sourceX + 1) % sourceWidth;
+    const idxXA = txA * bytesPerPixel;
+    const idxXB = txB * bytesPerPixel;
+    const fx1  = 1.0 - texXFrac;
 
-    let destBufferIndex = (this.width * bytesPerPixel) * destinationY + (bytesPerPixel * destinationX);
+    // How many texture rows correspond to one destination pixel.
+    const tyStep = sourceHeight / destinationHeight;
 
-    let heightToDraw = destinationHeight;
-    let yError = 0;   
-		
-		// we're going to draw the first row, then move down and draw the next row
-		// and so on we can use the original x destination to find out
-		// the x position of the next row 
-		// Remeber that the source bitmap is rotated, so the width is actually the
-		// height
-		while (true)
-		{                     
-			// if error < actualHeight, this will cause row to be skipped until
-			// this addition sums to scaledHeight
-			// if error > actualHeight, this ill cause row to be drawn repeatedly until
-			// this addition becomes smaller than actualHeight
-			// 1) Think the image height as 100, if percent is >= 100, we'll need to
-			// copy the same pixel over and over while decrementing the percentage.  
-			// 2) Similarly, if percent is <100, we skip a pixel while incrementing
-			// and do 1) when the percentage we're adding has reached >=100
-			yError += destinationHeight;
-												  
-			// dereference for faster access (especially useful when the same bit
-			// will be copied more than once)
-			//BIT srcBit = shadedPal[*src];
-   	
-			const red   = sourcePixels[sourceBufferIndex]     * shade >> 8;
-			const green = sourcePixels[sourceBufferIndex + 1] * shade >> 8;
-			const blue  = sourcePixels[sourceBufferIndex + 2] * shade >> 8;
-			const alpha = sourcePixels[sourceBufferIndex + 3];
-			
-			// while there's a row to draw & not end of drawing area
-			while (yError >= sourceWidth)
-			{                  
-				yError -= sourceWidth;
+    let destIdx = this.width * bytesPerPixel * startY + bytesPerPixel * destinationX;
+    const destRowStride = bytesPerPixel * this.width;
 
-				this.imagePixels[destBufferIndex]=red;
-				this.imagePixels[destBufferIndex + 1] = green;
-				this.imagePixels[destBufferIndex + 2] = blue;
-				this.imagePixels[destBufferIndex + 3] = alpha;
+    for (let screenY = startY; screenY < endY; screenY++) {
+      // Fractional texture-Y for this screen pixel.
+      const ty     = (screenY - destinationY) * tyStep;
+      const tyFloor = ty | 0;
+      const tyA    = Math.min(tyFloor,     sourceHeight - 1);
+      const tyB    = Math.min(tyFloor + 1, sourceHeight - 1);
+      const fy     = ty - tyFloor;
+      const fy1    = 1.0 - fy;
 
-				destBufferIndex += (bytesPerPixel * this.width);
+      // Four texel addresses.
+      const rowA = tyA * bpr;
+      const rowB = tyB * bpr;
+      const aa = rowA + idxXA,  ab = rowA + idxXB;
+      const ba = rowB + idxXA,  bb = rowB + idxXB;
 
-				// clip bottom (just return if we reach bottom)
-				if (--heightToDraw < 1) {
-					return;
-        }
-			} 
+      // Bilinear weights — one mul saved per channel by factoring through fy/fy1.
+      const topL = fy1 * fx1,  topR = fy1 * texXFrac;
+      const botL = fy  * fx1,  botR = fy  * texXFrac;
 
-			sourceBufferIndex += (bytesPerPixel * sourceWidth);
-			if (sourceBufferIndex > lastSourceBufferIndex) {
-				sourceBufferIndex = lastSourceBufferIndex;
-      }	
-		}
+      const r = (sourcePixels[aa]   * topL + sourcePixels[ab]   * topR +
+                 sourcePixels[ba]   * botL + sourcePixels[bb]   * botR) | 0;
+      const g = (sourcePixels[aa+1] * topL + sourcePixels[ab+1] * topR +
+                 sourcePixels[ba+1] * botL + sourcePixels[bb+1] * botR) | 0;
+      const b = (sourcePixels[aa+2] * topL + sourcePixels[ab+2] * topR +
+                 sourcePixels[ba+2] * botL + sourcePixels[bb+2] * botR) | 0;
+
+      this.imagePixels[destIdx]   = r * shade >> 8;
+      this.imagePixels[destIdx+1] = g * shade >> 8;
+      this.imagePixels[destIdx+2] = b * shade >> 8;
+      this.imagePixels[destIdx+3] = sourcePixels[aa+3];
+
+      destIdx += destRowStride;
+    }
   }
 
   drawImage({ sourceImage, sourceX, sourceY, sourceWidth, sourceHeight, destinationX, destinationY, destinationWidth, destinationHeight }) {
