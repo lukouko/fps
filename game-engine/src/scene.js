@@ -257,83 +257,65 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     destinationHeight: wallHeight,
   });
 
-  // Draw floor.
+  // Draw floor and ceiling.
   const bytesPerPixel = 4;
   const bottomOfWall = Math.floor(displayInfo.halfHeight + halfWallHeight);
   const topOfWall = Math.floor(displayInfo.halfHeight - halfWallHeight);
 
-  // No need to render floor if the bottom of the wall reaches the bottom of the screen.
   if (topOfWall <= 0 && bottomOfWall > displayInfo.height) {
     return;
   }
 
-  let offScreenBufferFloorIndex = Math.floor(bottomOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
-  let offScreenBufferCeilingIndex = Math.floor(topOfWall * localCache.offScreenBufferBytesPerRow + (bytesPerPixel * rayIndex));
-
-  // Because of the Math.floor logic throughout, there is a good chance that the ceiling has 1 more pixel than the floor (or vice versa).
-  // To account for this we have a +1 on the displayInfo.height. This might lead to a crash, but it's super efficient, so for now, i'll assume
-  // it works and adjust if it turns out not to work.
+  // Hoist everything that is constant for this screen column out of the pixel loop.
+  // Previously cos/sin were recomputed on every floor/ceiling pixel — 4 trig calls per pixel.
+  const floorBase = displayInfo.distanceToProjectionPlane * constants.PLAYER_HEIGHT
+    / Math.cos(rayCollision.source.angle - orientation.angle);
+  const cosRayAngle = Math.cos(rayCollision.source.angle);
+  const sinRayAngle = Math.sin(rayCollision.source.angle);
+  const playerX = orientation.position.x;
+  const playerY = orientation.position.y;
+  const mapBoundsX = mapState.unscaledMapBounds.x;
+  const mapBoundsY = mapState.unscaledMapBounds.y;
+  const mapLayout = mapState.currentMap.layout;
+  const halfHeight = displayInfo.halfHeight;
+  const bytesPerRow = localCache.offScreenBufferBytesPerRow;
+  const colOffset = bytesPerPixel * rayIndex;
   const pixelsToRender = displayInfo.height + 1;
 
-  for (let floorPixelYIndex = bottomOfWall; floorPixelYIndex <= pixelsToRender; ++floorPixelYIndex) {
-    // Calcualte the straight distance between the player and the pixel.
-    const directFloorDistance = constants.PLAYER_HEIGHT / (floorPixelYIndex - displayInfo.halfHeight) ;
-    //const diagonalDistanceToFloor = Math.floor((constants.PLAYER_DISTANCE_TO_PROJECTION_PLANE * directFloorDistance) * Math.cos(wallRay.angle - player.angle));
-    const diagonalDistanceToFloor = Math.floor((displayInfo.distanceToProjectionPlane * directFloorDistance) * (1.0 / Math.cos(rayCollision.source.angle - orientation.angle)));
+  let floorBufIdx = Math.floor(bottomOfWall * bytesPerRow + colOffset);
+  let ceilBufIdx = Math.floor(topOfWall * bytesPerRow + colOffset);
 
-	  const xEnd = Math.floor(diagonalDistanceToFloor * Math.cos(rayCollision.source.angle) + orientation.position.x);
-    const yEnd = Math.floor(diagonalDistanceToFloor * Math.sin(rayCollision.source.angle) + orientation.position.y);
+  for (let floorY = bottomOfWall; floorY <= pixelsToRender; ++floorY) {
+    const diagonalDist = Math.floor(floorBase / (floorY - halfHeight));
+    const xEnd = Math.floor(diagonalDist * cosRayAngle + playerX);
+    const yEnd = Math.floor(diagonalDist * sinRayAngle + playerY);
 
-    // Get the tile intersected by ray
     const cellX = Math.floor(xEnd / constants.CELL_SIZE);
     const cellY = Math.floor(yEnd / constants.CELL_SIZE);
 
-    if (isOutOfBounds({ position: { x: cellX, y: cellY }, mapState })) {
-      continue;
-    }
+    if (cellX < 0 || cellX >= mapBoundsX || cellY < 0 || cellY >= mapBoundsY) continue;
 
-    // The map cell which is having its floor and ceiling filled.
-    const mapCell = getMapCell({ position: { x: cellX, y: cellY }, mapState });
-
-    if (!mapCell.floorTextureId && !mapCell.ceilingTextureId) {
-      continue;
-    }
+    const mapCell = mapLayout[cellY][cellX];
+    if (!mapCell.floorTextureId && !mapCell.ceilingTextureId) continue;
 
     const floorTexture = textures.getTextureById({ id: mapCell.floorTextureId });
     const ceilingTexture = textures.getTextureById({ id: mapCell.ceilingTextureId });
 
-    // Note, we are assuming the same texture size for floor and ceiling here.
-    // If that stops holding true, we will need separate calculations for floor and ceiling.
-    const textureRow = Math.floor(yEnd % floorTexture.height);
-    const textureColumn = Math.floor(xEnd % floorTexture.width);
-    const sourceIndex = (textureRow * floorTexture.bytesPerRow) + (bytesPerPixel * textureColumn);
+    const srcIdx = (yEnd % floorTexture.height) * floorTexture.bytesPerRow
+      + (xEnd % floorTexture.width) * bytesPerPixel;
 
-    // Draw the floor pixel
-    const brightnessLevel = 1; //(400 / diagonalDistanceToFloor);
-    const red = Math.floor(floorTexture.pixelBuffer[sourceIndex] * brightnessLevel);
-    const green = Math.floor(floorTexture.pixelBuffer[sourceIndex + 1] * brightnessLevel);
-    const blue = Math.floor(floorTexture.pixelBuffer[sourceIndex + 2] * brightnessLevel);
-    const alpha = Math.floor(floorTexture.pixelBuffer[sourceIndex + 3]);	
+    offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx];
+    offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1];
+    offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2];
+    offScreenBufferPixels[floorBufIdx + 3] = floorTexture.pixelBuffer[srcIdx + 3];
 
-    offScreenBufferPixels[offScreenBufferFloorIndex] = red;
-    offScreenBufferPixels[offScreenBufferFloorIndex + 1] = green;
-    offScreenBufferPixels[offScreenBufferFloorIndex + 2] = blue;
-    offScreenBufferPixels[offScreenBufferFloorIndex + 3] = alpha;
+    offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx];
+    offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1];
+    offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2];
+    offScreenBufferPixels[ceilBufIdx + 3] = ceilingTexture.pixelBuffer[srcIdx + 3];
 
-    // Draw the ceiling pixel.
-    const ceilingRed = Math.floor(ceilingTexture.pixelBuffer[sourceIndex] * brightnessLevel);
-    const ceilingGreen = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 1] * brightnessLevel);
-    const ceilingBlue = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 2] * brightnessLevel);
-    const ceilingAlpha = Math.floor(ceilingTexture.pixelBuffer[sourceIndex + 3]);	
-
-    offScreenBufferPixels[offScreenBufferCeilingIndex] = ceilingRed;
-    offScreenBufferPixels[offScreenBufferCeilingIndex + 1] = ceilingGreen;
-    offScreenBufferPixels[offScreenBufferCeilingIndex + 2] = ceilingBlue;
-    offScreenBufferPixels[offScreenBufferCeilingIndex + 3] = ceilingAlpha;
-
-    // Go to the next pixel (directly under the current pixel)
-    offScreenBufferFloorIndex += localCache.offScreenBufferBytesPerRow;
-    offScreenBufferCeilingIndex -= localCache.offScreenBufferBytesPerRow;
+    floorBufIdx += bytesPerRow;
+    ceilBufIdx -= bytesPerRow;
   }
 };
 

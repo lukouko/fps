@@ -22,13 +22,14 @@ export class OffScreenBuffer {
 
     this.imageData = this.canvasContext.getImageData(0, 0, width, height);
     this.imagePixels = this.imageData.data;
+    // Uint32 view over the same buffer — fill() on a typed array is a highly
+    // optimised intrinsic, far cheaper than a fillRect + getImageData round-trip.
+    this.imagePixels32 = new Uint32Array(this.imagePixels.buffer);
   }
 
   clear() {
-    this.canvasContext.fillStyle = 'black';
-    this.canvasContext.fillRect(0, 0, this.width, this.height);
-    this.imageData = this.canvasContext.getImageData(0, 0, this.width, this.height);
-    this.imagePixels = this.imageData.data;
+    // 0xFF000000 = opaque black in little-endian RGBA (R=0 G=0 B=0 A=255).
+    this.imagePixels32.fill(0xFF000000);
   }
   
   writeTo({ canvasContext, xOffset = 0, yOffset = 0 }) {
