@@ -104,25 +104,39 @@ export const move = ({ inputState, playerState, mapState }) => {
 
   // Clipping: test five points (centre + four axis-aligned edges at clip radius) to ensure
   // the player never gets within PLAYER_CLIP_DETECTION_DISTANCE pixels of a wall face.
-  const newX = player.orientation.position.x + xMovement;
-  const newY = player.orientation.position.y + yMovement;
   const r = constants.PLAYER_CLIP_DETECTION_DISTANCE;
 
-  const isBlocked = [
-    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor(newY / constants.CELL_SIZE) },
-    { x: Math.floor((newX + r) / constants.CELL_SIZE),     y: Math.floor(newY / constants.CELL_SIZE) },
-    { x: Math.floor((newX - r) / constants.CELL_SIZE),     y: Math.floor(newY / constants.CELL_SIZE) },
-    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor((newY + r) / constants.CELL_SIZE) },
-    { x: Math.floor(newX / constants.CELL_SIZE),           y: Math.floor((newY - r) / constants.CELL_SIZE) },
-  ].some(pt => !map.canMoveToCellLocation({ position: pt, mapState }));
+  const canMove = (dx, dy) => {
+    const nx = player.orientation.position.x + dx;
+    const ny = player.orientation.position.y + dy;
+    return [
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor((nx + r) / constants.CELL_SIZE),     y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor((nx - r) / constants.CELL_SIZE),     y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor((ny + r) / constants.CELL_SIZE) },
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor((ny - r) / constants.CELL_SIZE) },
+    ].every(pt => map.canMoveToCellLocation({ position: pt, mapState }));
+  };
 
-  if (isBlocked) return;
+  // Try full movement first; if blocked, try each axis independently (wall sliding).
+  let actualDX = 0;
+  let actualDY = 0;
+  if (canMove(xMovement, yMovement)) {
+    actualDX = xMovement;
+    actualDY = yMovement;
+  } else if (canMove(xMovement, 0)) {
+    actualDX = xMovement;
+  } else if (canMove(0, yMovement)) {
+    actualDY = yMovement;
+  }
+
+  if (actualDX === 0 && actualDY === 0) return;
 
   player.isMoving = !!inputState.speed;
 
   // Move the player in space.
-  player.orientation.position.x += xMovement;
-  player.orientation.position.y += yMovement;
+  player.orientation.position.x += actualDX;
+  player.orientation.position.y += actualDY;
 };
 
 /**
