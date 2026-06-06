@@ -1,10 +1,10 @@
 import * as constants from '../constants';
 import * as Types from '../types';
 // @ts-ignore
-import map1 from './map1.json';
+import map2 from './map2.json';
 
 /** @type Types.Map */
-const defaultMap = map1;
+const defaultMap = map2;
 
 /**
  * Initialises map state.
