@@ -31,8 +31,15 @@ export const initialise = ({ displayInfo }) => {
 
   localCache.offScreenBufferBytesPerRow = offScreenBuffer.width * bytesPerPixel;
 
+  // Precompute per-column angle offsets using arctan so that each ray maps to an
+  // equal interval in screen space rather than an equal angular interval. Equal-angle
+  // stepping causes non-linear texture sampling (tan of a linear angle), which makes
+  // textures visibly curve at the screen edges. Arctan spacing makes the wall
+  // intersection point linear in screen-column, matching true perspective projection.
   for (let screenColumn = 0; screenColumn < displayInfo.width; ++screenColumn) {
-    localCache.rayBaseAngleByScreenColumn[screenColumn] = screenColumn * displayInfo.angleBetweenRays;
+    localCache.rayBaseAngleByScreenColumn[screenColumn] = Math.atan(
+      (screenColumn - displayInfo.halfWidth) / displayInfo.distanceToProjectionPlane
+    );
   }
 };
 
@@ -50,8 +57,6 @@ export const render = ({ canvasContext, orientation, mapState, displayInfo }) =>
   offScreenBuffer.clear();
 
   const offScreenBufferPixels = offScreenBuffer.getPixels();
-  const initialAngle = orientation.angle - displayInfo.halfFieldOfView; // The starting angle for ray casting.
-  
   const wallRays = [];
   let centreRay;
 
@@ -59,7 +64,7 @@ export const render = ({ canvasContext, orientation, mapState, displayInfo }) =>
   const rayOrientation = { ...orientation };
 
   for (let rayIndex = 0; rayIndex < displayInfo.width; ++rayIndex) {
-    rayOrientation.angle = initialAngle + localCache.rayBaseAngleByScreenColumn[rayIndex];
+    rayOrientation.angle = orientation.angle + localCache.rayBaseAngleByScreenColumn[rayIndex];
     
     const rayCollision = castWallRay({ orientation: rayOrientation, mapState });
     wallRays.push(rayCollision);
@@ -234,12 +239,9 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
 
   const wallTexture = textures.getTextureById({ id: wallTextureId });
 
-  // Using this calculation for distance instead of the raw ray distance fixes
-  // the fish eye effect cause by calculating the rays from a single central point
-  // on the player.
-  // Using toFixed() seemed to remove even more fish eye but I'm not sure why. Math.round() worked too, but not as good.
-  const distance = Number((rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle)).toFixed(3));
-  //const distance = rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle);
+  // Convert Euclidean ray distance to perpendicular (projection-plane) distance to
+  // prevent the wall-height fisheye that results from using the raw Euclidean distance.
+  const distance = rayCollision.distance * Math.cos(rayCollision.source.angle - orientation.angle);
   const wallHeight = Math.floor(constants.CELL_SIZE * displayInfo.distanceToProjectionPlane / distance); // Doesn't have to be cell size.
   const halfWallHeight = wallHeight / 2;
   const wallTextureOffset = Math.floor(rayCollision.isVertical ? rayCollision.collisionPoint.y : rayCollision.collisionPoint.x);
