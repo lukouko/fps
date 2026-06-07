@@ -9,15 +9,22 @@ import * as helpers from './helpers';
 import * as networkClient from './network-client';
 import * as Types from './types';
 
+// Render height in pixels — the single knob for resolution vs. performance.
+// Width is derived from the window aspect ratio so the canvas fills the screen without distortion.
+const RENDER_HEIGHT = 500;
+
 let framesPerSecond = 0;
-let gameLoopCycles = 0;
+let renderFrameCount = 0;
+let renderFrameId;
 let gameLoopInterval;
 let fpsInterval;
 
 const initialise = async () => {
+  const renderWidth = Math.floor(RENDER_HEIGHT * (window.innerWidth / window.innerHeight));
+
   const displayInfo = helpers.generateDisplayInfo({
-    width: 800,
-    height: 600,
+    width: renderWidth,
+    height: RENDER_HEIGHT,
     fieldOfView: 72,
   });
 
@@ -59,7 +66,45 @@ const initialise = async () => {
     await helpers.requestFullScreen();
   } 
 
-  gameLoopInterval = setInterval(() => gameLoop({ canvasContext, gameState, displayInfo }), constants.GAME_LOOP_TICK_MS);
+  // Logic tick: player movement and network sync at a fixed rate.
+  gameLoopInterval = setInterval(() => logicTick({ gameState }), constants.GAME_LOOP_TICK_MS);
+
+  // Render tick: scene rendering synced to vsync via rAF.
+  const renderLoop = () => {
+    try {
+      ++renderFrameCount;
+      const { mapState, playerState, inputState } = gameState;
+
+      const { wallRays } = scene.render({
+        canvasContext,
+        orientation: playerState.player.orientation,
+        mapState,
+        displayInfo,
+      });
+
+      if (inputState.enableMiniMap) {
+        minimap.render({
+          canvasContext,
+          wallRays,
+          mapLayout: mapState.currentMap.layout,
+          playerOrientation: playerState.player.orientation,
+        });
+      }
+
+      canvasContext.fillStyle = 'white';
+      canvasContext.font = '16px Monospace';
+      canvasContext.fillText(`FPS: ${framesPerSecond}`, 25, 25);
+
+      // Schedule next frame at the end of try — if anything above throws, the loop stops cleanly.
+      renderFrameId = requestAnimationFrame(renderLoop);
+    } catch (err) {
+      console.error(err);
+      clearInterval(gameLoopInterval);
+      clearInterval(fpsInterval);
+    }
+  };
+  renderFrameId = requestAnimationFrame(renderLoop);
+
   fpsInterval = setInterval(trackFps, 1000);
 };
 
@@ -73,51 +118,23 @@ const onServerStateUpdate = ({ processedServerGameState, gameState}) => {
   map.updateForServerGameState({ mapState: gameState.mapState, processedServerGameState });
 };
 
-const gameLoop = ({ canvasContext, gameState, displayInfo }) => {
+/** Fixed-rate logic tick: player movement and network sync. */
+const logicTick = ({ gameState }) => {
   try {
     const { mapState, playerState, inputState, networkClientState } = gameState;
-
-    ++gameLoopCycles;
     player.move({ playerState, inputState, mapState });
-    
-    const { wallRays } = scene.render({
-      canvasContext,
-      orientation: playerState.player.orientation,
-      mapState,
-      displayInfo,
-    });
-
     networkClient.render({ playerState, networkClientState });
-    
-    if (gameState.inputState.enableMiniMap) {
-      minimap.render({
-        canvasContext,
-        wallRays,
-        mapLayout: mapState.currentMap.layout,
-        playerOrientation: playerState.player.orientation,
-      });
-    }
-
-    /*player.render({
-      canvasContext,
-      inputState,
-      playerState,
-      displayInfo,
-    });*/
-
-    canvasContext.fillStyle = 'white';
-    canvasContext.font = '16px Monospace';
-    canvasContext.fillText(`FPS: ${framesPerSecond}`, 25, 25);
   } catch (err) {
     console.error(err);
     clearInterval(gameLoopInterval);
     clearInterval(fpsInterval);
+    cancelAnimationFrame(renderFrameId);
   }
 };
 
 const trackFps = () => {
-  framesPerSecond = gameLoopCycles;
-  gameLoopCycles = 0;
-}
+  framesPerSecond = renderFrameCount;
+  renderFrameCount = 0;
+};
 
 initialise();

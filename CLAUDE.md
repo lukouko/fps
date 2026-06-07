@@ -28,7 +28,7 @@ fps/
 
 | File | Purpose |
 |---|---|
-| `src/index.js` | Entry point. Wires up game state, starts the game loop (`setInterval` at 20ms = 50fps target). |
+| `src/index.js` | Entry point. Wires up game state, starts the fixed-rate logic tick (`setInterval` at 20ms) and the vsync-synced render loop (`requestAnimationFrame`). |
 | `src/scene.js` | Raycaster. Casts one ray per screen column, renders walls/floor/ceiling/sprites to the offscreen buffer. The hot path — performance changes go here. |
 | `src/player.js` | Player state, movement (with wall-sliding), gun sway animation. |
 | `src/map/index.js` | Map state init, cell lookup (`getMapCell`), bounds checks, `validateMap`. |
@@ -43,7 +43,7 @@ fps/
 
 ### Architecture
 
-- **Game loop:** `setInterval` calls `gameLoop` every 20ms. No `requestAnimationFrame` — intentional for predictable tick rate.
+- **Game loop:** Two decoupled loops. `setInterval` at 20ms drives logic (player movement, network sync) at a fixed rate. `requestAnimationFrame` drives rendering — synced to the display's vsync for stutter-free output. Render resolution is derived from window aspect ratio at startup (`RENDER_HEIGHT` constant in `index.js` is the tuning knob).
 - **Rendering pipeline:** `scene.render` → DDA raycast per column → `renderWallRay` (writes to pixel buffer) → `renderSprites` (painter's algorithm) → `putImageData` to canvas.
 - **Offscreen buffer:** `OffScreenBuffer` holds a `Uint8ClampedArray` (RGBA). All pixel writes go here; one `putImageData` call per frame flushes to the visible canvas.
 - **Map space:** `CELL_SIZE = 256` pixels in world space. Map JSON uses unscaled cell indices. Player position and collision points are in scaled (world) space.
@@ -114,7 +114,7 @@ Key files: `app.js` (WS server), `message-factory.js` (message serialisation), `
 
 ## What to avoid
 
-- Don't use `requestAnimationFrame` in the game engine — the fixed-tick `setInterval` is intentional.
+- Don't merge the logic and render ticks back into a single loop. Logic runs at a fixed rate (`setInterval`); rendering is vsync-synced (`requestAnimationFrame`). Keep them separate.
 - Don't add 3rd-party rendering or math libraries.
 - Don't refactor working hot-path code (`scene.js`, `offscreen-buffer.js`) without a concrete performance or correctness reason.
 - Don't add error handling for cases that can't happen in normal operation — trust internal invariants.
