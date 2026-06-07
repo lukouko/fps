@@ -68,6 +68,8 @@ fps/
 
 Maps are JSON files in `src/map/`. Each cell is `{ wallTextureId?, floorTextureId?, ceilingTextureId? }`. A cell with `wallTextureId` is solid; without it, it's walkable and needs floor/ceiling textures. `staticSprites` are decoration (never updated by server); `sprites` are dynamic (replaced by server updates each tick).
 
+The map object supports an optional top-level `skyTextureId` field. When set, any walkable cell with no `ceilingTextureId` shows the sky texture with horizontal parallax driven by the ray angle. Sky textures live in `src/assets/textures/sky/`.
+
 ### Dev server
 
 ```bash

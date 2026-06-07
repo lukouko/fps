@@ -134,7 +134,17 @@ export const App = () => {
           <MapViewer onCanvasContextReady={startGameLoop}/>
         </div>
         <div className={Styles.mapControllerContainer}>
-          <MapController gameState={gameState} onNewMapRequested={onNewMapRequested}/>
+          <MapController
+            gameState={gameState}
+            onNewMapRequested={onNewMapRequested}
+            onSetMapSky={({ skyTextureId }) => {
+              if (skyTextureId) {
+                gameState.mapState.currentMap.skyTextureId = skyTextureId;
+              } else {
+                delete gameState.mapState.currentMap.skyTextureId;
+              }
+            }}
+          />
         </div>
       </div>
       <div className={Styles.cellEditorRow}>
@@ -148,6 +158,13 @@ export const App = () => {
               const targetCell = getMapCell({ mapState: gameState.mapState, position });
               const propertyName = `${textureType.toLowerCase()}TextureId`;
               targetCell[propertyName] = textureId;
+            }
+          }
+          onRemoveTextureAt={
+            ({ position, textureType }) => {
+              const targetCell = getMapCell({ mapState: gameState.mapState, position });
+              const propertyName = `${textureType.toLowerCase()}TextureId`;
+              delete targetCell[propertyName];
             }
           }
           onCreateWalls={({ positions }) => {

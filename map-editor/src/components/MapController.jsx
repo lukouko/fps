@@ -1,19 +1,23 @@
 import React, { useState, useRef } from 'react';
 import { NewMapModal } from './NewMapModal';
+import { TextureSelectorModal } from './TextureSelectorModal';
 import { Button, ButtonTypes } from './Button';
+import { getTextureById, getTextureIds } from 'map-editor/services/textures';
 // @ts-ignore
 import Styles from './MapController.css';
 import * as Types from 'map-editor/types';
 
 /**
- * 
+ *
  * @param {Object} params
  * @param {Types.GameState|Object} params.gameState
  * @param {function} params.onNewMapRequested
+ * @param {function} params.onSetMapSky Called with ({ skyTextureId }) to set or clear the map sky. Pass null to remove.
  * @returns {JSX.Element}
  */
-export const MapController = ({ gameState, onNewMapRequested }) => {
+export const MapController = ({ gameState, onNewMapRequested, onSetMapSky }) => {
   const [showNewMapModal, setShowNewMapModal] = useState(false);
+  const [showSkyModal, setShowSkyModal] = useState(false);
   const hiddenLinkRef = useRef();
 
   const handleNewMapRequested = (newMapConfig) => {
@@ -44,14 +48,21 @@ export const MapController = ({ gameState, onNewMapRequested }) => {
     <div className={Styles.mapController}>
       <a className={Styles.hiddenDownloadLink} ref={hiddenLinkRef} />
       {showNewMapModal && <NewMapModal onConfirm={handleNewMapRequested} onCancel={() => setShowNewMapModal(false)} />}
+      {showSkyModal && (
+        <TextureSelectorModal
+          textureIds={getTextureIds()}
+          onConfirm={({ textureId }) => { onSetMapSky({ skyTextureId: textureId }); setShowSkyModal(false); }}
+          onCancel={() => setShowSkyModal(false)}
+        />
+      )}
       <div className={Styles.mapFileMenu}>
         <Button type={ButtonTypes.PRIMARY} label="New Map" onClick={() => setShowNewMapModal(true)}/>
         <Button type={ButtonTypes.PRIMARY} label="Save Map" onClick={() => handleSaveMapRequested()} />
         <Button type={ButtonTypes.PRIMARY} label="Load Map" onClick={() => {}} />
       </div>
+      {renderSkyInformation({ gameState, onSetSky: () => setShowSkyModal(true), onRemoveSky: () => onSetMapSky({ skyTextureId: null }) })}
       {renderMapInformation({ gameState })}
       {renderCameraInformation({ gameState })}
-
     </div>
   );
 };
@@ -91,7 +102,39 @@ const renderMapInformation = ({ gameState }) => {
 };
 
 /**
- * 
+ * @param {Object} params
+ * @param {Types.GameState} params.gameState
+ * @param {function} params.onSetSky
+ * @param {function} params.onRemoveSky
+ * @returns {JSX.Element}
+ */
+const renderSkyInformation = ({ gameState, onSetSky, onRemoveSky }) => {
+  if (!gameState || !gameState.mapState) {
+    return null;
+  }
+
+  const skyTextureId = gameState.mapState.currentMap.skyTextureId;
+  const skyTexture = skyTextureId ? getTextureById({ id: skyTextureId }) : null;
+
+  return (
+    <div className={Styles.mapInformation}>
+      <h1>Map Sky</h1>
+      {skyTexture
+        ? <>
+            <img src={skyTexture.baseImage.src} style={{ width: '100%', maxHeight: '60px', objectFit: 'cover' }} />
+            <div className={Styles.skyButtons}>
+              <Button type={ButtonTypes.PRIMARY} label="Change Sky" onClick={onSetSky} />
+              <Button type={ButtonTypes.PRIMARY} label="Remove Sky" onClick={onRemoveSky} />
+            </div>
+          </>
+        : <div className={Styles.skyButtons}><Button type={ButtonTypes.PRIMARY} label="Set Sky Texture" onClick={onSetSky} /></div>
+      }
+    </div>
+  );
+};
+
+/**
+ *
  * @param {Object} params
  * @param {Types.GameState} params.gameState
  * @returns {JSX.Element}

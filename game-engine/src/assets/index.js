@@ -1,5 +1,8 @@
 // @ts-nocheck
 
+// ── Sky textures ──────────────────────────────────────────────────────────────
+import clouds1 from './textures/sky/clouds_1_508.jpg';
+
 // ── Textures ─────────────────────────────────────────────────────────────────
 import bricks1           from './textures/bricks_1_256_256.jpg';
 import bricks2           from './textures/bricks_2_256_256.jpg';
@@ -33,6 +36,8 @@ const images = [
   { id: 'under_construction', assetPath: underConstruction },
   { id: 'better-looking-bart',assetPath: betterLookingBart },
   { id: 'concrete_wall',      assetPath: concreteWall },
+  // Sky
+  { id: 'clouds_1', assetPath: clouds1 },
   // HUD
   { id: 'gun1', assetPath: gun1 },
   { id: 'gun2', assetPath: gun2 },

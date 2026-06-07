@@ -13,18 +13,26 @@ const textureAttachSelectOptions = Object.values(TextureTypes).map((textureType)
   id: textureType, label: TextureTypeLabels[textureType],
 }));
 
+// Preview texture shown on cells while ceiling removal is being drafted.
+const DRAFT_CEILING_REMOVAL_TEXTURE_ID = 'under_construction';
+
+// Module-level map of cells currently marked for ceiling removal, keyed by "x:y".
+// Mirrors the WallCreator pattern — reset when removal mode exits.
+let draftCeilingRemovals = {};
+
 /**
- * 
+ *
  * @param {Object} params
  * @param {Types.MapCell} params.focusCell
  * @param {Types.Position} params.focusPosition
  * @param {Types.MapCell} params.cameraCell
  * @param {Types.Position} params.cameraPosition
  * @param {function} params.onReplaceTextureAt
+ * @param {function} params.onRemoveTextureAt Called with ({ position, textureType }) to clear a texture from a cell.
  * @param {function} params.onCreateWalls
  * @returns {JSX.Element}
  */
-export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt, onCreateWalls }) => {
+export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt, onRemoveTextureAt, onCreateWalls }) => {
   if (!focusCell || !focusPosition || !cameraCell || !cameraPosition) {
     return null;
   }
@@ -33,6 +41,8 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
   const [selectedAttachTextureType, setSelectedAttachTextureType] = useState(TextureTypes.WALL);
   const [showAttachedTextureModal, setShowAttachedTextureModal] = useState(false);
   const [attachedTexture, setAttachedTexture] = useState(null);
+  const [isDraftingCeilingRemoval, setIsDraftingCeilingRemoval] = useState(false);
+  const [isCeilingRemovalPaused, setIsCeilingRemovalPaused] = useState(false);
 
   // Handle attached texture painting.
   useEffect(() => {
@@ -48,7 +58,25 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
       onReplaceTexture({ textureType: selectedAttachTextureType, textureId });
     }
 
-  }, [focusPosition, focusCell, cameraPosition, cameraCell ]);
+  }, [focusPosition, focusCell, cameraPosition, cameraCell]);
+
+  // While drafting ceiling removal, mark each cell the camera enters with the preview texture.
+  // Only applies to walkable cells that actually have a ceiling — wall cells and already-sky cells are skipped.
+  useEffect(() => {
+    if (!isDraftingCeilingRemoval || isCeilingRemovalPaused) return;
+    if (!cameraCell || !cameraPosition) return;
+    if (cameraCell.wallTextureId || !cameraCell.ceilingTextureId) return;
+
+    const id = `${cameraPosition.x}:${cameraPosition.y}`;
+    if (draftCeilingRemovals[id]) return;
+
+    draftCeilingRemovals[id] = {
+      position: { ...cameraPosition },
+      originalCeilingTextureId: cameraCell.ceilingTextureId,
+    };
+
+    onReplaceTextureAt({ position: cameraPosition, textureType: TextureTypes.CEILING, textureId: DRAFT_CEILING_REMOVAL_TEXTURE_ID });
+  }, [cameraPosition, cameraCell, isDraftingCeilingRemoval, isCeilingRemovalPaused]);
 
   const onNewTextureSelected = ({ textureId }) => {
     onReplaceTexture({ textureType: textureTypeToSelect, textureId });
@@ -59,7 +87,25 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
     const position = textureType === TextureTypes.WALL ? focusPosition : cameraPosition;
     onReplaceTextureAt({ position, textureType, textureId });
   };
-  
+
+  const onConfirmCeilingRemoval = () => {
+    Object.values(draftCeilingRemovals).forEach(({ position }) => {
+      onRemoveTextureAt({ position, textureType: TextureTypes.CEILING });
+    });
+    setIsDraftingCeilingRemoval(false);
+    setIsCeilingRemovalPaused(false);
+    draftCeilingRemovals = {};
+  };
+
+  const onCancelCeilingRemoval = () => {
+    Object.values(draftCeilingRemovals).forEach(({ position, originalCeilingTextureId }) => {
+      onReplaceTextureAt({ position, textureType: TextureTypes.CEILING, textureId: originalCeilingTextureId });
+    });
+    setIsDraftingCeilingRemoval(false);
+    setIsCeilingRemovalPaused(false);
+    draftCeilingRemovals = {};
+  };
+
   const wallTexture = getTextureById({ id: focusCell.wallTextureId });
   const floorTexture = cameraCell.floorTextureId && getTextureById({ id: cameraCell.floorTextureId });
   const ceilingTexture = cameraCell.ceilingTextureId && getTextureById({ id: cameraCell.ceilingTextureId });
@@ -67,13 +113,13 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
   return (
     <div className={Styles.cellEditor}>
       {textureTypeToSelect && (
-        <TextureSelectorModal 
+        <TextureSelectorModal
           textureIds={getTextureIds()}
           onConfirm={onNewTextureSelected}
           onCancel={() => setTextureTypeToSelect('')} />
       )}
       {showAttachedTextureModal && (
-        <TextureSelectorModal 
+        <TextureSelectorModal
           textureIds={getTextureIds()}
           onConfirm={({ textureId }) => {
             setAttachedTexture({ textureId, selectedAttachTextureType });
@@ -97,7 +143,10 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
           </div>
           <div className={Styles.textureDisplay}>
             <h2>Ceiling</h2>
-            {ceilingTexture && <img src={ceilingTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}/>}
+            {ceilingTexture
+              ? <img src={ceilingTexture.baseImage.src} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}/>
+              : <div className={Styles.skyPlaceholder} onClick={() => setTextureTypeToSelect(TextureTypes.CEILING)}>sky</div>
+            }
           </div>
         </div>
       </div>
@@ -117,6 +166,28 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
         </div>
         <div className={classnames(Styles.panelBody, Styles.wallCreationPanelBody)}>
           <WallCreator cell={cameraCell} position={cameraPosition} onReplaceTextureAt={onReplaceTextureAt} onCreateWalls={onCreateWalls}/>
+        </div>
+      </div>
+      <div className={classnames(Styles.panel, Styles.skyPanel)}>
+        <div className={Styles.panelTitle}>
+          <h1>Sky Creation</h1>
+        </div>
+        <div className={classnames(Styles.panelBody, Styles.skyPanelBody)}>
+          {!isDraftingCeilingRemoval && (
+            <Button type={ButtonTypes.PRIMARY} label="Draw Sky" onClick={() => setIsDraftingCeilingRemoval(true)} />
+          )}
+          {isDraftingCeilingRemoval && (
+            <Button type={ButtonTypes.PRIMARY} label="Confirm Sky" onClick={onConfirmCeilingRemoval} />
+          )}
+          {isDraftingCeilingRemoval && !isCeilingRemovalPaused && (
+            <Button type={ButtonTypes.PRIMARY} label="Pause Sky" onClick={() => setIsCeilingRemovalPaused(true)} />
+          )}
+          {isDraftingCeilingRemoval && isCeilingRemovalPaused && (
+            <Button type={ButtonTypes.PRIMARY} label="Resume Remove" onClick={() => setIsCeilingRemovalPaused(false)} />
+          )}
+          {isDraftingCeilingRemoval && (
+            <Button type={ButtonTypes.PRIMARY} label="Cancel Sky" onClick={onCancelCeilingRemoval} />
+          )}
         </div>
       </div>
     </div>

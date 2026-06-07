@@ -19,6 +19,14 @@
 }
 
 .map-information {
+  margin-top: 15px;
+}
+
+.sky-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .camera-information {

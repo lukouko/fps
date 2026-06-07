@@ -47,8 +47,29 @@ export const initialise = ({ displayInfo }) => {
 };
 
 /**
+ * Maps a ray angle and ceiling screen row to texel coordinates in a sky texture.
+ * Exported for unit testing.
+ *
+ * @param {Object} params
+ * @param {number} params.rayAngle The angle of the ray for this screen column (radians, any range).
+ * @param {number} params.ceilScreenY The screen-space Y of the ceiling pixel (0 = top of screen, halfHeight = horizon).
+ * @param {number} params.halfHeight Half the screen height in pixels.
+ * @param {number} params.skyTextureWidth Width of the sky texture in pixels.
+ * @param {number} params.skyTextureHeight Height of the sky texture in pixels.
+ * @returns {{ texX: number, texY: number }}
+ */
+export const skyTexelCoords = ({ rayAngle, ceilScreenY, halfHeight, skyTextureWidth, skyTextureHeight }) => {
+  // Normalise the ray angle to [0, 2π) so the full rotation maps evenly across the texture width.
+  const normAngle = ((rayAngle % constants.TWO_PI) + constants.TWO_PI) % constants.TWO_PI;
+  const texX = Math.floor(normAngle / constants.TWO_PI * skyTextureWidth) % skyTextureWidth;
+  // ceilScreenY=0 (top of screen) → texY=0 (top of sky); ceilScreenY=halfHeight (horizon) → texY=height-1.
+  const texY = Math.min(Math.floor(ceilScreenY * skyTextureHeight / halfHeight), skyTextureHeight - 1);
+  return { texX, texY };
+};
+
+/**
  * Renders the map scene to a canvas context relative to an orientation point.
- * 
+ *
  * @param {Object} params
  * @param {CanvasRenderingContext2D} params.canvasContext A destination 2d context of a HTML5 canvas to which the scene will be rendered.
  * @param {Types.Orientation} params.orientation The perspective from which the scene is to be rendered.
@@ -63,20 +84,25 @@ export const render = ({ canvasContext, orientation, mapState, displayInfo }) =>
   const wallRays = [];
   let centreRay;
 
+  // Look up the sky texture once per frame — null when no sky is configured.
+  const skyTexture = mapState.currentMap.skyTextureId
+    ? textures.getTextureById({ id: mapState.currentMap.skyTextureId })
+    : null;
+
   /** @type Types.Orientation */
   const rayOrientation = { ...orientation };
 
   for (let rayIndex = 0; rayIndex < displayInfo.width; ++rayIndex) {
     rayOrientation.angle = orientation.angle + localCache.rayBaseAngleByScreenColumn[rayIndex];
-    
+
     const rayCollision = castWallRay({ orientation: rayOrientation, mapState });
     wallRays.push(rayCollision);
 
     if (rayIndex === displayInfo.halfWidthFloored) {
       centreRay = rayCollision;
     }
-    
-    renderWallRay({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo });
+
+    renderWallRay({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo, skyTexture });
   }
 
   renderSprites({ offScreenBufferPixels, wallRays, orientation, mapState, displayInfo });
@@ -228,16 +254,17 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
 /**
  * Renders the result of a wall ray collision. This function will effectively render a single pixel wide vertical
  * column to the off screen buffer.
- * 
+ *
  * @param {Object} params
  * @param {Object} params.offScreenBufferPixels The array of pixels representing the projection plane.
  * @param {Types.Orientation} params.orientation The perspective point from where the ray was cast.
  * @param {Types.MapState} params.mapState The current map state.
  * @param {Types.RayCollision} params.rayCollision The resulting collision of the ray cast
  * @param {number} params.rayIndex The index in the set of (FOV / displayInfo.width) rays that are cast per render cycle.
- * @param {Types.DisplayInfo} params.displayInfo 
+ * @param {Types.DisplayInfo} params.displayInfo
+ * @param {Types.Texture|null} params.skyTexture The map's sky texture, or null if no sky is configured.
  */
-const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo }) => {
+const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollision, rayIndex, displayInfo, skyTexture }) => {
   const { wallTextureId } = rayCollision.mapCell;
 
   const wallTexture = textures.getTextureById({ id: wallTextureId });
@@ -307,6 +334,11 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
   let floorBufIdx = Math.floor(bottomOfWall * bytesPerRow + colOffset);
   let ceilBufIdx = Math.floor(topOfWall * bytesPerRow + colOffset);
 
+  // Precompute sky X for this column — constant because the ray angle doesn't change within a column.
+  const skyTexX = skyTexture
+    ? skyTexelCoords({ rayAngle: rayCollision.source.angle, ceilScreenY: 0, halfHeight, skyTextureWidth: skyTexture.width, skyTextureHeight: skyTexture.height }).texX
+    : 0;
+
   for (let floorY = bottomOfWall; floorY <= pixelsToRender; ++floorY) {
     const diagonalDist = Math.floor(floorBase / (floorY - halfHeight));
     const xEnd = Math.floor(diagonalDist * cosRayAngle + playerX);
@@ -318,27 +350,49 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     if (cellX < 0 || cellX >= mapBoundsX || cellY < 0 || cellY >= mapBoundsY) continue;
 
     const mapCell = mapLayout[cellY][cellX];
-    if (!mapCell.floorTextureId && !mapCell.ceilingTextureId) continue;
 
-    const floorTexture = textures.getTextureById({ id: mapCell.floorTextureId });
-    const ceilingTexture = textures.getTextureById({ id: mapCell.ceilingTextureId });
+    // Guard against wall cells that the floor-plane trace occasionally lands on at map edges.
+    const floorTexture = mapCell.floorTextureId ? textures.getTextureById({ id: mapCell.floorTextureId }) : null;
+    const ceilingTexture = mapCell.ceilingTextureId ? textures.getTextureById({ id: mapCell.ceilingTextureId }) : null;
 
-    const srcIdx = (yEnd % floorTexture.height) * floorTexture.bytesPerRow
-      + (xEnd % floorTexture.width) * bytesPerPixel;
+    // Sky is drawn into the ceiling slot only for open (non-wall) cells with no ceiling texture.
+    const canDrawSky = skyTexture && !mapCell.wallTextureId && !ceilingTexture;
+
+    if (!floorTexture && !ceilingTexture && !canDrawSky) continue;
+
+    // World-space texel coordinate — the same sample position is used for both floor and ceiling.
+    const refTexture = floorTexture || ceilingTexture;
+    const srcIdx = refTexture
+      ? (yEnd % refTexture.height) * refTexture.bytesPerRow + (xEnd % refTexture.width) * bytesPerPixel
+      : 0;
 
     let pixelShade = floorShadeSlope * (floorY - halfHeight) | 0;
     if (pixelShade > 255) pixelShade = 255;
     if (pixelShade < floorMinShade) pixelShade = floorMinShade;
 
-    offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
-    offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
-    offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
-    offScreenBufferPixels[floorBufIdx + 3] = floorTexture.pixelBuffer[srcIdx + 3];
+    if (floorTexture) {
+      offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
+      offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
+      offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
+      offScreenBufferPixels[floorBufIdx + 3] = floorTexture.pixelBuffer[srcIdx + 3];
+    }
 
-    offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
-    offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
-    offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
-    offScreenBufferPixels[ceilBufIdx + 3] = ceilingTexture.pixelBuffer[srcIdx + 3];
+    if (ceilingTexture) {
+      offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
+      offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
+      offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
+      offScreenBufferPixels[ceilBufIdx + 3] = ceilingTexture.pixelBuffer[srcIdx + 3];
+    } else if (canDrawSky && ceilBufIdx >= 0) {
+      // Sample sky texture using parallax X (from ray angle) and vertical Y (screen row → sky row).
+      const ceilScreenY = topOfWall - (floorY - bottomOfWall);
+      const skyTexY = Math.min(Math.floor(ceilScreenY * skyTexture.height / halfHeight), skyTexture.height - 1);
+      const skySrcIdx = skyTexY * skyTexture.bytesPerRow + skyTexX * bytesPerPixel;
+      // Sky is rendered at full brightness — no distance fog on an infinite sky.
+      offScreenBufferPixels[ceilBufIdx]     = skyTexture.pixelBuffer[skySrcIdx];
+      offScreenBufferPixels[ceilBufIdx + 1] = skyTexture.pixelBuffer[skySrcIdx + 1];
+      offScreenBufferPixels[ceilBufIdx + 2] = skyTexture.pixelBuffer[skySrcIdx + 2];
+      offScreenBufferPixels[ceilBufIdx + 3] = 255;
+    }
 
     floorBufIdx += bytesPerRow;
     ceilBufIdx -= bytesPerRow;

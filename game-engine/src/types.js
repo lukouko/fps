@@ -100,6 +100,7 @@
  * @property {MapLayout} layout
  * @property {Array<Sprite>} staticSprites Map-defined decoration; never overwritten by server updates.
  * @property {Array<Sprite>} sprites Dynamic sprites (other players, enemies) from the server.
+ * @property {TextureId} [skyTextureId] Optional map-global sky texture shown wherever a cell has no ceilingTextureId.
  */
 
 /**
