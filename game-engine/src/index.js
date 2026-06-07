@@ -18,6 +18,7 @@ let renderFrameCount = 0;
 let renderFrameId;
 let gameLoopInterval;
 let fpsInterval;
+let lastLogicTickTime = 0;
 
 const initialise = async () => {
   const renderWidth = Math.floor(RENDER_HEIGHT * (window.innerWidth / window.innerHeight));
@@ -121,8 +122,16 @@ const onServerStateUpdate = ({ processedServerGameState, gameState}) => {
 /** Fixed-rate logic tick: player movement and network sync. */
 const logicTick = ({ gameState }) => {
   try {
+    const now = performance.now();
+    // Measure actual elapsed time rather than assuming the interval fired on schedule.
+    // Clamp to 3× the target to avoid a huge lurch after the browser was suspended.
+    const deltaMs = lastLogicTickTime > 0
+      ? Math.min(now - lastLogicTickTime, constants.GAME_LOOP_TICK_MS * 3)
+      : constants.GAME_LOOP_TICK_MS;
+    lastLogicTickTime = now;
+
     const { mapState, playerState, inputState, networkClientState } = gameState;
-    player.move({ playerState, inputState, mapState });
+    player.move({ playerState, inputState, mapState, deltaMs });
     networkClient.render({ playerState, networkClientState });
   } catch (err) {
     console.error(err);

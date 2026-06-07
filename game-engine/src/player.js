@@ -93,14 +93,17 @@ export const render = ({ canvasContext, inputState, playerState, displayInfo }) 
  * @param {Types.MapState} params.mapState The current map state.
  * @returns 
  */
-export const move = ({ inputState, playerState, mapState }) => {
+export const move = ({ inputState, playerState, mapState, deltaMs = constants.GAME_LOOP_TICK_MS }) => {
   const { player } = playerState;
+  // Scale movement and rotation by how much real time actually elapsed so that
+  // late setInterval fires don't cause sluggish movement.
+  const deltaScale = deltaMs / constants.GAME_LOOP_TICK_MS;
 
   // Calculate player movement.
-  player.orientation.angle += (inputState.angularSpeed + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.
+  player.orientation.angle += (inputState.angularSpeed * deltaScale + (2 * Math.PI)); // We add a full circle rotation to the angular speed to ensure we don't get negative angles.
   player.orientation.angle = player.orientation.angle % (2 * Math.PI); // Normalise to a single circle.
-  const xMovement = Math.cos(player.orientation.angle) * inputState.speed;
-  const yMovement = Math.sin(player.orientation.angle) * inputState.speed;
+  const xMovement = Math.cos(player.orientation.angle) * inputState.speed * deltaScale;
+  const yMovement = Math.sin(player.orientation.angle) * inputState.speed * deltaScale;
 
   // Clipping: test five points (centre + four axis-aligned edges at clip radius) to ensure
   // the player never gets within PLAYER_CLIP_DETECTION_DISTANCE pixels of a wall face.
