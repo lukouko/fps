@@ -67,6 +67,16 @@ const initialise = async () => {
     await helpers.requestFullScreen();
   } 
 
+  // Warmup: render one silent frame from the first outdoor cell (if the map has sky).
+  // This warms V8's JIT for the sky code path and loads the sky texture into CPU cache,
+  // preventing a multi-frame FPS drop the first time the player enters an outdoor area.
+  if (gameState.mapState.currentMap.skyTextureId) {
+    const warmupPos = findFirstOutdoorCell({ mapState: gameState.mapState });
+    if (warmupPos) {
+      scene.render({ canvasContext, orientation: { position: warmupPos, angle: 0 }, mapState: gameState.mapState, displayInfo });
+    }
+  }
+
   // Logic tick: player movement and network sync at a fixed rate.
   gameLoopInterval = setInterval(() => logicTick({ gameState }), constants.GAME_LOOP_TICK_MS);
 
@@ -139,6 +149,26 @@ const logicTick = ({ gameState }) => {
     clearInterval(fpsInterval);
     cancelAnimationFrame(renderFrameId);
   }
+};
+
+/**
+ * Finds the world-space centre of the first outdoor cell in the map (walkable, no ceiling).
+ * Returns null if the map has no outdoor cells.
+ * @param {Object} params
+ * @param {Types.MapState} params.mapState
+ * @returns {{x: number, y: number}|null}
+ */
+const findFirstOutdoorCell = ({ mapState }) => {
+  const { layout } = mapState.currentMap;
+  for (let y = 0; y < layout.length; y++) {
+    for (let x = 0; x < layout[y].length; x++) {
+      const cell = layout[y][x];
+      if (!cell.wallTextureId && !cell.ceilingTextureId && cell.floorTextureId) {
+        return { x: (x + 0.5) * constants.CELL_SIZE, y: (y + 0.5) * constants.CELL_SIZE };
+      }
+    }
+  }
+  return null;
 };
 
 const trackFps = () => {
