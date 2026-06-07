@@ -59,7 +59,7 @@ fps/
 ### Code style
 
 - **Named parameters everywhere.** All functions take a single destructured object: `fn({ paramA, paramB })`. Never positional args.
-- **JSDoc types.** Types are declared in `src/types.js` as `@typedef`. Annotate functions with `@param` and `@returns`. No TypeScript.
+- **JSDoc types.** All types are declared in `game-engine/src/types.js` as `@typedef` — this is the single source of truth for type definitions. Every type used in the codebase must have a corresponding `@typedef` there. Annotate all functions with `@param` and `@returns` referencing those types. No TypeScript. **Keep `types.js` up to date** — any new type introduced by a change must be added there before (or alongside) the code that uses it.
 - **Comments:** don't over-comment, but a short comment explaining what a block of code does is welcome — especially in the raycasting logic where the math isn't self-evident. Always comment hidden constraints, non-obvious invariants, and performance tricks. Avoid restating what well-named code already says.
 - **`constants.js` is CommonJS** (`module.exports`). Everything else is ESM (`import`/`export`). Don't change this.
 - **Module pattern:** Each file exports a set of named functions. State is passed explicitly — no global singletons except `localCache` in `scene.js` and `texturesLookup` in `textures.js` (these are module-level intentionally).
@@ -84,6 +84,8 @@ npm run serve   # webpack-dev-server on port 5006
 - **Test files:** Co-locate with source: `src/helpers.test.js`, `src/map/index.test.js`, etc.
 - **Best test targets:** `helpers.js`, `map/index.js`, `player.js` (`move` function), `offscreen-buffer.js` — these are pure logic with no or minimal browser API dependencies.
 - **Browser API stubs:** `OffScreenBuffer` requires `document.createElement('canvas')`. Use `jest-canvas-mock` or a minimal stub; don't fight it — test the pixel math directly if possible by pulling logic into pure functions.
+- **Run tests after every code change.** All tests must pass before a change is considered done.
+- **New functionality requires new tests.** Any new function or behaviour must have corresponding test coverage added in the same change.
 - **Run tests:**
   ```bash
   cd game-engine

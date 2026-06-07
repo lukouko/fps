@@ -7,6 +7,7 @@
     "uuid": "8.3.2"
   },
   "scripts": {
+    "test": "jest",
     "pack": "webpack --bail",
     "pack-prod": "NODE_ENV=production npm run pack",
     "prettier-format-all": "prettier-eslint --write \"**/*.jsx\"",
