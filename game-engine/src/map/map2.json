@@ -1,0 +1,2853 @@
+{
+  "skyTextureId": "clouds_1",
+  "layout": [
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "floorTextureId": "asphalt_1",
+        "ceilingTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "concrete_wall"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "horizontal_timber_1",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "vertical_timber_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "floorTextureId": "tiles_2",
+        "ceilingTextureId": "plaster_1"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ],
+    [
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      },
+      {
+        "wallTextureId": "bricks_2"
+      }
+    ]
+  ],
+  "staticSprites": [],
+  "sprites": []
+}
