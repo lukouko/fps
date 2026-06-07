@@ -59,23 +59,41 @@ export const move = ({ inputState, cameraState, mapState }) => {
   const xMovement = Math.cos(camera.orientation.angle) * inputState.speed;
   const yMovement = Math.sin(camera.orientation.angle) * inputState.speed;
 
-  // Clipping checking.
+  // Clipping: test five points (centre + four axis-aligned edges at clip radius) to ensure
+  // the camera never gets within PLAYER_CLIP_DETECTION_DISTANCE pixels of a wall face.
+  const r = constants.PLAYER_CLIP_DETECTION_DISTANCE;
 
-  /** @type Types.Position */
-  const hypotheticalCell = {
-    x: Math.floor((camera.orientation.position.x + xMovement) / constants.CELL_SIZE),
-    y: Math.floor((camera.orientation.position.y + yMovement) / constants.CELL_SIZE),
+  const canMove = (dx, dy) => {
+    const nx = camera.orientation.position.x + dx;
+    const ny = camera.orientation.position.y + dy;
+    return [
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor((nx + r) / constants.CELL_SIZE),     y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor((nx - r) / constants.CELL_SIZE),     y: Math.floor(ny / constants.CELL_SIZE) },
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor((ny + r) / constants.CELL_SIZE) },
+      { x: Math.floor(nx / constants.CELL_SIZE),           y: Math.floor((ny - r) / constants.CELL_SIZE) },
+    ].every(pt => map.canMoveToCellLocation({ position: pt, mapState }));
   };
 
-  if (!map.canMoveToCellLocation({ position: hypotheticalCell, mapState })) {
-    return;
+  // Try full movement first; if blocked, try each axis independently (wall sliding).
+  let actualDX = 0;
+  let actualDY = 0;
+  if (canMove(xMovement, yMovement)) {
+    actualDX = xMovement;
+    actualDY = yMovement;
+  } else if (canMove(xMovement, 0)) {
+    actualDX = xMovement;
+  } else if (canMove(0, yMovement)) {
+    actualDY = yMovement;
   }
 
-  // Move the player in space.
-  camera.orientation.position.x = Math.floor(camera.orientation.position.x + xMovement);
-  camera.orientation.position.y = Math.floor(camera.orientation.position.y + yMovement);
+  if (actualDX === 0 && actualDY === 0) return;
 
-  // Update camera cell position
+  // Move the camera in space.
+  camera.orientation.position.x = Math.floor(camera.orientation.position.x + actualDX);
+  camera.orientation.position.y = Math.floor(camera.orientation.position.y + actualDY);
+
+  // Update camera cell position.
   camera.cellPosition.x = Math.floor(camera.orientation.position.x / constants.CELL_SIZE);
   camera.cellPosition.y = Math.floor(camera.orientation.position.y / constants.CELL_SIZE);
 };
