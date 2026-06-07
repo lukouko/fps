@@ -13,6 +13,24 @@ const textureAttachSelectOptions = Object.values(TextureTypes).map((textureType)
   id: textureType, label: TextureTypeLabels[textureType],
 }));
 
+const LIGHT_COLOR_PRESETS = [
+  { label: 'None',  color: null },
+  { label: 'Warm',  color: { r: 255, g: 195, b: 120 } },
+  { label: 'Cool',  color: { r: 160, g: 200, b: 255 } },
+  { label: 'Red',   color: { r: 255, g: 80,  b: 80  } },
+  { label: 'Green', color: { r: 80,  g: 200, b: 100 } },
+  { label: 'Soft',  color: { r: 255, g: 230, b: 195 } },
+];
+
+const lcToHex = ({ r, g, b }) =>
+  '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+
+const hexToLc = (hex) => ({
+  r: parseInt(hex.slice(1, 3), 16),
+  g: parseInt(hex.slice(3, 5), 16),
+  b: parseInt(hex.slice(5, 7), 16),
+});
+
 // Preview texture shown on cells while ceiling removal is being drafted.
 const DRAFT_CEILING_REMOVAL_TEXTURE_ID = 'under_construction';
 
@@ -32,7 +50,7 @@ let draftCeilingRemovals = {};
  * @param {function} params.onCreateWalls
  * @returns {JSX.Element}
  */
-export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt, onRemoveTextureAt, onCreateWalls }) => {
+export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPosition, onReplaceTextureAt, onRemoveTextureAt, onCreateWalls, onSetLightColorAt }) => {
   if (!focusCell || !focusPosition || !cameraCell || !cameraPosition) {
     return null;
   }
@@ -166,6 +184,40 @@ export const CellEditor = ({ focusCell, focusPosition, cameraCell, cameraPositio
         </div>
         <div className={classnames(Styles.panelBody, Styles.wallCreationPanelBody)}>
           <WallCreator cell={cameraCell} position={cameraPosition} onReplaceTextureAt={onReplaceTextureAt} onCreateWalls={onCreateWalls}/>
+        </div>
+      </div>
+      <div className={classnames(Styles.panel, Styles.lightColorPanel)}>
+        <div className={Styles.panelTitle}>
+          <h1>Light Color</h1>
+        </div>
+        <div className={classnames(Styles.panelBody, Styles.lightColorPanelBody)}>
+          <div className={Styles.lightColorSwatches}>
+            {LIGHT_COLOR_PRESETS.map(({ label, color }) => {
+              const bg = color
+                ? `rgb(${color.r},${color.g},${color.b})`
+                : 'repeating-linear-gradient(45deg,#444 0px,#444 4px,#222 4px,#222 8px)';
+              const lc = cameraCell.lightColor;
+              const isActive = color === null
+                ? !lc
+                : lc && lc.r === color.r && lc.g === color.g && lc.b === color.b;
+              return (
+                <div
+                  key={label}
+                  className={classnames(Styles.lightColorSwatch, isActive && Styles.lightColorSwatchActive)}
+                  style={{ background: bg }}
+                  title={label}
+                  onClick={() => onSetLightColorAt({ position: cameraPosition, lightColor: color })}
+                />
+              );
+            })}
+          </div>
+          <input
+            type="color"
+            className={Styles.lightColorPicker}
+            value={cameraCell.lightColor ? lcToHex(cameraCell.lightColor) : '#ffffff'}
+            onChange={(e) => onSetLightColorAt({ position: cameraPosition, lightColor: hexToLc(e.target.value) })}
+            title="Custom color"
+          />
         </div>
       </div>
       <div className={classnames(Styles.panel, Styles.skyPanel)}>

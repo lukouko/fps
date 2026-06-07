@@ -175,6 +175,14 @@ export const App = () => {
               mapCell.wallTextureId = 'bricks_1';
             });
           }}
+          onSetLightColorAt={({ position, lightColor }) => {
+            const targetCell = getMapCell({ mapState: gameState.mapState, position });
+            if (lightColor) {
+              targetCell.lightColor = lightColor;
+            } else {
+              delete targetCell.lightColor;
+            }
+          }}
         />
       </div>
     </div>

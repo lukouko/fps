@@ -78,10 +78,18 @@
 //////////// Map types ////////////
 
 /**
+ * @typedef {Object} LightColor
+ * @property {number} r Red channel 0–255
+ * @property {number} g Green channel 0–255
+ * @property {number} b Blue channel 0–255
+ */
+
+/**
  * @typedef {Object} MapCell
  * @property {TextureId|undefined} wallTextureId
  * @property {TextureId|undefined} floorTextureId
  * @property {TextureId|undefined} ceilingTextureId
+ * @property {LightColor|undefined} lightColor Optional tint applied to all surfaces rendered in this cell.
  */
 
 /**
@@ -134,6 +142,7 @@
  * @typedef {Object} RayCollision
  * @property {Orientation} source The source perspective from which the ray was cast.
  * @property {MapCell} mapCell The cell in which the collision occured.
+ * @property {MapCell|null} nearCell The walkable cell on the player's side of the wall — used for sector light color.
  * @property {number} distance The distance from the ray propagation point to the collision point in scaled map space.
  * @property {boolean} isVertical True if the collision occured on the y axis, false otherwise.
  * @property {boolean} isHorizontal True if the collision occurex on the x axis, false otherwise.

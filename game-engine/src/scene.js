@@ -154,8 +154,9 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
 
   const result = {
     source: orientation,
-    mapCell: undefined, 
-    distance: -1, 
+    mapCell: undefined,
+    nearCell: null,
+    distance: -1,
     isVertical: true,
     isHorizontal: false,
     collisionPoint: {
@@ -187,6 +188,13 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
     }
   }
 
+  // The near cell is the walkable cell on the player's side of the wall — it carries the sector light color.
+  const nearCellX = isAngleFacingRight ? result.collisionCell.x - 1 : result.collisionCell.x + 1;
+  const nearCellPos = { x: nearCellX, y: result.collisionCell.y };
+  if (!isOutOfBounds({ position: nearCellPos, mapState })) {
+    result.nearCell = getMapCell({ position: nearCellPos, mapState });
+  }
+
   result.distance = helpers.distanceBetween({ positionA: sourcePosition, positionB: result.collisionPoint });
   return result;
 };
@@ -214,8 +222,9 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
 
   const result = {
     source: orientation,
-    mapCell: undefined, 
-    distance: -1, 
+    mapCell: undefined,
+    nearCell: null,
+    distance: -1,
     isVertical: false,
     isHorizontal: true,
     collisionPoint: {
@@ -245,6 +254,13 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
       result.collisionPoint.y += yStepSize;
       result.collisionPoint.x += xStepSize;
     }
+  }
+
+  // The near cell is the walkable cell on the player's side of the wall — it carries the sector light color.
+  const nearCellY = isAngleFacingUp ? result.collisionCell.y + 1 : result.collisionCell.y - 1;
+  const nearCellPos = { x: result.collisionCell.x, y: nearCellY };
+  if (!isOutOfBounds({ position: nearCellPos, mapState })) {
+    result.nearCell = getMapCell({ position: nearCellPos, mapState });
   }
 
   result.distance = helpers.distanceBetween({ positionA: sourcePosition, positionB: result.collisionPoint });
@@ -288,7 +304,10 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     * (rayCollision.isHorizontal ? constants.WALL_SHADE_HORIZONTAL_DIM : 1.0)
     * 255 + 0.5) | 0;
 
-  // Draw walls.
+  // Draw walls — tint by the light color of the room the wall faces into (the walkable cell
+  // on the player's side of the wall). This is sector lighting: the wall takes the color of
+  // the zone it bounds, not the zone the player is standing in.
+  const wallLc = rayCollision.nearCell?.lightColor ?? null;
   offScreenBuffer.drawVerticalBufferSlice({
     sourcePixels: wallTexture.pixelBuffer,
     sourceX: texXInt,
@@ -298,7 +317,9 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     destinationX: rayIndex,
     destinationY: displayInfo.halfHeightFloored - Math.floor(halfWallHeight),
     destinationHeight: wallHeight,
-    shade,
+    shadeR: wallLc ? shade * wallLc.r >> 8 : shade,
+    shadeG: wallLc ? shade * wallLc.g >> 8 : shade,
+    shadeB: wallLc ? shade * wallLc.b >> 8 : shade,
   });
 
   // Draw floor and ceiling.
@@ -370,17 +391,23 @@ const renderWallRay = ({ offScreenBufferPixels, orientation, mapState, rayCollis
     if (pixelShade > 255) pixelShade = 255;
     if (pixelShade < floorMinShade) pixelShade = floorMinShade;
 
+    // Per-channel shade incorporating the cell's light colour tint (if any).
+    const floorLc = mapCell.lightColor;
+    const floorShadeR = floorLc ? pixelShade * floorLc.r >> 8 : pixelShade;
+    const floorShadeG = floorLc ? pixelShade * floorLc.g >> 8 : pixelShade;
+    const floorShadeB = floorLc ? pixelShade * floorLc.b >> 8 : pixelShade;
+
     if (floorTexture) {
-      offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
-      offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
-      offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
+      offScreenBufferPixels[floorBufIdx]     = floorTexture.pixelBuffer[srcIdx]     * floorShadeR >> 8;
+      offScreenBufferPixels[floorBufIdx + 1] = floorTexture.pixelBuffer[srcIdx + 1] * floorShadeG >> 8;
+      offScreenBufferPixels[floorBufIdx + 2] = floorTexture.pixelBuffer[srcIdx + 2] * floorShadeB >> 8;
       offScreenBufferPixels[floorBufIdx + 3] = floorTexture.pixelBuffer[srcIdx + 3];
     }
 
     if (ceilingTexture) {
-      offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx]     * pixelShade >> 8;
-      offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1] * pixelShade >> 8;
-      offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2] * pixelShade >> 8;
+      offScreenBufferPixels[ceilBufIdx]     = ceilingTexture.pixelBuffer[srcIdx]     * floorShadeR >> 8;
+      offScreenBufferPixels[ceilBufIdx + 1] = ceilingTexture.pixelBuffer[srcIdx + 1] * floorShadeG >> 8;
+      offScreenBufferPixels[ceilBufIdx + 2] = ceilingTexture.pixelBuffer[srcIdx + 2] * floorShadeB >> 8;
       offScreenBufferPixels[ceilBufIdx + 3] = ceilingTexture.pixelBuffer[srcIdx + 3];
     } else if (canDrawSky && ceilBufIdx >= 0) {
       // Sample sky texture using parallax X (from ray angle) and vertical Y (screen row → sky row).

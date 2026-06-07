@@ -43,7 +43,9 @@ export class OffScreenBuffer {
   //   texXFrac = fractional part (0.0 .. <1.0) — lerps toward the next column
   // Y is also bilinearly filtered: the exact fractional texture-Y is computed per screen pixel
   // from the destination/source height ratio, eliminating the staircase of the old Bresenham scaler.
-  drawVerticalBufferSlice({ sourcePixels, sourceX, texXFrac = 0, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight, shade }) {
+  // shadeR/G/B allow per-channel tinting for coloured light zones; each defaults to `shade`
+  // so callers that only pass `shade` continue to work unchanged.
+  drawVerticalBufferSlice({ sourcePixels, sourceX, texXFrac = 0, sourceWidth, sourceHeight, destinationX, destinationY, destinationHeight, shade = 256, shadeR = shade, shadeG = shade, shadeB = shade }) {
     const bytesPerPixel = 4;
     const bpr = sourceWidth * bytesPerPixel; // bytes per texture row
 
@@ -91,9 +93,9 @@ export class OffScreenBuffer {
       const b = (sourcePixels[aa+2] * topL + sourcePixels[ab+2] * topR +
                  sourcePixels[ba+2] * botL + sourcePixels[bb+2] * botR) | 0;
 
-      this.imagePixels[destIdx]   = r * shade >> 8;
-      this.imagePixels[destIdx+1] = g * shade >> 8;
-      this.imagePixels[destIdx+2] = b * shade >> 8;
+      this.imagePixels[destIdx]   = r * shadeR >> 8;
+      this.imagePixels[destIdx+1] = g * shadeG >> 8;
+      this.imagePixels[destIdx+2] = b * shadeB >> 8;
       this.imagePixels[destIdx+3] = sourcePixels[aa+3];
 
       destIdx += destRowStride;

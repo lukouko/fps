@@ -16,7 +16,7 @@
 
 ## Medium effort, high impact
 
-- [ ] **6. Colored light zones** — Store a light color tint per map cell and apply it during wall/floor rendering. Enables red emergency zones, warm yellow corridors etc. Transforms atmosphere completely.
+- [x] **6. Colored light zones** — Store a light color tint per map cell and apply it during wall/floor rendering. Enables red emergency zones, warm yellow corridors etc. Transforms atmosphere completely.
 
 - [ ] **7. Animated textures** — Cycle through texture frames (e.g. a flickering light) by swapping `wallTextureId` references on a timer. Requires multi-frame textures but the render path needs no changes.
 

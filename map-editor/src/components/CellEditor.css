@@ -98,6 +98,52 @@
   gap: 15px;
 }
 
+.light-color-panel {
+  flex: 0 200px;
+}
+
+.light-color-panel-body {
+  gap: 10px;
+}
+
+.light-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.light-color-swatch {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.light-color-swatch:hover {
+  border-color: #ccc;
+}
+
+.light-color-swatch--active {
+  border-color: #fff;
+  outline: 2px solid #4a9eff;
+  outline-offset: 1px;
+}
+
+.light-color-picker {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #555;
+  border-radius: 4px;
+  padding: 2px;
+  background: none;
+  cursor: pointer;
+}
+
+.light-color-picker:hover {
+  border-color: #ccc;
+}
+
 .sky-panel {
   flex: 0 200px;
 }
