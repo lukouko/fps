@@ -76,21 +76,54 @@ export const generateDisplayInfo = ({ width, height, fieldOfView }) => {
 
 export const normaliseRadians = (rads) => (rads + constants.TWO_PI) % constants.TWO_PI;
 
-export const isMobileDevice = () => /iphone|ipad|ipod|android/i.test(navigator.userAgent.toLowerCase());
+export const isMobileDevice = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileRegex = /iphone|ipad|ipod|android|webos|blackberry|windows phone/i;
+  const touchSupport = () => (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+  return mobileRegex.test(userAgent) || touchSupport();
+};
 
-export const requestFullScreen = () => {
-  const elem = document.documentElement;
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  // @ts-ignore
-  } else if (elem.webkitRequestFullscreen) {
-    /* Safari */
+export const requestFullScreen = ({ canvas = null } = {}) => {
+  const elem = canvas || document.documentElement;
+  const opts = { navigationUI: 'hide' };
+
+  try {
+    if (elem.requestFullscreen) {
+      return elem.requestFullscreen(opts).catch(err => {
+        console.warn('Fullscreen request failed:', err);
+        throw err;
+      });
     // @ts-ignore
-    elem.webkitRequestFullscreen();
-  // @ts-ignore
-  } else if (elem.msRequestFullscreen) {
-    /* IE11 */
+    } else if (elem.webkitRequestFullscreen) {
+      /* Safari */
+      // @ts-ignore
+      return elem.webkitRequestFullscreen().catch(err => {
+        console.warn('Fullscreen request failed:', err);
+        throw err;
+      });
     // @ts-ignore
-    elem.msRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      /* IE11 */
+      // @ts-ignore
+      return elem.msRequestFullscreen().catch(err => {
+        console.warn('Fullscreen request failed:', err);
+        throw err;
+      });
+    } else {
+      console.warn('Fullscreen API not supported');
+      return Promise.reject(new Error('Fullscreen API not supported'));
+    }
+  } catch (err) {
+    console.warn('Error requesting fullscreen:', err);
+    return Promise.reject(err);
   }
-}
+};
+
+export const requestLandscapeOrientation = () => {
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(err => console.warn('Orientation lock failed:', err));
+  } else if (window.orientation !== undefined) {
+    // Fallback for older devices
+    console.log('Landscape orientation requested (lock not supported)');
+  }
+};
