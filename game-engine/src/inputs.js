@@ -163,6 +163,7 @@ const handleKeyDown = ({ event, inputs }) => {
 
     case 'Tab':
       inputs.enableMiniMap = !inputs.enableMiniMap;
+      break;
 
     default: break;
   }

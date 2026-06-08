@@ -1,9 +1,5 @@
 // Stub browser globals needed by imports.
 const listeners = {};
-global.document = {
-  addEventListener: jest.fn((type, cb) => { listeners[type] = cb; }),
-  documentElement: {},
-};
 global.navigator = { userAgent: '' };
 
 import { initialise } from './inputs';
@@ -18,10 +14,18 @@ const fireKeyUp = (key) => {
   if (listeners.keyup) listeners.keyup({ key });
 };
 
+// Ensure document has addEventListener for this test suite, even if other tests replaced global.document.
+const setupInputsTestDocument = () => {
+  if (!global.document) global.document = {};
+  global.document.addEventListener = jest.fn((type, cb) => { listeners[type] = cb; });
+  if (!global.document.documentElement) global.document.documentElement = {};
+};
+
 describe('initialise (KEYBOARD mode)', () => {
   let inputs;
 
   beforeEach(() => {
+    setupInputsTestDocument();
     listeners.keydown = undefined;
     listeners.keyup = undefined;
     inputs = initialise({ inputCanvasContext: null, inputMethod: 'KEYBOARD' });

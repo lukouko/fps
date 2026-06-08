@@ -7,7 +7,8 @@
     "uuid": "8.3.2"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=benchmark",
+    "benchmark": "jest src/scene.benchmark.test.js --verbose",
     "pack": "webpack --bail",
     "pack-prod": "NODE_ENV=production npm run pack",
     "prettier-format-all": "prettier-eslint --write \"**/*.jsx\"",
@@ -16,6 +17,10 @@
     "serve": "cross-env NODE_ENV=development webpack serve --port 5006 --host 0.0.0.0"
   },
   "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "jest-canvas-mock"
+    ],
     "moduleNameMapper": {
       "^fps(.*)$": "<rootDir>/src$1"
     }
@@ -39,6 +44,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
+    "jest-canvas-mock": "^2.5.2",
+    "jest-environment-jsdom": "^30.4.1",
     "prettier": "^2.8.7",
     "prettier-eslint": "^15.0.1",
     "prettier-eslint-cli": "^7.1.0",
