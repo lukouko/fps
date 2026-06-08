@@ -11,7 +11,7 @@ import * as Types from './types';
 
 // Render height in pixels — the single knob for resolution vs. performance.
 // Width is derived from the window aspect ratio so the canvas fills the screen without distortion.
-const RENDER_HEIGHT = 500;
+const RENDER_HEIGHT = 550;
 
 let framesPerSecond = 0;
 let renderFrameCount = 0;

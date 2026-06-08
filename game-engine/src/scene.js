@@ -4,6 +4,7 @@ import * as helpers from './helpers';
 import * as Types from './types';
 import { isOutOfBounds, getMapCell } from './map';
 import { OffScreenBuffer } from './offscreen-buffer';
+import { fastTan, fastSin, fastCos } from './luts';
 
 let offScreenBuffer;
 
@@ -147,10 +148,16 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
     ? Math.floor(sourcePosition.x / constants.CELL_SIZE) * constants.CELL_SIZE + constants.CELL_SIZE
     : Math.floor(sourcePosition.x / constants.CELL_SIZE) * constants.CELL_SIZE;
 
-  const firstY = sourcePosition.y + (firstX - sourcePosition.x) * Math.tan(angle);
+  const tangent = fastTan(angle);
+  const firstY = sourcePosition.y + (firstX - sourcePosition.x) * tangent;
 
   const xStepSize = isAngleFacingRight ? constants.CELL_SIZE : -constants.CELL_SIZE;
-  const yStepSize = xStepSize * Math.tan(angle);
+  const yStepSize = xStepSize * tangent;
+
+  // Cache CELL_SIZE reciprocal to avoid division in hot loop.
+  const cellSizeInv = 1 / constants.CELL_SIZE;
+  const mapWidth = mapState.unscaledMapBounds.x;
+  const mapHeight = mapState.unscaledMapBounds.y;
 
   const result = {
     source: orientation,
@@ -169,24 +176,33 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
     },
   };
 
+  let nextX = firstX;
+  let nextY = firstY;
+
   while (!result.mapCell?.wallTextureId) {
-    const { x: nextX, y: nextY } = result.collisionPoint;
+    // Inline floor division and bounds check to avoid function call overhead.
+    const cellX = isAngleFacingRight ? Math.floor(nextX * cellSizeInv) : Math.floor(nextX * cellSizeInv) - 1;
+    const cellY = Math.floor(nextY * cellSizeInv);
 
-    result.collisionCell.x = isAngleFacingRight ? Math.floor(nextX / constants.CELL_SIZE) : Math.floor(nextX / constants.CELL_SIZE) - 1;
-    result.collisionCell.y = Math.floor(nextY / constants.CELL_SIZE);
-
-    if (isOutOfBounds({ position: result.collisionCell, mapState })) {
+    // Inline bounds check for hot path.
+    if (cellX < 0 || cellX >= mapWidth || cellY < 0 || cellY >= mapHeight) {
       result.distance = Number.MAX_SAFE_INTEGER;
       return result;
     }
 
+    result.collisionCell.x = cellX;
+    result.collisionCell.y = cellY;
     result.mapCell = getMapCell({ position: result.collisionCell, mapState });
 
     if (!result.mapCell?.wallTextureId) {
-      result.collisionPoint.x += xStepSize;
-      result.collisionPoint.y += yStepSize;
+      nextX += xStepSize;
+      nextY += yStepSize;
     }
   }
+
+  // Store final collision point (which is nextX, nextY from last iteration).
+  result.collisionPoint.x = nextX;
+  result.collisionPoint.y = nextY;
 
   // The near cell is the walkable cell on the player's side of the wall — it carries the sector light color.
   const nearCellX = isAngleFacingRight ? result.collisionCell.x - 1 : result.collisionCell.x + 1;
@@ -195,7 +211,10 @@ const calculateVerticalCollision = ({ orientation, mapState }) => {
     result.nearCell = getMapCell({ position: nearCellPos, mapState });
   }
 
-  result.distance = helpers.distanceBetween({ positionA: sourcePosition, positionB: result.collisionPoint });
+  // Inline distance calculation: avoid function call and Math.pow (use direct multiply).
+  const dx = result.collisionPoint.x - sourcePosition.x;
+  const dy = result.collisionPoint.y - sourcePosition.y;
+  result.distance = Math.sqrt(dx * dx + dy * dy);
   return result;
 };
 
@@ -215,10 +234,11 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
     Math.floor(sourcePosition.y / constants.CELL_SIZE) * constants.CELL_SIZE :
     Math.floor(sourcePosition.y / constants.CELL_SIZE) * constants.CELL_SIZE + constants.CELL_SIZE;
 
-  const firstX = sourcePosition.x + (firstY - sourcePosition.y) / Math.tan(angle);
+  const tangent = fastTan(angle);
+  const firstX = sourcePosition.x + (firstY - sourcePosition.y) / tangent;
 
   const yStepSize = isAngleFacingUp ? -constants.CELL_SIZE : constants.CELL_SIZE;
-  const xStepSize = yStepSize / Math.tan(angle);
+  const xStepSize = yStepSize / tangent;
 
   const result = {
     source: orientation,
@@ -237,24 +257,38 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
     },
   };
 
+  // Cache CELL_SIZE reciprocal to avoid division in hot loop.
+  const cellSizeInv = 1 / constants.CELL_SIZE;
+  const mapWidth = mapState.unscaledMapBounds.x;
+  const mapHeight = mapState.unscaledMapBounds.y;
+
+  let nextX = firstX;
+  let nextY = firstY;
+
   while (!result.mapCell?.wallTextureId) {
-    const { x: nextX, y: nextY } = result.collisionPoint;
+    // Inline floor division and bounds check to avoid function call overhead.
+    const cellX = Math.floor(nextX * cellSizeInv);
+    const cellY = isAngleFacingUp ? Math.floor(nextY * cellSizeInv) - 1 : Math.floor(nextY * cellSizeInv);
 
-    result.collisionCell.x = Math.floor(nextX / constants.CELL_SIZE);
-    result.collisionCell.y = isAngleFacingUp ? Math.floor(nextY / constants.CELL_SIZE) - 1 : Math.floor(nextY / constants.CELL_SIZE);
-
-    if (isOutOfBounds({ position: result.collisionCell, mapState })) {
+    // Inline bounds check for hot path.
+    if (cellX < 0 || cellX >= mapWidth || cellY < 0 || cellY >= mapHeight) {
       result.distance = Number.MAX_SAFE_INTEGER;
       return result;
     }
 
+    result.collisionCell.x = cellX;
+    result.collisionCell.y = cellY;
     result.mapCell = getMapCell({ position: result.collisionCell, mapState });
 
     if (!result.mapCell?.wallTextureId) {
-      result.collisionPoint.y += yStepSize;
-      result.collisionPoint.x += xStepSize;
+      nextX += xStepSize;
+      nextY += yStepSize;
     }
   }
+
+  // Store final collision point (which is nextX, nextY from last iteration).
+  result.collisionPoint.x = nextX;
+  result.collisionPoint.y = nextY;
 
   // The near cell is the walkable cell on the player's side of the wall — it carries the sector light color.
   const nearCellY = isAngleFacingUp ? result.collisionCell.y + 1 : result.collisionCell.y - 1;
@@ -263,7 +297,10 @@ const calculateHorizontalCollision = ({ orientation, mapState }) => {
     result.nearCell = getMapCell({ position: nearCellPos, mapState });
   }
 
-  result.distance = helpers.distanceBetween({ positionA: sourcePosition, positionB: result.collisionPoint });
+  // Inline distance calculation: avoid function call and Math.pow (use direct multiply).
+  const dx = result.collisionPoint.x - sourcePosition.x;
+  const dy = result.collisionPoint.y - sourcePosition.y;
+  result.distance = Math.sqrt(dx * dx + dy * dy);
   return result;
 }
 

@@ -1,3 +1,5 @@
+import { shadeLUTByShade } from './luts';
+
 export class OffScreenBuffer {
   constructor({ width, height }) {
     if (!Number.isSafeInteger(width)) {
@@ -93,9 +95,10 @@ export class OffScreenBuffer {
       const b = (sourcePixels[aa+2] * topL + sourcePixels[ab+2] * topR +
                  sourcePixels[ba+2] * botL + sourcePixels[bb+2] * botR) | 0;
 
-      this.imagePixels[destIdx]   = r * shadeR >> 8;
-      this.imagePixels[destIdx+1] = g * shadeG >> 8;
-      this.imagePixels[destIdx+2] = b * shadeB >> 8;
+      // Use shade LUT for faster shading (precomputed lookup instead of multiply+shift).
+      this.imagePixels[destIdx]   = shadeLUTByShade[shadeR][r];
+      this.imagePixels[destIdx+1] = shadeLUTByShade[shadeG][g];
+      this.imagePixels[destIdx+2] = shadeLUTByShade[shadeB][b];
       this.imagePixels[destIdx+3] = sourcePixels[aa+3];
 
       destIdx += destRowStride;
