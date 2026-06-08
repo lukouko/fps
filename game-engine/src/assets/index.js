@@ -2,6 +2,7 @@
 
 // ── Sky textures ──────────────────────────────────────────────────────────────
 import clouds1 from './textures/sky/clouds_1_508.jpg';
+import cityNight from './textures/sky/city_night_1774.png';
 
 // ── Textures ─────────────────────────────────────────────────────────────────
 import bricks1           from './textures/bricks_1_256_256.jpg';
@@ -37,7 +38,8 @@ const images = [
   { id: 'better-looking-bart',assetPath: betterLookingBart },
   { id: 'concrete_wall',      assetPath: concreteWall },
   // Sky
-  { id: 'clouds_1', assetPath: clouds1 },
+  { id: 'clouds_1',    assetPath: clouds1 },
+  { id: 'city_night',  assetPath: cityNight },
   // HUD
   { id: 'gun1', assetPath: gun1 },
   { id: 'gun2', assetPath: gun2 },
