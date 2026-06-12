@@ -69,6 +69,7 @@
  * @property {number} angularSpeed The current angular speed being applied (radians)
  * @property {boolean} enableMiniMap Whether or not the minimap is currently enabled.
  * @property {boolean} isRunning True if running, false otherwise.
+ * @property {boolean} activate Edge-triggered: true once per activation press, consumed by the game loop.
  */
 
 /**

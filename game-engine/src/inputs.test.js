@@ -151,6 +151,52 @@ describe('initialise (KEYBOARD mode)', () => {
   });
 });
 
+describe('Activate input (E key)', () => {
+  let inputs;
+
+  beforeEach(() => {
+    setupInputsTestDocument();
+    listeners.keydown = undefined;
+    listeners.keyup = undefined;
+    inputs = initialise({ inputCanvasContext: null, inputMethod: 'KEYBOARD' });
+  });
+
+  test('E key sets activate = true on first press', () => {
+    expect(inputs.activate).toBe(false);
+    fireKeyDown('e');
+    expect(inputs.activate).toBe(true);
+  });
+
+  test('E key (uppercase) sets activate = true on first press', () => {
+    expect(inputs.activate).toBe(false);
+    fireKeyDown('E');
+    expect(inputs.activate).toBe(true);
+  });
+
+  test('holding E key does not re-set activate (guard against key repeat)', () => {
+    fireKeyDown('e');
+    expect(inputs.activate).toBe(true);
+    // Simulate key repeat by firing keydown again
+    fireKeyDown('e');
+    // reset it to false to simulate consumption
+    inputs.activate = false;
+    // fire again (simulate repeat)
+    fireKeyDown('e');
+    // should still be false since the key is already down
+    expect(inputs.activate).toBe(false);
+  });
+
+  test('releasing E key allows re-activation on next press', () => {
+    fireKeyDown('e');
+    expect(inputs.activate).toBe(true);
+    inputs.activate = false; // consumer resets this
+    fireKeyUp('e');
+    // now press again
+    fireKeyDown('e');
+    expect(inputs.activate).toBe(true);
+  });
+});
+
 describe('computeJoystickInput', () => {
   const testConfig = {
     maxRadius: 100,

@@ -9,6 +9,16 @@ const JOYSTICK_COLOR = 'rgba(100, 150, 255, 0.3)';
 const JOYSTICK_THUMB_COLOR = 'rgba(100, 150, 255, 0.6)';
 
 /**
+ * Sets whether the activate button should be highlighted.
+ * Called by the UI layer when an activatable is nearby.
+ * @param {Object} params
+ * @param {boolean} params.highlight
+ */
+export const setActivateButtonHighlight = ({ highlight }) => {
+  highlightActivateButton = highlight;
+};
+
+/**
  * Computes joystick input from a deflection vector.
  * @param {Object} params
  * @param {number} params.dx Deflection X from stick centre (pixels)
@@ -43,7 +53,25 @@ let currentInputCanvasContext = null;
 let fullscreenRequested = false;
 
 // Mobile joystick state
-let joystickState = null; // { centreX, centreY, touchIdentifier } when active
+let joystickState = null; // { centreX, centreY, touchIdentifier, deflectX, deflectY } when active
+
+// Activate button configuration
+const ACTIVATE_BUTTON_RADIUS = 45;
+const ACTIVATE_BUTTON_X_OFFSET = 50;
+const ACTIVATE_BUTTON_Y_OFFSET = 120;
+const ACTIVATE_BUTTON_COLOR = 'rgba(255, 100, 100, 0.3)';
+const ACTIVATE_BUTTON_HIGHLIGHT_COLOR = 'rgba(255, 150, 150, 0.7)';
+const ACTIVATE_BUTTON_FLASH_COLOR = 'rgba(255, 200, 200, 0.9)';
+const ACTIVATE_BUTTON_FLASH_MS = 200;
+
+// Track which keys are down to prevent repeat activation
+const keysDown = new Set();
+
+// Track whether to highlight the activate button (when near an activatable)
+let highlightActivateButton = false;
+
+// Track when the activate button was last pressed for flash effect
+let lastActivatePressTime = 0;
 
 /**
  * Initialises inputs and returns input state.
@@ -58,11 +86,15 @@ export const initialise = ({ inputCanvasContext, inputMethod }) => {
     angularSpeed: 0,
     enableMiniMap: false,
     isRunning: false,
+    activate: false,
   };
 
   currentInputState = inputs;
   currentInputCanvasContext = inputCanvasContext;
   currentInputMethod = inputMethod || (helpers.isMobileDevice() ? 'MOBILE' : 'KEYBOARD');
+  keysDown.clear();
+  highlightActivateButton = false;
+  lastActivatePressTime = 0;
 
   setupInputHandlers({ inputCanvasContext, inputs });
 
@@ -97,7 +129,11 @@ const switchInputMethod = ({ inputMethod }) => {
   // Reset input state
   currentInputState.speed = 0;
   currentInputState.angularSpeed = 0;
+  currentInputState.activate = false;
   joystickState = null;
+  keysDown.clear();
+  highlightActivateButton = false;
+  lastActivatePressTime = 0;
 
   currentInputMethod = inputMethod;
   setupInputHandlers({ inputCanvasContext: currentInputCanvasContext, inputs: currentInputState });
@@ -113,6 +149,28 @@ const drawMobileControls = ({ inputCanvasContext }) => {
   if (joystickState) {
     drawJoystick({ inputCanvasContext, centreX: joystickState.centreX, centreY: joystickState.centreY, deflectX: joystickState.deflectX, deflectY: joystickState.deflectY });
   }
+
+  // Draw activate button (bottom-right)
+  const activateX = inputCanvas.width - ACTIVATE_BUTTON_X_OFFSET;
+  const activateY = inputCanvas.height - ACTIVATE_BUTTON_Y_OFFSET;
+
+  // Determine button color: flash > highlight > normal
+  let buttonColor = ACTIVATE_BUTTON_COLOR;
+  const now = performance.now();
+  if (now - lastActivatePressTime < ACTIVATE_BUTTON_FLASH_MS) {
+    buttonColor = ACTIVATE_BUTTON_FLASH_COLOR;
+  } else if (highlightActivateButton) {
+    buttonColor = ACTIVATE_BUTTON_HIGHLIGHT_COLOR;
+  }
+
+  inputCanvasContext.beginPath();
+  inputCanvasContext.arc(activateX, activateY, ACTIVATE_BUTTON_RADIUS, 0, 2 * Math.PI);
+  inputCanvasContext.fillStyle = buttonColor;
+  inputCanvasContext.fill();
+  inputCanvasContext.strokeStyle = 'rgba(255, 100, 100, 0.5)';
+  inputCanvasContext.lineWidth = 2;
+  inputCanvasContext.stroke();
+  inputCanvasContext.closePath();
 };
 
 const drawJoystick = ({ inputCanvasContext, centreX, centreY, deflectX, deflectY }) => {
@@ -167,10 +225,19 @@ const handleTouchStart = ({ event, inputs, inputCanvasContext }) => {
   event.preventDefault();
   const canvas = inputCanvasContext.canvas;
   const touches = event.touches;
+  const activateButtonX = canvas.width - ACTIVATE_BUTTON_X_OFFSET;
+  const activateButtonY = canvas.height - ACTIVATE_BUTTON_Y_OFFSET;
 
   for (let i = 0; i < touches.length; i++) {
     const touch = touches[i];
     const { x, y } = getCanvasRelativeCoordinates({ clientX: touch.clientX, clientY: touch.clientY, canvas });
+
+    // Check if touch is on Activate button (bottom-right)
+    const distToActivateButton = Math.hypot(x - activateButtonX, y - activateButtonY);
+    if (distToActivateButton < ACTIVATE_BUTTON_RADIUS) {
+      inputs.activate = true;
+      lastActivatePressTime = performance.now();
+    }
 
     // If joystick is not active and touch is in left half, start joystick
     if (!joystickState && x < canvas.width / 2) {
@@ -256,26 +323,41 @@ const handleTouchEnd = ({ event, inputs, inputCanvasContext }) => {
 }
 
 const handleKeyDown = ({ event, inputs }) => {
+  // Guard against key repeat: only fire on the first press, not the auto-repeat
+  if (!keysDown.has(event.key)) {
+    keysDown.add(event.key);
+
+    switch (event.key) {
+      case 'e':
+      case 'E':
+        inputs.activate = true;
+        lastActivatePressTime = performance.now();
+        break;
+      default:
+        break;
+    }
+  }
+
   switch (event.key) {
     case 'ArrowUp':
     case 'w':
       inputs.speed = constants.PLAYER_WALK_SPEED;
-    break;
+      break;
 
     case 'ArrowDown':
     case 's':
       inputs.speed = -constants.PLAYER_WALK_SPEED;
-    break;
+      break;
 
     case 'ArrowLeft':
     case 'a':
       inputs.angularSpeed = helpers.degToRadians(-constants.PLAYER_ANGULAR_SPEED_DEGREES);
-    break;
+      break;
 
     case 'ArrowRight':
     case 'd':
       inputs.angularSpeed = helpers.degToRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES);
-    break;
+      break;
 
     case 'Tab':
       inputs.enableMiniMap = !inputs.enableMiniMap;
@@ -302,6 +384,8 @@ const handleKeyDown = ({ event, inputs }) => {
 };
 
 const handleKeyUp = ({ event, inputs }) => {
+  keysDown.delete(event.key);
+
   if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'w' || event.key === 's') {
     inputs.speed = 0;
   }

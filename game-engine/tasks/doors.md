@@ -71,7 +71,7 @@ joystick on the left half of the screen. Stick deflection drives `speed`
 
 ## Task 2 — Activate input (`E` + mobile button)
 
-- [ ] Done
+- [x] Done
 
 **Goal:** Add an edge-triggered "activate" action consumed once per press.
 
