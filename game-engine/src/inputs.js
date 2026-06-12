@@ -2,19 +2,48 @@ import * as constants from './constants';
 import * as helpers from './helpers';
 import * as Types from './types';
 
-const MOBILE_INPUT_X_POSITION = 50;
-const MOBILE_INPUT_SIZE_RADIUS = 45;
-const MOBILE_INPUT_GAP = 60;
-const MOBILE_BACK_BUTTON_Y_OFFSET = 120;
-const MOBILE_FORWARD_BUTTON_Y_OFFSET = 220;  // 100px gap from back button
-const MOBILE_LEFT_BUTTON_Y_OFFSET = 120;
-const MOBILE_RIGHT_BUTTON_Y_OFFSET = 120;
-const MOBILE_BUTTON_COLOR = 'rgba(0, 0, 0, 0.2)';  // Light grey for all buttons
+// Joystick configuration
+const JOYSTICK_MAX_RADIUS = 60;
+const JOYSTICK_DEAD_ZONE = 8;
+const JOYSTICK_COLOR = 'rgba(100, 150, 255, 0.3)';
+const JOYSTICK_THUMB_COLOR = 'rgba(100, 150, 255, 0.6)';
+
+/**
+ * Computes joystick input from a deflection vector.
+ * @param {Object} params
+ * @param {number} params.dx Deflection X from stick centre (pixels)
+ * @param {number} params.dy Deflection Y from stick centre (pixels)
+ * @param {number} params.maxRadius Maximum radius of deflection (pixels)
+ * @param {number} params.deadZone Minimum deflection magnitude to register input (pixels)
+ * @param {number} params.walkSpeed Maximum forward/backward speed
+ * @param {number} params.maxAngularSpeed Maximum rotational speed (radians)
+ * @returns {{ speed: number, angularSpeed: number }}
+ */
+export const computeJoystickInput = ({ dx, dy, maxRadius, deadZone, walkSpeed, maxAngularSpeed }) => {
+  const magnitude = Math.hypot(dx, dy);
+
+  if (magnitude < deadZone) {
+    return { speed: 0, angularSpeed: 0 };
+  }
+
+  const clampedMagnitude = Math.min(magnitude, maxRadius);
+  const scale = clampedMagnitude / maxRadius;
+  const dirX = dx / magnitude;
+  const dirY = dy / magnitude;
+
+  return {
+    speed: -dirY * scale * walkSpeed,
+    angularSpeed: dirX * scale * maxAngularSpeed,
+  };
+};
 
 let currentInputMethod = 'KEYBOARD';
 let currentInputState = null;
 let currentInputCanvasContext = null;
 let fullscreenRequested = false;
+
+// Mobile joystick state
+let joystickState = null; // { centreX, centreY, touchIdentifier } when active
 
 /**
  * Initialises inputs and returns input state.
@@ -48,6 +77,7 @@ const setupInputHandlers = ({ inputCanvasContext, inputs }) => {
   if (currentInputMethod === 'MOBILE') {
     drawMobileControls({ inputCanvasContext });
     inputCanvasContext.canvas.addEventListener('touchstart', (event) => handleTouchStart({ event, inputs, inputCanvasContext }), false);
+    inputCanvasContext.canvas.addEventListener('touchmove', (event) => handleTouchMove({ event, inputs, inputCanvasContext }), false);
     inputCanvasContext.canvas.addEventListener('touchend', (event) => handleTouchEnd({ event, inputs, inputCanvasContext }), false);
   }
 };
@@ -61,11 +91,13 @@ const switchInputMethod = ({ inputMethod }) => {
   // Clear existing listeners
   const canvas = currentInputCanvasContext.canvas;
   canvas.removeEventListener('touchstart', handleTouchStart);
+  canvas.removeEventListener('touchmove', handleTouchMove);
   canvas.removeEventListener('touchend', handleTouchEnd);
 
   // Reset input state
   currentInputState.speed = 0;
   currentInputState.angularSpeed = 0;
+  joystickState = null;
 
   currentInputMethod = inputMethod;
   setupInputHandlers({ inputCanvasContext: currentInputCanvasContext, inputs: currentInputState });
@@ -75,48 +107,34 @@ const switchInputMethod = ({ inputMethod }) => {
 
 const drawMobileControls = ({ inputCanvasContext }) => {
   const inputCanvas = inputCanvasContext.canvas;
-
   inputCanvasContext.clearRect(0, 0, inputCanvas.width, inputCanvas.height);
 
-  // Draw back button
-  inputCanvasContext.beginPath();
-  inputCanvasContext.arc(MOBILE_INPUT_X_POSITION, inputCanvas.height - MOBILE_BACK_BUTTON_Y_OFFSET, MOBILE_INPUT_SIZE_RADIUS, 0, 2 * Math.PI);
-  inputCanvasContext.fillStyle = MOBILE_BUTTON_COLOR;
-  inputCanvasContext.fill();
-  inputCanvasContext.stroke();
-  inputCanvasContext.closePath();
-
-  // Draw forward button
-  inputCanvasContext.beginPath();
-  inputCanvasContext.arc(MOBILE_INPUT_X_POSITION, inputCanvas.height - MOBILE_FORWARD_BUTTON_Y_OFFSET, MOBILE_INPUT_SIZE_RADIUS, 0, 2 * Math.PI);
-  inputCanvasContext.fillStyle = MOBILE_BUTTON_COLOR;
-  inputCanvasContext.fill();
-  inputCanvasContext.stroke();
-  inputCanvasContext.closePath();
-
-  // Draw right button
-  inputCanvasContext.beginPath();
-  inputCanvasContext.arc(inputCanvas.width - MOBILE_INPUT_X_POSITION, inputCanvas.height - MOBILE_RIGHT_BUTTON_Y_OFFSET, MOBILE_INPUT_SIZE_RADIUS, 0, 2 * Math.PI);
-  inputCanvasContext.fillStyle = MOBILE_BUTTON_COLOR;
-  inputCanvasContext.fill();
-  inputCanvasContext.stroke();
-  inputCanvasContext.closePath();
-
-  // Draw left button
-  inputCanvasContext.beginPath();
-  inputCanvasContext.arc(inputCanvas.width - MOBILE_INPUT_X_POSITION - MOBILE_INPUT_SIZE_RADIUS - MOBILE_INPUT_GAP, inputCanvas.height - MOBILE_LEFT_BUTTON_Y_OFFSET, MOBILE_INPUT_SIZE_RADIUS, 0, 2 * Math.PI);
-  inputCanvasContext.fillStyle = MOBILE_BUTTON_COLOR;
-  inputCanvasContext.fill();
-  inputCanvasContext.stroke();
-  inputCanvasContext.closePath();
+  // If joystick is active, draw it at its current position
+  if (joystickState) {
+    drawJoystick({ inputCanvasContext, centreX: joystickState.centreX, centreY: joystickState.centreY, deflectX: joystickState.deflectX, deflectY: joystickState.deflectY });
+  }
 };
 
-const getButtonPositions = ({ canvasWidth, canvasHeight }) => ({
-  back: { x: MOBILE_INPUT_X_POSITION, y: canvasHeight - MOBILE_BACK_BUTTON_Y_OFFSET },
-  forward: { x: MOBILE_INPUT_X_POSITION, y: canvasHeight - MOBILE_FORWARD_BUTTON_Y_OFFSET },
-  left: { x: canvasWidth - MOBILE_INPUT_X_POSITION - MOBILE_INPUT_SIZE_RADIUS - MOBILE_INPUT_GAP, y: canvasHeight - MOBILE_LEFT_BUTTON_Y_OFFSET },
-  right: { x: canvasWidth - MOBILE_INPUT_X_POSITION, y: canvasHeight - MOBILE_RIGHT_BUTTON_Y_OFFSET },
-});
+const drawJoystick = ({ inputCanvasContext, centreX, centreY, deflectX, deflectY }) => {
+  // Draw base ring
+  inputCanvasContext.beginPath();
+  inputCanvasContext.arc(centreX, centreY, JOYSTICK_MAX_RADIUS, 0, 2 * Math.PI);
+  inputCanvasContext.fillStyle = JOYSTICK_COLOR;
+  inputCanvasContext.fill();
+  inputCanvasContext.strokeStyle = 'rgba(100, 150, 255, 0.5)';
+  inputCanvasContext.lineWidth = 2;
+  inputCanvasContext.stroke();
+  inputCanvasContext.closePath();
+
+  // Draw thumb at deflection point
+  const thumbX = centreX + deflectX;
+  const thumbY = centreY + deflectY;
+  inputCanvasContext.beginPath();
+  inputCanvasContext.arc(thumbX, thumbY, 15, 0, 2 * Math.PI);
+  inputCanvasContext.fillStyle = JOYSTICK_THUMB_COLOR;
+  inputCanvasContext.fill();
+  inputCanvasContext.closePath();
+};
 
 const getCanvasRelativeCoordinates = ({ clientX, clientY, canvas }) => {
   // Use canvas.getBoundingClientRect to account for CSS transforms and scaling
@@ -145,65 +163,96 @@ const getCanvasRelativeCoordinates = ({ clientX, clientY, canvas }) => {
   return { x: clampedX, y: clampedY };
 };
 
-const isTouchInButton = ({ x, y, buttonPos }) => Math.hypot(x - buttonPos.x, y - buttonPos.y) < MOBILE_INPUT_SIZE_RADIUS;
-
 const handleTouchStart = ({ event, inputs, inputCanvasContext }) => {
   event.preventDefault();
   const canvas = inputCanvasContext.canvas;
-  const buttonPositions = getButtonPositions({ canvasWidth: canvas.width, canvasHeight: canvas.height });
-
   const touches = event.touches;
+
   for (let i = 0; i < touches.length; i++) {
     const touch = touches[i];
     const { x, y } = getCanvasRelativeCoordinates({ clientX: touch.clientX, clientY: touch.clientY, canvas });
 
-    if (isTouchInButton({ x, y, buttonPos: buttonPositions.back })) {
-      inputs.speed = -constants.PLAYER_WALK_SPEED;
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.forward })) {
-      inputs.speed = constants.PLAYER_WALK_SPEED;
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.right })) {
-      inputs.angularSpeed = helpers.degToRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES);
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.left })) {
-      inputs.angularSpeed = helpers.degToRadians(-constants.PLAYER_ANGULAR_SPEED_DEGREES);
+    // If joystick is not active and touch is in left half, start joystick
+    if (!joystickState && x < canvas.width / 2) {
+      joystickState = {
+        centreX: x,
+        centreY: y,
+        touchIdentifier: touch.identifier,
+        deflectX: 0,
+        deflectY: 0,
+      };
+    }
+  }
+
+  drawMobileControls({ inputCanvasContext });
+};
+
+const handleTouchMove = ({ event, inputs, inputCanvasContext }) => {
+  event.preventDefault();
+  if (!joystickState) return;
+
+  const canvas = inputCanvasContext.canvas;
+  const touches = event.touches;
+
+  for (let i = 0; i < touches.length; i++) {
+    const touch = touches[i];
+    if (touch.identifier === joystickState.touchIdentifier) {
+      const { x, y } = getCanvasRelativeCoordinates({ clientX: touch.clientX, clientY: touch.clientY, canvas });
+      const dx = x - joystickState.centreX;
+      const dy = y - joystickState.centreY;
+
+      // Clamp deflection to max radius
+      const magnitude = Math.hypot(dx, dy);
+      if (magnitude > JOYSTICK_MAX_RADIUS) {
+        const scale = JOYSTICK_MAX_RADIUS / magnitude;
+        joystickState.deflectX = dx * scale;
+        joystickState.deflectY = dy * scale;
+      } else {
+        joystickState.deflectX = dx;
+        joystickState.deflectY = dy;
+      }
+
+      // Compute input from deflection
+      const result = computeJoystickInput({
+        dx: joystickState.deflectX,
+        dy: joystickState.deflectY,
+        maxRadius: JOYSTICK_MAX_RADIUS,
+        deadZone: JOYSTICK_DEAD_ZONE,
+        walkSpeed: constants.PLAYER_WALK_SPEED,
+        maxAngularSpeed: helpers.degToRadians(constants.PLAYER_ANGULAR_SPEED_DEGREES),
+      });
+
+      inputs.speed = result.speed;
+      inputs.angularSpeed = result.angularSpeed;
+
+      drawMobileControls({ inputCanvasContext });
+      break;
     }
   }
 };
 
 const handleTouchEnd = ({ event, inputs, inputCanvasContext }) => {
   event.preventDefault();
-  const canvas = inputCanvasContext.canvas;
-  const buttonPositions = getButtonPositions({ canvasWidth: canvas.width, canvasHeight: canvas.height });
-  const touches = event.touches;
+  if (!joystickState) return;
 
-  const touchesRemaining = {
-    forward: false,
-    back: false,
-    left: false,
-    right: false,
-  };
+  const touches = event.touches;
+  let joystickTouchFound = false;
 
   for (let i = 0; i < touches.length; i++) {
-    const touch = touches[i];
-    const { x, y } = getCanvasRelativeCoordinates({ clientX: touch.clientX, clientY: touch.clientY, canvas });
-
-    if (isTouchInButton({ x, y, buttonPos: buttonPositions.back })) {
-      touchesRemaining.back = true;
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.forward })) {
-      touchesRemaining.forward = true;
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.right })) {
-      touchesRemaining.right = true;
-    } else if (isTouchInButton({ x, y, buttonPos: buttonPositions.left })) {
-      touchesRemaining.left = true;
+    if (touches[i].identifier === joystickState.touchIdentifier) {
+      joystickTouchFound = true;
+      break;
     }
   }
 
-  if (!touchesRemaining.back && !touchesRemaining.forward) {
+  // If the joystick touch ended, reset joystick state and inputs
+  if (!joystickTouchFound) {
+    joystickState = null;
     inputs.speed = 0;
-  }
-
-  if (!touchesRemaining.left && !touchesRemaining.right) {
     inputs.angularSpeed = 0;
   }
+
+  drawMobileControls({ inputCanvasContext });
 }
 
 const handleKeyDown = ({ event, inputs }) => {

@@ -2,7 +2,7 @@
 const listeners = {};
 global.navigator = { userAgent: '' };
 
-import { initialise } from './inputs';
+import { initialise, computeJoystickInput } from './inputs';
 import * as constants from './constants';
 import { degToRadians } from './helpers';
 
@@ -148,5 +148,102 @@ describe('initialise (KEYBOARD mode)', () => {
       fireKeyUp('Escape');
       expect(inputs.speed).toBe(constants.PLAYER_WALK_SPEED);
     });
+  });
+});
+
+describe('computeJoystickInput', () => {
+  const testConfig = {
+    maxRadius: 100,
+    deadZone: 5,
+    walkSpeed: 20,
+    maxAngularSpeed: 0.1,
+  };
+
+  it('returns zero input within dead zone', () => {
+    const result = computeJoystickInput({
+      dx: 0,
+      dy: 0,
+      ...testConfig,
+    });
+    expect(result).toEqual({ speed: 0, angularSpeed: 0 });
+
+    const result2 = computeJoystickInput({
+      dx: 2,
+      dy: 2,
+      ...testConfig,
+    });
+    expect(result2).toEqual({ speed: 0, angularSpeed: 0 });
+  });
+
+  it('produces forward speed when dragged up', () => {
+    const result = computeJoystickInput({
+      dx: 0,
+      dy: -100,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(20, 1);
+    expect(result.angularSpeed).toBeCloseTo(0, 5);
+  });
+
+  it('produces backward speed when dragged down', () => {
+    const result = computeJoystickInput({
+      dx: 0,
+      dy: 100,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(-20, 1);
+    expect(result.angularSpeed).toBeCloseTo(0, 5);
+  });
+
+  it('produces positive angular speed when dragged right', () => {
+    const result = computeJoystickInput({
+      dx: 100,
+      dy: 0,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(0, 5);
+    expect(result.angularSpeed).toBeCloseTo(0.1, 2);
+  });
+
+  it('produces negative angular speed when dragged left', () => {
+    const result = computeJoystickInput({
+      dx: -100,
+      dy: 0,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(0, 5);
+    expect(result.angularSpeed).toBeCloseTo(-0.1, 2);
+  });
+
+  it('produces both axes for diagonal deflection', () => {
+    const result = computeJoystickInput({
+      dx: 70.7,
+      dy: -70.7,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(14.14, 1);
+    expect(result.angularSpeed).toBeCloseTo(0.0707, 2);
+  });
+
+  it('clamps deflection beyond max radius', () => {
+    const result = computeJoystickInput({
+      dx: 200,
+      dy: 0,
+      ...testConfig,
+    });
+    expect(result.speed).toBeCloseTo(0, 5);
+    expect(result.angularSpeed).toBeCloseTo(0.1, 2);
+  });
+
+  it('scales output linearly from dead zone to max radius', () => {
+    // At 45 degrees, 50% radius deflection: magnitude = 50
+    const halfWay = computeJoystickInput({
+      dx: 35.36,
+      dy: -35.36,
+      ...testConfig,
+    });
+    // At 50% deflection: speed ≈ 20 * 0.707 * 0.5 ≈ 7.07, angularSpeed ≈ 0.1 * 0.707 * 0.5 ≈ 0.0353
+    expect(halfWay.speed).toBeCloseTo(7.07, 1);
+    expect(halfWay.angularSpeed).toBeCloseTo(0.0353, 2);
   });
 });

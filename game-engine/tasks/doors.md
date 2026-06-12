@@ -39,7 +39,7 @@ tasks.
 
 ## Task 1 — Mobile floating joystick (analog tank controls)
 
-- [ ] Done
+- [x] Done
 
 **Goal:** Replace the four mobile movement/turn buttons with a single floating
 joystick on the left half of the screen. Stick deflection drives `speed`

@@ -96,6 +96,8 @@ export const render = ({ canvasContext, orientation, mapState, displayInfo }) =>
   for (let rayIndex = 0; rayIndex < displayInfo.width; ++rayIndex) {
     rayOrientation.angle = orientation.angle + localCache.rayBaseAngleByScreenColumn[rayIndex];
 
+    // Fix minimap issue where all rays are same angle.
+    //const rayCollision = castWallRay({ orientation: { ...rayOrientation }, mapState });
     const rayCollision = castWallRay({ orientation: rayOrientation, mapState });
     wallRays.push(rayCollision);
 
