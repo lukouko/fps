@@ -7,6 +7,7 @@ import * as minimap from './mini-map';
 import * as scene from './scene';
 import * as helpers from './helpers';
 import * as networkClient from './network-client';
+import * as doors from './doors';
 import * as Types from './types';
 
 // Render height in pixels — the single knob for resolution vs. performance.
@@ -313,6 +314,7 @@ const initialise = async () => {
     minimapState: await minimap.initialise(),
     sceneState: await scene.initialise({ displayInfo }),
     networkClientState: await networkClient.initialise({ onServerStateUpdate: ({ processedServerGameState }) => onServerStateUpdate({ processedServerGameState, gameState }) }),
+    centreRay: null,
   }; 
 
   // Warmup: render one silent frame from the first outdoor cell (if the map has sky).
@@ -334,12 +336,15 @@ const initialise = async () => {
       ++renderFrameCount;
       const { mapState, playerState, inputState } = gameState;
 
-      const { wallRays } = scene.render({
+      const { wallRays, centreRay } = scene.render({
         canvasContext,
         orientation: playerState.player.orientation,
         mapState,
         displayInfo: sharedDisplayInfo,
       });
+
+      // Capture centreRay for activation logic
+      gameState.centreRay = centreRay;
 
       if (inputState.enableMiniMap) {
         minimap.render({
@@ -388,7 +393,17 @@ const logicTick = ({ gameState }) => {
       : constants.GAME_LOOP_TICK_MS;
     lastLogicTickTime = now;
 
-    const { mapState, playerState, inputState, networkClientState } = gameState;
+    const { mapState, playerState, inputState, networkClientState, centreRay } = gameState;
+
+    // Handle activation
+    if (inputState.activate && centreRay) {
+      const activatable = doors.findActivatable({ centreRay, maxDistance: constants.ACTIVATION_DISTANCE });
+      if (activatable) {
+        doors.toggleDoor({ cell: activatable });
+      }
+      inputState.activate = false;
+    }
+
     player.move({ playerState, inputState, mapState, deltaMs });
     networkClient.render({ playerState, networkClientState });
   } catch (err) {

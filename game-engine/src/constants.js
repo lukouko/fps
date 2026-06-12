@@ -61,6 +61,10 @@ const WALL_SHADE_FULL_BRIGHT_DISTANCE = CELL_SIZE * 8;
 const WALL_SHADE_MIN = 0.25;
 const WALL_SHADE_HORIZONTAL_DIM = 0.80;
 
+// Doors and activation.
+const ACTIVATION_DISTANCE = CELL_SIZE * 3; // How far the player can activate from
+const DOOR_OPEN_THRESHOLD = 0.5; // openness >= this threshold allows walking through
+
 // Some colour constants...only used by the minimap atm.
 const colours = Object.freeze({
   CELL: 'grey',
@@ -89,4 +93,6 @@ module.exports = Object.freeze({
   MAX_RADIO_SILENCE_TICKS,
   serverMessageTypes,
   clientMessageTypes,
+  ACTIVATION_DISTANCE,
+  DOOR_OPEN_THRESHOLD,
 });

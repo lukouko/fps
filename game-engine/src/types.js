@@ -91,6 +91,21 @@
  * @property {TextureId|undefined} floorTextureId
  * @property {TextureId|undefined} ceilingTextureId
  * @property {LightColor|undefined} lightColor Optional tint applied to all surfaces rendered in this cell.
+ * @property {boolean|undefined} door True if this cell is a door.
+ * @property {TextureId|undefined} doorTextureId Texture for the door when closed.
+ * @property {number|undefined} openness Runtime: 0 = closed, 1 = open. Deleted door cells restore wallTextureId on close.
+ * @property {string|undefined} keyId Runtime: if set, door requires this key to open (Task 6).
+ */
+
+/**
+ * @typedef {'door'} ActivatableType
+ */
+
+/**
+ * @typedef {Object} ActivatableTypeDefinition
+ * @property {string} noun The noun for the activatable (e.g. "Door").
+ * @property {string} verbOn The verb when activating to turn on (e.g. "Open").
+ * @property {string} verbOff The verb when activating to turn off (e.g. "Close").
  */
 
 /**
@@ -220,5 +235,6 @@
  * @property {MiniMapState} minimapState
  * @property {SceneState} sceneState
  * @property {NetworkClientState} networkClientState
+ * @property {RayCollision|null} centreRay The ray cast from the player's centre; used for activation.
  */
 export const Types = {};

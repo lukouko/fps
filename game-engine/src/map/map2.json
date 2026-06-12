@@ -107,6 +107,8 @@
         }
       },
       {
+        "door": true,
+        "doorTextureId": "under_construction",
         "floorTextureId": "tiles_1",
         "ceilingTextureId": "plaster_1",
         "lightColor": {

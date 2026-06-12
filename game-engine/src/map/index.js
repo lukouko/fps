@@ -8,19 +8,32 @@ const defaultMap = map2;
 
 /**
  * Initialises map state.
+ * Normalizes door cells: sets openness and wallTextureId for closed doors.
  * @returns {Types.MapState}
  */
-export const initialise = () => ({
-  currentMap: defaultMap,
-  scaledMapBounds: { 
-    x: defaultMap.layout[0].length * constants.CELL_SIZE,
-    y: defaultMap.layout.length * constants.CELL_SIZE,
-  },
-  unscaledMapBounds: {
-    x: defaultMap.layout[0].length,
-    y: defaultMap.layout.length,
-  },
-});
+export const initialise = () => {
+  // Normalize door cells
+  defaultMap.layout.forEach((row) => {
+    row.forEach((cell) => {
+      if (cell.door) {
+        cell.openness = 0; // Start closed
+        cell.wallTextureId = cell.doorTextureId; // Present as a wall when closed
+      }
+    });
+  });
+
+  return {
+    currentMap: defaultMap,
+    scaledMapBounds: {
+      x: defaultMap.layout[0].length * constants.CELL_SIZE,
+      y: defaultMap.layout.length * constants.CELL_SIZE,
+    },
+    unscaledMapBounds: {
+      x: defaultMap.layout[0].length,
+      y: defaultMap.layout.length,
+    },
+  };
+};
 
 /**
  * Updates the map with processed server game state.
@@ -58,7 +71,8 @@ export const isOutOfBounds = ({ mapState, position }) => {
 
 /**
  * Determines whether or not a map cell location is a valid location within the map.
- * 
+ * Doors are passable if openness >= DOOR_OPEN_THRESHOLD.
+ *
  * @param {Object} params
  * @param {Types.MapState} params.mapState The current map state.
  * @param {Types.Position} params.position The position to check in unscaled map cell space.
@@ -66,7 +80,14 @@ export const isOutOfBounds = ({ mapState, position }) => {
  */
 export const canMoveToCellLocation = ({ mapState, position }) => {
   if (isOutOfBounds({ mapState, position })) return false;
-  return !mapState.currentMap.layout[position.y][position.x].wallTextureId;
+  const cell = mapState.currentMap.layout[position.y][position.x];
+
+  // Doors are passable if sufficiently open
+  if (cell.door) {
+    return cell.openness >= constants.DOOR_OPEN_THRESHOLD;
+  }
+
+  return !cell.wallTextureId;
 };
 
 /**

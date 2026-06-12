@@ -99,7 +99,7 @@ joystick on the left half of the screen. Stick deflection drives `speed`
 
 ### Task 3.1 — Binary door
 
-- [ ] Done
+- [x] Done
 
 **Goal:** A door cell that is solid when closed and walk-through when open,
 toggled by activating it while looking at it within range.
